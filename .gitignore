@@ -1,0 +1,6 @@
+
+cda_api/config/.env
+*.ipynb
+/.vscode
+/.pytest_cache
+*__pycache__*

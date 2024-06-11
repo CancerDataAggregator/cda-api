@@ -1,0 +1,111 @@
+2024-06-04 09:41:24,895 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-04 09:41:24,895 - simple - INFO: Building paged query
+2024-06-04 09:41:24,895 - simple - INFO: Building MATCH conditions
+2024-06-04 09:41:24,896 - simple - INFO: Building SELECT clause
+2024-06-04 09:43:30,772 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["year_of_birt < 50"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-04 09:43:30,772 - simple - INFO: Building paged query
+2024-06-04 09:43:30,772 - simple - INFO: Building MATCH conditions
+2024-06-04 09:43:30,773 - simple - ERROR: Column Not Found: year_of_birt, did you mean: ['year_of_birth']
+NoneType: None
+2024-06-04 09:44:27,649 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["year_of_birth < 50", "crdc_id = 5"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-04 09:44:27,650 - simple - INFO: Building paged query
+2024-06-04 09:44:27,650 - simple - INFO: Building MATCH conditions
+2024-06-04 09:44:27,652 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['subject_crdc_id', 'file_crdc_id', 'project_crdc_id', 'specimen_crdc_id']
+NoneType: None
+2024-06-04 09:45:29,598 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["year_of_birth < 50", "subject_crdc_id = 5"], "ADD_COLUMNS": ["species"], "EXCLUDE_COLUMNS": ["vital_status"]}
+2024-06-04 09:45:29,598 - simple - INFO: Building paged query
+2024-06-04 09:45:29,598 - simple - INFO: Building MATCH conditions
+2024-06-04 09:45:29,599 - simple - INFO: Building SELECT clause
+2024-06-05 14:00:57,228 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:00:57,228 - simple - INFO: Building paged query
+2024-06-05 14:00:57,228 - simple - INFO: Building MATCH conditions
+2024-06-05 14:09:48,121 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:09:48,121 - simple - INFO: Building paged query
+2024-06-05 14:09:48,122 - simple - INFO: Building MATCH conditions
+2024-06-05 14:10:10,334 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:10:10,334 - simple - INFO: Building paged query
+2024-06-05 14:10:10,334 - simple - INFO: Building MATCH conditions
+2024-06-05 14:16:56,602 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:16:56,602 - simple - INFO: Building paged query
+2024-06-05 14:16:56,602 - simple - INFO: Building MATCH conditions
+2024-06-05 14:17:28,224 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:17:28,224 - simple - INFO: Building paged query
+2024-06-05 14:17:28,224 - simple - INFO: Building MATCH conditions
+2024-06-05 14:18:56,389 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:18:56,389 - simple - INFO: Building paged query
+2024-06-05 14:18:56,390 - simple - INFO: Building MATCH conditions
+2024-06-05 14:23:23,568 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-05 14:24:08,521 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-05 14:24:08,521 - simple - INFO: Building paged query
+2024-06-05 14:24:08,521 - simple - INFO: Building MATCH conditions
+2024-06-05 14:24:08,522 - simple - INFO: Building SELECT clause
+2024-06-05 14:31:29,649 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:31:29,649 - simple - INFO: Building paged query
+2024-06-05 14:31:29,650 - simple - INFO: Building MATCH conditions
+2024-06-05 14:31:41,137 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
+2024-06-05 14:31:41,137 - simple - INFO: Building paged query
+2024-06-05 14:31:41,137 - simple - INFO: Building MATCH conditions
+2024-06-06 14:08:59,009 - simple - INFO: QNode: {"MATCH_ALL": ["sex = m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 14:08:59,010 - simple - INFO: Building paged query
+2024-06-06 14:08:59,010 - simple - INFO: Building MATCH conditions
+2024-06-06 14:08:59,012 - simple - INFO: Building SELECT clause
+2024-06-06 14:09:29,461 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 14:09:29,461 - simple - INFO: Building paged query
+2024-06-06 14:09:29,461 - simple - INFO: Building MATCH conditions
+2024-06-06 14:09:29,462 - simple - INFO: Building SELECT clause
+2024-06-06 14:11:00,587 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 14:11:00,588 - simple - INFO: Building paged query
+2024-06-06 14:11:00,588 - simple - INFO: Building MATCH conditions
+2024-06-06 14:11:00,589 - simple - INFO: Building SELECT clause
+2024-06-06 14:11:05,696 - simple - INFO: QNode: {"MATCH_ALL": ["sex = m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 14:11:05,696 - simple - INFO: Building paged query
+2024-06-06 14:11:05,696 - simple - INFO: Building MATCH conditions
+2024-06-06 14:11:05,697 - simple - INFO: Building SELECT clause
+2024-06-06 15:05:42,879 - simple - INFO: QNode: {"MATCH_ALL": ["sex notin ["m","f"]"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 15:05:42,880 - simple - INFO: Building paged query
+2024-06-06 15:05:42,880 - simple - INFO: Building MATCH conditions
+2024-06-06 15:05:42,882 - simple - INFO: Building SELECT clause
+2024-06-06 15:07:07,534 - simple - INFO: QNode: {"MATCH_ALL": ["sex in ["m","f"]"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 15:07:07,535 - simple - INFO: Building paged query
+2024-06-06 15:07:07,535 - simple - INFO: Building MATCH conditions
+2024-06-06 15:07:07,536 - simple - INFO: Building SELECT clause
+2024-06-06 15:07:18,005 - simple - INFO: QNode: {"MATCH_ALL": ["sex < 5"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 15:07:18,006 - simple - INFO: Building paged query
+2024-06-06 15:07:18,006 - simple - INFO: Building MATCH conditions
+2024-06-06 15:07:18,006 - simple - INFO: Building SELECT clause
+2024-06-06 15:11:10,030 - simple - INFO: QNode: {"MATCH_ALL": ["sex < 5"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 15:11:10,031 - simple - INFO: Building paged query
+2024-06-06 15:11:10,031 - simple - INFO: Building MATCH conditions
+2024-06-06 15:11:10,032 - simple - INFO: Building SELECT clause
+2024-06-06 15:11:19,926 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-06 15:11:19,926 - simple - INFO: Building paged query
+2024-06-06 15:11:19,926 - simple - INFO: Building MATCH conditions
+2024-06-06 15:11:19,927 - simple - INFO: Building SELECT clause
+2024-06-07 07:26:42,565 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-07 07:26:42,566 - simple - INFO: Building paged query
+2024-06-07 07:26:42,566 - simple - INFO: Building MATCH conditions
+2024-06-07 07:26:42,567 - simple - INFO: Building SELECT clause
+2024-06-07 11:51:37,956 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-07 11:51:37,956 - simple - INFO: Building paged query
+2024-06-07 11:51:37,956 - simple - INFO: Building MATCH conditions
+2024-06-07 11:51:37,958 - simple - INFO: Building SELECT clause
+2024-06-07 11:53:05,413 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-07 11:53:05,414 - simple - INFO: Building paged query
+2024-06-07 11:53:05,414 - simple - INFO: Building MATCH conditions
+2024-06-07 11:53:05,416 - simple - INFO: Building SELECT clause
+2024-06-07 12:00:45,982 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["species", "format", "project_crdc_id"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
+2024-06-07 12:00:45,982 - simple - INFO: Building paged query
+2024-06-07 12:00:45,982 - simple - INFO: Building MATCH conditions
+2024-06-07 12:00:45,984 - simple - INFO: Building SELECT clause
+2024-06-07 12:01:58,890 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["sex", "format", "project_crdc_id"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
+2024-06-07 12:01:58,890 - simple - INFO: Building paged query
+2024-06-07 12:01:58,890 - simple - INFO: Building MATCH conditions
+2024-06-07 12:01:58,891 - simple - INFO: Building SELECT clause
+2024-06-07 12:02:27,150 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["sex", "grade", "format", "project_crdc_id"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
+2024-06-07 12:02:27,151 - simple - INFO: Building paged query
+2024-06-07 12:02:27,151 - simple - INFO: Building MATCH conditions
+2024-06-07 12:02:27,153 - simple - INFO: Building SELECT clause
+2024-06-07 12:02:56,699 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["sex", "format", "project_crdc_id", "grade"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
+2024-06-07 12:02:56,699 - simple - INFO: Building paged query
+2024-06-07 12:02:56,699 - simple - INFO: Building MATCH conditions
+2024-06-07 12:02:56,701 - simple - INFO: Building SELECT clause
