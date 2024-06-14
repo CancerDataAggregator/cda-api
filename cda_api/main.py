@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from .routers import data, summary, frequencies, release_metadata
-from .application_utilities import get_logger
+from . import get_logger
 from cda_api import get_logger
 
 # Establish FastAPI "app" used for decorators on api endpoint functions

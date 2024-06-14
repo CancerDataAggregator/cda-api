@@ -109,3 +109,450 @@ NoneType: None
 2024-06-07 12:02:56,699 - simple - INFO: Building paged query
 2024-06-07 12:02:56,699 - simple - INFO: Building MATCH conditions
 2024-06-07 12:02:56,701 - simple - INFO: Building SELECT clause
+2024-06-12 10:13:13,772 - simple - INFO: QNode: {"MATCH_ALL": ["species like %homo%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-12 10:13:13,773 - simple - INFO: Building paged query
+2024-06-12 10:13:13,773 - simple - INFO: Building MATCH conditions
+2024-06-12 10:13:13,773 - simple - INFO: Building SELECT clause
+2024-06-12 10:21:05,477 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-12 10:21:05,477 - simple - INFO: Building paged query
+2024-06-12 10:21:05,477 - simple - INFO: Building MATCH conditions
+2024-06-12 10:21:05,478 - simple - INFO: Building SELECT clause
+2024-06-12 10:21:31,685 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
+2024-06-12 10:21:31,685 - simple - INFO: Building paged query
+2024-06-12 10:21:31,685 - simple - INFO: Building MATCH conditions
+2024-06-12 10:21:31,686 - simple - INFO: Building SELECT clause
+2024-06-12 10:31:18,710 - simple - INFO: QNode: {"MATCH_ALL": ["se like 7"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
+2024-06-12 10:31:18,711 - simple - INFO: Building paged query
+2024-06-12 10:31:18,711 - simple - INFO: Building MATCH conditions
+2024-06-12 10:31:18,711 - simple - ERROR: Column Not Found: se, did you mean: ['sex']
+NoneType: None
+2024-06-12 10:33:01,762 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
+2024-06-12 10:33:01,762 - simple - INFO: Building paged query
+2024-06-12 10:33:01,762 - simple - INFO: Building MATCH conditions
+2024-06-12 10:33:01,762 - simple - INFO: Building SELECT clause
+2024-06-12 10:33:15,471 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
+2024-06-12 10:33:15,472 - simple - INFO: Building paged query
+2024-06-12 10:33:15,472 - simple - INFO: Building MATCH conditions
+2024-06-12 10:33:15,472 - simple - INFO: Building SELECT clause
+2024-06-12 10:46:46,195 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
+2024-06-12 10:46:46,195 - simple - INFO: Building paged query
+2024-06-12 10:46:46,195 - simple - INFO: Building MATCH conditions
+2024-06-12 10:46:46,195 - simple - INFO: Building SELECT clause
+2024-06-12 11:33:27,787 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
+2024-06-12 11:33:27,787 - simple - INFO: Building paged query
+2024-06-12 11:33:27,788 - simple - INFO: Building MATCH conditions
+2024-06-12 11:33:27,788 - simple - INFO: Building SELECT clause
+2024-06-12 12:10:13,320 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-12 12:10:13,321 - simple - INFO: Building paged query
+2024-06-12 12:10:13,321 - simple - INFO: Building MATCH conditions
+2024-06-12 12:10:13,322 - simple - INFO: Building SELECT clause
+2024-06-12 12:33:33,116 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
+2024-06-12 12:33:33,116 - simple - INFO: Building paged query
+2024-06-12 12:33:33,116 - simple - INFO: Building MATCH conditions
+2024-06-12 12:33:33,117 - simple - INFO: Building SELECT clause
+2024-06-12 12:36:34,090 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
+2024-06-12 12:36:34,090 - simple - INFO: Building paged query
+2024-06-12 12:36:34,091 - simple - INFO: Building MATCH conditions
+2024-06-12 12:36:34,092 - simple - INFO: Building SELECT clause
+2024-06-12 12:37:45,754 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
+2024-06-12 12:37:45,755 - simple - INFO: Building paged query
+2024-06-12 12:37:45,755 - simple - INFO: Building MATCH conditions
+2024-06-12 12:37:45,756 - simple - INFO: Building SELECT clause
+2024-06-12 12:53:54,627 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
+2024-06-12 12:53:54,628 - simple - INFO: Building paged query
+2024-06-12 12:53:54,628 - simple - INFO: Building MATCH conditions
+2024-06-12 12:53:54,630 - simple - INFO: Building SELECT clause
+2024-06-12 12:55:54,227 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
+2024-06-12 12:55:54,227 - simple - INFO: Building paged query
+2024-06-12 12:55:54,227 - simple - INFO: Building MATCH conditions
+2024-06-12 12:55:54,228 - simple - INFO: Building SELECT clause
+2024-06-13 09:54:58,872 - simple - ERROR: Column Not Found: aoidfa
+NoneType: None
+2024-06-13 10:58:08,247 - simple - ERROR: No mapping found between project and project
+type object 'project' has no attribute 'project_project_alias_collection'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 32, in get_mapping_column
+    mapping_column = getattr(entity_table, mapping_columnname)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'project' has no attribute 'project_project_alias_collection'
+2024-06-13 11:01:08,806 - simple - ERROR: No mapping found between project and project
+type object 'project' has no attribute 'project_project_alias_collection'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 32, in get_mapping_column
+    mapping_column = getattr(entity_table, mapping_columnname)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'project' has no attribute 'project_project_alias_collection'
+2024-06-13 11:01:28,636 - simple - ERROR: No mapping found between project and project
+type object 'project' has no attribute 'project_project_alias_collection'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 32, in get_mapping_column
+    mapping_column = getattr(entity_table, mapping_columnname)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'project' has no attribute 'project_project_alias_collection'
+2024-06-13 11:16:17,365 - simple - ERROR: Unable to find relationship between subject and project
+'project'
+Traceback (most recent call last):
+  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/1070955301.py", line 127, in get_entity_relationship
+    return self.relationship_map[entity_tablename][foreign_tablename]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'project'
+2024-06-13 11:16:25,607 - simple - ERROR: Unable to find relationship between subject and observation
+'observation'
+Traceback (most recent call last):
+  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/192829692.py", line 127, in get_entity_relationship
+    return self.relationship_map[entity_tablename][foreign_tablename]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'observation'
+2024-06-13 13:34:23,498 - simple - ERROR: Unable to find table subject
+'FacadeDict' object has no attribute 'tables'
+Traceback (most recent call last):
+  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/1832146891.py", line 146, in get_metadata_table
+    return self.metadata_tables.tables[tablename]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FacadeDict' object has no attribute 'tables'
+2024-06-13 13:34:58,567 - simple - ERROR: Unable to find table subject
+'FacadeDict' object has no attribute 'tables'
+Traceback (most recent call last):
+  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/1832146891.py", line 146, in get_metadata_table
+    return self.metadata_tables.tables[tablename]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FacadeDict' object has no attribute 'tables'
+2024-06-14 12:03:53,106 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:03:53,107 - simple - INFO: Building paged query
+2024-06-14 12:03:53,107 - simple - INFO: Building MATCH conditions
+2024-06-14 12:04:39,454 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:04:39,455 - simple - INFO: Building paged query
+2024-06-14 12:04:39,455 - simple - INFO: Building MATCH conditions
+2024-06-14 12:04:52,117 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:04:52,117 - simple - INFO: Building paged query
+2024-06-14 12:04:52,117 - simple - INFO: Building MATCH conditions
+2024-06-14 12:05:06,473 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:05:06,474 - simple - INFO: Building paged query
+2024-06-14 12:05:06,474 - simple - INFO: Building MATCH conditions
+2024-06-14 12:05:22,033 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:05:22,034 - simple - INFO: Building paged query
+2024-06-14 12:05:22,034 - simple - INFO: Building MATCH conditions
+2024-06-14 12:18:33,257 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
+'ColumnInfo' object has no attribute 'column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
+    return self.column_map[columnname].column
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ColumnInfo' object has no attribute 'column'
+2024-06-14 12:18:55,202 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
+'ColumnInfo' object has no attribute 'column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
+    return self.column_map[columnname].column
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ColumnInfo' object has no attribute 'column'
+2024-06-14 12:21:07,819 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
+'ColumnInfo' object has no attribute 'column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
+    return self.column_map[columnname].column
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ColumnInfo' object has no attribute 'column'
+2024-06-14 12:21:56,022 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
+'ColumnInfo' object has no attribute 'column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ColumnInfo' object has no attribute 'column'
+2024-06-14 12:24:30,485 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:24:30,485 - simple - INFO: Building paged query
+2024-06-14 12:24:30,486 - simple - INFO: Building MATCH conditions
+2024-06-14 12:24:50,139 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:24:50,139 - simple - INFO: Building paged query
+2024-06-14 12:24:50,139 - simple - INFO: Building MATCH conditions
+2024-06-14 12:25:04,401 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:25:04,401 - simple - INFO: Building paged query
+2024-06-14 12:25:04,401 - simple - INFO: Building MATCH conditions
+2024-06-14 12:25:33,611 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:25:33,611 - simple - INFO: Building paged query
+2024-06-14 12:25:33,611 - simple - INFO: Building MATCH conditions
+2024-06-14 12:25:33,612 - simple - ERROR: error
+2024-06-14 12:25:33,612 - simple - INFO: Building SELECT clause
+2024-06-14 12:25:59,325 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:25:59,325 - simple - INFO: Building paged query
+2024-06-14 12:25:59,325 - simple - INFO: Building MATCH conditions
+2024-06-14 12:25:59,326 - simple - ERROR: any
+2024-06-14 12:26:34,459 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:26:34,460 - simple - INFO: Building paged query
+2024-06-14 12:26:34,460 - simple - INFO: Building MATCH conditions
+2024-06-14 12:26:34,460 - simple - ERROR: any
+2024-06-14 12:29:59,915 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:29:59,915 - simple - INFO: Building paged query
+2024-06-14 12:29:59,915 - simple - INFO: Building MATCH conditions
+2024-06-14 12:29:59,917 - simple - INFO: Building SELECT clause
+2024-06-14 12:30:41,193 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:30:41,194 - simple - INFO: Building paged query
+2024-06-14 12:30:41,194 - simple - INFO: Building MATCH conditions
+2024-06-14 12:30:41,195 - simple - INFO: Building SELECT clause
+2024-06-14 12:30:58,607 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:30:58,608 - simple - INFO: Building paged query
+2024-06-14 12:30:58,608 - simple - INFO: Building MATCH conditions
+2024-06-14 12:30:58,609 - simple - INFO: Building SELECT clause
+2024-06-14 12:31:41,972 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:31:41,972 - simple - INFO: Building paged query
+2024-06-14 12:31:41,972 - simple - INFO: Building MATCH conditions
+2024-06-14 12:31:41,973 - simple - INFO: Building SELECT clause
+2024-06-14 12:31:54,505 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:31:54,505 - simple - INFO: Building paged query
+2024-06-14 12:31:54,505 - simple - INFO: Building MATCH conditions
+2024-06-14 12:31:54,506 - simple - INFO: Building SELECT clause
+2024-06-14 12:33:29,472 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:33:29,472 - simple - INFO: Building paged query
+2024-06-14 12:33:29,472 - simple - INFO: Building MATCH conditions
+2024-06-14 12:33:29,473 - simple - INFO: Building SELECT clause
+2024-06-14 12:33:42,761 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:33:42,762 - simple - INFO: Building paged query
+2024-06-14 12:33:42,762 - simple - INFO: Building MATCH conditions
+2024-06-14 12:33:42,762 - simple - INFO: Building SELECT clause
+2024-06-14 12:33:58,303 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:33:58,304 - simple - INFO: Building paged query
+2024-06-14 12:33:58,304 - simple - INFO: Building MATCH conditions
+2024-06-14 12:33:58,306 - simple - INFO: Building SELECT clause
+2024-06-14 12:34:31,768 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:34:31,768 - simple - INFO: Building paged query
+2024-06-14 12:34:31,768 - simple - INFO: Building MATCH conditions
+2024-06-14 12:34:31,769 - simple - INFO: Building SELECT clause
+2024-06-14 12:35:08,540 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:35:08,540 - simple - INFO: Building paged query
+2024-06-14 12:35:08,541 - simple - INFO: Building MATCH conditions
+2024-06-14 12:35:08,542 - simple - INFO: Building SELECT clause
+2024-06-14 12:35:32,695 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:35:32,695 - simple - INFO: Building paged query
+2024-06-14 12:35:32,695 - simple - INFO: Building MATCH conditions
+2024-06-14 12:35:32,695 - simple - INFO: Building SELECT clause
+2024-06-14 12:35:40,812 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:35:40,812 - simple - INFO: Building paged query
+2024-06-14 12:35:40,812 - simple - INFO: Building MATCH conditions
+2024-06-14 12:35:40,814 - simple - INFO: Building SELECT clause
+2024-06-14 12:35:49,252 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:35:49,252 - simple - INFO: Building paged query
+2024-06-14 12:35:49,252 - simple - INFO: Building MATCH conditions
+2024-06-14 12:35:49,253 - simple - INFO: Building SELECT clause
+2024-06-14 12:36:18,012 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-14 12:36:18,012 - simple - INFO: Building paged query
+2024-06-14 12:36:18,012 - simple - INFO: Building MATCH conditions
+2024-06-14 12:36:18,013 - simple - INFO: Building SELECT clause
+2024-06-14 12:37:16,983 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
+2024-06-14 12:37:16,983 - simple - INFO: Building paged query
+2024-06-14 12:37:16,983 - simple - INFO: Building MATCH conditions
+2024-06-14 12:37:16,985 - simple - INFO: Building SELECT clause
+2024-06-14 12:37:56,887 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:37:56,888 - simple - INFO: Building paged query
+2024-06-14 12:37:56,888 - simple - INFO: Building MATCH conditions
+2024-06-14 12:37:56,889 - simple - INFO: Building SELECT clause
+2024-06-14 12:38:22,460 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:38:22,460 - simple - INFO: Building paged query
+2024-06-14 12:38:22,460 - simple - INFO: Building MATCH conditions
+2024-06-14 12:38:22,461 - simple - INFO: Building SELECT clause
+2024-06-14 12:47:31,863 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:47:31,863 - simple - INFO: Building paged query
+2024-06-14 12:47:31,863 - simple - INFO: Building MATCH conditions
+2024-06-14 12:47:31,864 - simple - INFO: Building SELECT clause
+2024-06-14 12:48:35,874 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:48:35,874 - simple - INFO: Building paged query
+2024-06-14 12:48:35,874 - simple - INFO: Building MATCH conditions
+2024-06-14 12:48:35,875 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:49:37,765 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:49:37,765 - simple - INFO: Building paged query
+2024-06-14 12:49:37,765 - simple - INFO: Building MATCH conditions
+2024-06-14 12:49:37,767 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:50:52,443 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:50:52,444 - simple - INFO: Building paged query
+2024-06-14 12:50:52,444 - simple - INFO: Building MATCH conditions
+2024-06-14 12:50:52,446 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:51:22,782 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:51:22,783 - simple - INFO: Building paged query
+2024-06-14 12:51:22,783 - simple - INFO: Building MATCH conditions
+2024-06-14 12:51:22,784 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:51:42,946 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:51:42,947 - simple - INFO: Building paged query
+2024-06-14 12:51:42,947 - simple - INFO: Building MATCH conditions
+2024-06-14 12:51:42,948 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:53:18,392 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:53:18,392 - simple - INFO: Building paged query
+2024-06-14 12:53:18,392 - simple - INFO: Building MATCH conditions
+2024-06-14 12:53:18,394 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:54:57,084 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:54:57,084 - simple - INFO: Building paged query
+2024-06-14 12:54:57,085 - simple - INFO: Building MATCH conditions
+2024-06-14 12:54:57,087 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:55:12,184 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:55:12,185 - simple - INFO: Building paged query
+2024-06-14 12:55:12,185 - simple - INFO: Building MATCH conditions
+2024-06-14 12:55:12,187 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:55:21,839 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:55:21,840 - simple - INFO: Building paged query
+2024-06-14 12:55:21,840 - simple - INFO: Building MATCH conditions
+2024-06-14 12:55:21,842 - simple - INFO: Building SELECT clause
+2024-06-14 12:55:21,842 - simple - ERROR: Unable to find entity table subject
+'subject3'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 114, in get_metadata_table_columns
+    return self.metadata_tables[tablename+'3'].columns.values()
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'subject3'
+2024-06-14 12:56:17,309 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:56:17,310 - simple - INFO: Building paged query
+2024-06-14 12:56:17,310 - simple - INFO: Building MATCH conditions
+2024-06-14 12:56:17,311 - simple - INFO: Building SELECT clause
+2024-06-14 12:56:17,312 - simple - ERROR: Unable to find entity table subject
+'subject3'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 114, in get_metadata_table_columns
+    return self.metadata_tables[tablename+'3'].columns.values()
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+KeyError: 'subject3'
+2024-06-14 12:56:35,372 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:56:35,373 - simple - INFO: Building paged query
+2024-06-14 12:56:35,373 - simple - INFO: Building MATCH conditions
+2024-06-14 12:56:35,375 - simple - INFO: Building SELECT clause
+2024-06-14 12:57:13,260 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:57:13,261 - simple - INFO: Building paged query
+2024-06-14 12:57:13,261 - simple - INFO: Building MATCH conditions
+2024-06-14 12:57:13,263 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:57:44,062 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:57:44,063 - simple - INFO: Building paged query
+2024-06-14 12:57:44,063 - simple - INFO: Building MATCH conditions
+2024-06-14 12:57:44,064 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 12:57:53,195 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 12:57:53,196 - simple - INFO: Building paged query
+2024-06-14 12:57:53,196 - simple - INFO: Building MATCH conditions
+2024-06-14 12:57:53,198 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 13:23:03,194 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 13:23:03,194 - simple - INFO: Building paged query
+2024-06-14 13:23:03,194 - simple - INFO: Building MATCH conditions
+2024-06-14 13:23:03,196 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
+'crdc_id'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
+    return self.column_map[columnname]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'crdc_id'
+2024-06-14 13:23:09,754 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
+2024-06-14 13:23:09,754 - simple - INFO: Building paged query
+2024-06-14 13:23:09,754 - simple - INFO: Building MATCH conditions
+2024-06-14 13:23:09,755 - simple - INFO: Building SELECT clause
+2024-06-14 13:23:23,536 - simple - INFO: Building paged query
+2024-06-14 13:23:23,536 - simple - INFO: Building MATCH conditions
+2024-06-14 13:23:57,543 - simple - INFO: Building paged query
+2024-06-14 13:23:57,544 - simple - INFO: Building MATCH conditions
+2024-06-14 13:24:19,319 - simple - INFO: Building paged query
+2024-06-14 13:24:19,319 - simple - INFO: Building MATCH conditions
+2024-06-14 13:24:56,527 - simple - INFO: Building paged query
+2024-06-14 13:24:56,528 - simple - INFO: Building MATCH conditions
+2024-06-14 13:25:53,847 - simple - INFO: Building paged query
+2024-06-14 13:25:53,847 - simple - INFO: Building MATCH conditions
+2024-06-14 13:25:53,849 - simple - ERROR: total_count() missing 1 required positional argument: 'column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 53, in subject_summary_endpoint
+    result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 80, in summary_query
+    select_clause = build_summary_select_clause(db, 'subject', qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 78, in build_summary_select_clause
+    column_summary = total_count(get_cte_column(preselect_query, column_info.columnname)).label(alias)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: total_count() missing 1 required positional argument: 'column'
+2024-06-14 13:26:02,949 - simple - INFO: Building paged query
+2024-06-14 13:26:02,949 - simple - INFO: Building MATCH conditions
+2024-06-14 13:26:02,952 - simple - ERROR: grouped_count() missing 1 required positional argument: 'column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 53, in subject_summary_endpoint
+    result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 80, in summary_query
+    select_clause = build_summary_select_clause(db, 'subject', qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 93, in build_summary_select_clause
+    column_summary = grouped_count(get_cte_column(preselect_query, column_info.columnname)).label(alias)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: grouped_count() missing 1 required positional argument: 'column'
+2024-06-14 13:26:17,163 - simple - INFO: Building paged query
+2024-06-14 13:26:17,163 - simple - INFO: Building MATCH conditions
+2024-06-14 13:26:17,166 - simple - ERROR: data_source_counts() missing 1 required positional argument: 'data_source_columns'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 53, in subject_summary_endpoint
+    result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 80, in summary_query
+    select_clause = build_summary_select_clause(db, 'subject', qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 98, in build_summary_select_clause
+    data_count_select = data_source_counts(data_at_columns)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: data_source_counts() missing 1 required positional argument: 'data_source_columns'
+2024-06-14 13:26:34,668 - simple - INFO: Building paged query
+2024-06-14 13:26:34,669 - simple - INFO: Building MATCH conditions

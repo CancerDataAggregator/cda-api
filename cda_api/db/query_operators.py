@@ -14,7 +14,9 @@ def apply_filter_operator(filter_column, filter_value, filter_operator):
         case 'notin':
             return not_in_array(filter_column, filter_value)
         case '=':
-            return filter_column == filter_value
+            return filter_column == filter_value # TODO Case insensitive for string (not numeric)
+        case '!=':
+            return filter_column != filter_value # TODO Case insensitive for string (not numeric)
         case '<':
             return filter_column < filter_value
         case '<=':
@@ -23,8 +25,6 @@ def apply_filter_operator(filter_column, filter_value, filter_operator):
             return filter_column > filter_value
         case '>=':
             return filter_column >= filter_value
-        case '!=':
-            return filter_column != filter_value
         case _:
             log.exception(f'Unexpected operator: {filter_operator}')
             raise ValueError

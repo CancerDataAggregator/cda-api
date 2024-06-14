@@ -2,7 +2,6 @@ from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db, frequency_query
 from cda_api.models import QNode, FrequencyResponseObj
 from sqlalchemy.orm import Session
-from cda_api.db.query_utilities import check_columnname_exists
 from cda_api import get_logger
 log = get_logger()
 
@@ -28,11 +27,6 @@ def column_frequencies_endpoint(request: Request,
     Returns:
         FrequencyResponseObj: _description_
     """
-    
-    try:
-        check_columnname_exists(columnname)
-    except Exception as e:
-        # TODO - possibly a better exception to throw
-        raise HTTPException(status_code=404, detail=f"{columnname} not found: {e}")
+
     result = frequency_query(db, columnname=columnname, qnode=qnode)
     return result

@@ -85,7 +85,7 @@ def subject_paged_endpoint(request: Request,
         result = paged_query(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset)
     except Exception as e:
         # TODO - possibly a better exception to throw
-        raise HTTPException(status_code=404, detail=e)
+        raise HTTPException(status_code=404, detail=str(e))
     return result
 
 
