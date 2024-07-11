@@ -556,3 +556,110 @@ Traceback (most recent call last):
 TypeError: data_source_counts() missing 1 required positional argument: 'data_source_columns'
 2024-06-14 13:26:34,668 - simple - INFO: Building paged query
 2024-06-14 13:26:34,669 - simple - INFO: Building MATCH conditions
+2024-07-10 09:49:21,345 - simple - ERROR: Column Not Found: data_at_cds, did you mean: ['file_data_at_cds', 'specimen_data_at_cds', 'subject_data_at_cds', 'project_data_at_cds', 'observation_data_at_cds', 'somatic_mutation_data_at_cds', 'treatment_data_at_cds']
+'data_at_cds'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'data_at_cds'
+2024-07-10 09:56:16,816 - simple - ERROR: Column Not Found: file_format
+'file_format'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_format'
+2024-07-10 09:59:07,738 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+2024-07-10 10:01:47,074 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+2024-07-10 10:01:57,614 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+2024-07-10 10:02:57,461 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+2024-07-10 10:02:57,462 - simple - ERROR: doijaoisj system not found
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 94, in build_unique_value_query
+    data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 86, in get_meta_column
+    raise ColumnNotFound(log_message)
+cda_api.classes.exceptions.ColumnNotFound: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+2024-07-10 10:03:49,058 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+2024-07-10 10:03:49,060 - simple - ERROR: system: doijaoisj - not found
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 94, in build_unique_value_query
+    data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 86, in get_meta_column
+    raise ColumnNotFound(log_message)
+cda_api.classes.exceptions.ColumnNotFound: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+2024-07-10 10:04:02,735 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+2024-07-10 10:04:02,736 - simple - ERROR: system: doijaoisj - not found
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
+    return self.column_map[columnname].metadata_column
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'file_data_at_doijaoisj'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 94, in build_unique_value_query
+    data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 86, in get_meta_column
+    raise ColumnNotFound(log_message)
+cda_api.classes.exceptions.ColumnNotFound: Column Not Found: file_data_at_doijaoisj
+'file_data_at_doijaoisj'

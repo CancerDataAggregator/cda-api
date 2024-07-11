@@ -1,6 +1,6 @@
 from sqlalchemy import func, Integer, distinct
 import sqlparse
-from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound
+from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
 from .schema import get_db_map
 
 log = get_logger()
@@ -46,8 +46,7 @@ def data_source_counts(db, data_source_columns):
     data_source_counts = [func.sum(func.cast(column, Integer)).label(column.name.split('_')[-1]) 
                           for column in data_source_columns]
     data_source_preselect = db.query(*data_source_counts).subquery('subquery')
-    data_source_json = db.query(func.row_to_json(data_source_preselect.table_valued())) # .cte(f"json_data_sources")
-    # return db.query(func.array_agg(data_source_json.table_valued())).scalar_subquery()
+    data_source_json = db.query(func.row_to_json(data_source_preselect.table_valued()))
     return data_source_json
 
 
@@ -80,4 +79,31 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
         for mapping_column in mapping_columns:
             query = query.join(mapping_column)
 
+    return query
+
+
+def build_unique_value_query(db, column, system = None, countOpt = False, limit=None, offset=None):
+    print('test')
+    if countOpt:
+        column_query = db.query(column, func.count().label('value_count')).group_by(column).order_by(column)
+    else:
+        column_query = db.query(distinct(column).label(column.name)).order_by(column)
+
+    if system:
+        try:
+            data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
+            column_query = column_query.filter(data_system_column.is_(True))
+        except Exception as e:
+            error = SystemNotFound(f'system: {system} - not found')
+            log.exception(error)
+            raise error
+
+    if limit:
+        column_query = column_query.limit(limit)
+    if offset:
+        column_query = column_query.offset(offset)
+
+    column_query = column_query.subquery('column_json')
+
+    query = db.query(func.row_to_json(column_query.table_valued()))
     return query

@@ -1,4 +1,4 @@
-from sqlalchemy.ext.automap import automap_base, generate_relationship
+from sqlalchemy.ext.automap import automap_base
 from cda_api.db import engine
 from sqlalchemy import inspect
 from cda_api.classes.ColumnInfo import ColumnInfo

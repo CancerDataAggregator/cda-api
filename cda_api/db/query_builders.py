@@ -1,6 +1,6 @@
 from .filter_builder import build_match_conditons
 from .select_builder import build_select_clause, build_summary_select_clause
-from .query_utilities import query_to_string, build_match_query
+from .query_utilities import query_to_string, build_match_query, build_unique_value_query, distinct_count
 from sqlalchemy import and_, or_, func
 from cda_api import get_logger
 from .schema import get_db_map
@@ -97,13 +97,12 @@ def summary_query(db, endpoint_tablename, qnode):
 
 
 # TODO
-def frequency_query(db, columnname, qnode):
+def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offset):
     """Generates json formatted frequency results based on query for specific column
 
     Args:
         db (Session): Database session object
-        columnname (str): Input column name for frequency results
-        qnode (QNode): JSON input query
+        TODO
 
     Returns:
         FrequencyResponseObj: 
@@ -112,11 +111,28 @@ def frequency_query(db, columnname, qnode):
             'query_sql': 'SQL statement used to generate result'
         }
     """
+    column = DB_MAP.get_meta_column(columnname)
+
+    if totalCount:
+        total_count_query = db.query(distinct_count(column))
+    else:
+        total_count_query = None
+    query = build_unique_value_query(db=db, 
+                                     column=column, 
+                                     system=system,
+                                     countOpt=countOpt,
+                                     limit=limit,
+                                     offset=offset)
+
+    # result = query.all()
+    # total_count = total_count_query.all()
 
     # Fake return for now
     ret = {
         'result': [{'frequency_query': 'success'}],
-        'query_sql': 'SELECT frequency_query FROM table'
+        'query_sql': query_to_string(query),
+        'total_row_count': 0,
+        'next_url': ''
     }
     return ret
 

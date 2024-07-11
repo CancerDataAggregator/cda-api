@@ -17,3 +17,11 @@ class RelationshipError(Exception):
 class RelationshipNotFound(Exception):
     """Custom exception for when there is no relationship found between two tables"""
     pass
+
+class SystemNotFound(Exception):
+    """Custom exception for when there is no data system column found"""
+    pass
+
+class ParsingError(Exception):
+    """Custom exception for when there is an issue with parsing a filter"""
+    pass
