@@ -1,18 +1,16 @@
-from .query_utilities import get_mapping_column, check_columnname_exists
 from .query_operators import apply_filter_operator
-from .schema import COLUMN_MAP
 from cda_api import get_logger
+from .schema import get_db_map
+
 from cda_api.application_utilities import is_float, is_int
 
 log = get_logger()
+DB_MAP = get_db_map()
 
 # Parse out the key components from the filter string
 def parse_filter_string(filter_string):
     # TODO actually parse correctly
-    filter_split = filter_string.split()
-    filter_columnname = filter_split[0]
-    filter_operator = filter_split[1]
-    filter_value = filter_split[2]
+    filter_columnname, filter_operator, filter_value = filter_string.split()
     if is_int(filter_value):
         filter_value = int(filter_value)
     elif is_float(filter_value):
@@ -28,18 +26,20 @@ def get_preselect_filter(endpoint_tablename, filter_string):
     filter_columnname, filter_operator, filter_value = parse_filter_string(filter_string)
 
     # ensure the unique column name exists in mapping and assign variables
-    check_columnname_exists(filter_columnname)
-    filter_col = COLUMN_MAP[filter_columnname]
+    filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
     # build the sqlalachemy orm filter with the components
     # filter_clause = case_insensitive_like(filter_col['COLUMN'], filter_value)
-    filter_clause = apply_filter_operator(filter_col['COLUMN'], filter_value, filter_operator)
-
+    filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator)
+    
     # if the filter applies to a foreign table, preselect on the mapping column
-    if filter_col['TABLE_NAME'].lower() != endpoint_tablename.lower():
-        mapping_column = get_mapping_column(filter_col['TABLE_NAME'], endpoint_tablename)
+    if filter_column_info.tablename.lower() != endpoint_tablename.lower():
+        relationship = DB_MAP.get_relationship(entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename)
+        mapping_column = relationship.entity_collection
+        # mapping_column = get_mapping_column(filter_column_info.tablename, endpoint_tablename)
         filter_clause = mapping_column.any(filter_clause)
-
+        
+    
     return filter_clause
 
 # Build match_all and match_some filter conditional lists

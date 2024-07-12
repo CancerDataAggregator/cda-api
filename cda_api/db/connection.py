@@ -27,4 +27,4 @@ SQLALCHEMY_DATABASE_URL = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOSTNAM
 # Create sqlalchemy database engine object and Session
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # TODO determine if there is a better (more secure) way to set up sessions
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+session = sessionmaker(bind=engine)

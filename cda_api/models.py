@@ -29,9 +29,11 @@ class ColumnResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
 
 # TODO: change to represent actual frequency result
-class FrequencyResponseObj(BaseModel):
+class UniqueValueResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
     query_sql: str | None = Field(description="SQL Query generated to yield the results")
+    total_row_count: int | None = Field(default=None, description="Count of total number of results from the query")
+    next_url: Optional[str] = Field(default=None, description="URL to get to next page of results", )
 
 # TODO: change to represent actual release metadata result
 class ReleaseMetadataObj(BaseModel):

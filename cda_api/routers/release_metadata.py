@@ -1,6 +1,6 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db, get_release_metadata
-from cda_api.models import QNode, FrequencyResponseObj
+from cda_api.models import QNode, ReleaseMetadataObj
 from sqlalchemy.orm import Session
 
 
@@ -9,9 +9,10 @@ router = APIRouter(
     tags=["release_metadata"]
 )
 
+# TODO - include count(*) for all tables
 @router.get('/')
 def release_metadata_endpoint(request: Request, 
-                              db: Session = Depends(get_db)) -> FrequencyResponseObj:
+                              db: Session = Depends(get_db)) -> ReleaseMetadataObj:
     """_summary_
 
     Args:
