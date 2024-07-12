@@ -109,3 +109,70 @@ NoneType: None
 2024-06-07 12:02:56,699 - simple - INFO: Building paged query
 2024-06-07 12:02:56,699 - simple - INFO: Building MATCH conditions
 2024-06-07 12:02:56,701 - simple - INFO: Building SELECT clause
+2024-06-13 13:48:23,085 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-13 13:48:23,086 - simple - INFO: Building paged query
+2024-06-13 13:48:23,086 - simple - INFO: Building MATCH conditions
+2024-06-13 13:49:29,907 - simple - INFO: QNode: {"MATCH_ALL": ["sex like male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-13 13:49:29,907 - simple - INFO: Building paged query
+2024-06-13 13:49:29,908 - simple - INFO: Building MATCH conditions
+2024-06-13 13:50:54,622 - simple - INFO: QNode: {"MATCH_ALL": ["sex like male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-13 13:50:54,622 - simple - INFO: Building paged query
+2024-06-13 13:50:54,623 - simple - INFO: Building MATCH conditions
+2024-06-13 13:50:54,624 - simple - INFO: Building SELECT clause
+2024-06-19 11:26:18,038 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-19 11:26:18,039 - simple - INFO: Building paged query
+2024-06-19 11:26:18,040 - simple - INFO: Building MATCH conditions
+2024-06-19 11:26:18,050 - simple - INFO: Building SELECT clause
+2024-06-19 11:26:41,301 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "primary_diagnosis = *breast*"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-19 11:26:41,301 - simple - INFO: Building paged query
+2024-06-19 11:26:41,302 - simple - INFO: Building MATCH conditions
+2024-06-19 11:26:41,303 - simple - ERROR: Column Not Found: primary_diagnosis
+NoneType: None
+2024-06-19 11:26:47,682 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "primary_diagnosis = *breast*"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-19 11:26:47,682 - simple - INFO: Building paged query
+2024-06-19 11:26:47,682 - simple - INFO: Building MATCH conditions
+2024-06-19 11:26:47,683 - simple - ERROR: Column Not Found: primary_diagnosis
+NoneType: None
+2024-06-19 11:26:59,612 - simple - INFO: QNode: {"MATCH_ALL": ["primary_diagnosis = *breast*"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-19 11:26:59,612 - simple - INFO: Building paged query
+2024-06-19 11:26:59,612 - simple - INFO: Building MATCH conditions
+2024-06-19 11:26:59,613 - simple - ERROR: Column Not Found: primary_diagnosis
+NoneType: None
+2024-06-19 11:27:13,077 - simple - INFO: QNode: {"MATCH_ALL": ["primary_diagnosis = breast"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-06-19 11:27:13,077 - simple - INFO: Building paged query
+2024-06-19 11:27:13,077 - simple - INFO: Building MATCH conditions
+2024-06-19 11:27:13,078 - simple - ERROR: Column Not Found: primary_diagnosis
+NoneType: None
+2024-07-02 07:49:22,729 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-07-02 07:49:22,731 - simple - INFO: Building paged query
+2024-07-02 07:49:22,731 - simple - INFO: Building MATCH conditions
+2024-07-02 07:49:22,746 - simple - INFO: Building SELECT clause
+2024-07-02 08:35:08,419 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-07-02 08:35:08,419 - simple - INFO: Building paged query
+2024-07-02 08:35:08,419 - simple - INFO: Building MATCH conditions
+2024-07-02 08:35:08,420 - simple - INFO: Building SELECT clause
+2024-07-02 08:38:41,376 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-07-02 08:38:41,376 - simple - INFO: Building paged query
+2024-07-02 08:38:41,376 - simple - INFO: Building MATCH conditions
+2024-07-02 08:38:56,131 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-07-02 08:38:56,132 - simple - INFO: Building paged query
+2024-07-02 08:38:56,132 - simple - INFO: Building MATCH conditions
+2024-07-02 08:47:29,302 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-07-02 08:47:29,302 - simple - INFO: Building paged query
+2024-07-02 08:47:29,302 - simple - INFO: Building MATCH conditions
+2024-07-02 08:47:29,302 - simple - INFO: Building SELECT clause
+2024-07-02 08:49:06,141 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-07-02 08:49:06,141 - simple - INFO: Building paged query
+2024-07-02 08:49:06,141 - simple - INFO: Building MATCH conditions
+2024-07-02 08:51:43,007 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-07-02 08:51:43,007 - simple - INFO: Building paged query
+2024-07-02 08:51:43,007 - simple - INFO: Building MATCH conditions
+2024-07-02 08:51:43,007 - simple - INFO: Building SELECT clause
+2024-07-03 21:28:54,247 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": [], "ADD_COLUMNS": [], "EXCLUDE_COLUMNS": None}
+2024-07-03 21:28:54,247 - simple - INFO: Building paged query
+2024-07-03 21:28:54,247 - simple - INFO: Building MATCH conditions
+2024-07-03 21:28:54,247 - simple - INFO: Building SELECT clause
+2024-07-03 21:29:53,905 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": [], "ADD_COLUMNS": [], "EXCLUDE_COLUMNS": None}
+2024-07-03 21:29:53,905 - simple - INFO: Building paged query
+2024-07-03 21:29:53,905 - simple - INFO: Building MATCH conditions
+2024-07-03 21:29:53,905 - simple - INFO: Building SELECT clause

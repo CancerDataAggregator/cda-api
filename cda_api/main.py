@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from .routers import data, summary, frequencies, release_metadata
+from .routers import data, summary, frequencies, release_metadata, columns
 from .application_utilities import get_logger
 from cda_api import get_logger
 
@@ -15,7 +15,7 @@ app.include_router(router=data.router)
 app.include_router(router=summary.router)
 app.include_router(router=frequencies.router)
 app.include_router(router=release_metadata.router)
-
+app.include_router(router=columns.router)
 
 # Temporary Example API Endpoint
 @app.get('/hello')

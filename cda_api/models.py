@@ -25,6 +25,9 @@ class SummaryResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
     query_sql: str | None = Field(description="SQL Query generated to yield the results")
 
+class ColumnResponseObj(BaseModel):
+    result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
+
 # TODO: change to represent actual frequency result
 class FrequencyResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")

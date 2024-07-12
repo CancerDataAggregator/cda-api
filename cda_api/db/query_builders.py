@@ -104,6 +104,26 @@ def summary_query(db, endpoint_tablename, qnode):
     }
     return ret
 
+# TODO
+def columns_query(db):
+    """Generates json formatted frequency results based on query for specific column
+
+    Args:
+        db (Session): Database session object
+
+    Returns:
+        ColumnResponseObj: 
+        {
+            'result': [{'frequency': 'data'}]
+        }
+    """
+
+    # Fake return for now
+    ret = {
+        'result': [{'table': 'subject', 'column':'sex', 'data_type':'text', 'nullable': False, 'description':'boringdesc'}]
+    }
+    return ret
+
 
 # TODO
 def frequency_query(db, columnname, qnode):
