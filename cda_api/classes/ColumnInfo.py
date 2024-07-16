@@ -3,6 +3,14 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy import Column, Table
 from dataclasses import dataclass, field
 
+
+temp_column_category_map = {
+    'file': {'type': 'categorical', 
+             'format': 'categorical', 
+             'category': 'categorical', 
+             'size': 'continuous'},
+}
+
 @dataclass
 class ColumnInfo():
     unqiuename: str
@@ -13,13 +21,18 @@ class ColumnInfo():
     tablename: str = field(init=False)
     table_columnname: str = field(init=False)
     entity_column: InstrumentedAttribute = field(init=False)
+    category: str = field(init=False)
     
     def __post_init__(self): 
         self.columnname = self.metadata_column.name
         self.tablename = self.metadata_table.name
         self.table_columnname = f'{self.tablename}.{self.columnname}'
+        self.category = None
         if self.entity_table:
             self.entity_column = getattr(self.entity_table, self.columnname)
+            if self.tablename in temp_column_category_map.keys():
+                if self.columnname in temp_column_category_map[self.tablename].keys():
+                    self.category = temp_column_category_map[self.tablename][self.columnname]
         else:
             self.entity_column = None
 

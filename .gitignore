@@ -5,3 +5,4 @@ cda_api/config/.env
 /.pytest_cache
 *__pycache__*
 *.log
+*.log

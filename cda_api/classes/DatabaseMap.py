@@ -116,3 +116,13 @@ class DatabaseMap():
             log_message = f'Unable to find entity table {tablename}\n{e}'
             log.exception(log_message)
             raise TableNotFound(log_message)
+
+    def get_table_column_infos(self, tablename):
+        try:
+            return [column_info for column_info in self.column_map.values() if column_info.tablename == tablename]
+        except ColumnNotFound as cnf:
+            raise cnf
+        except Exception as e:
+            log_message = f'Unable to find entity table {tablename}\n{e}'
+            log.exception(log_message)
+            raise TableNotFound(log_message)
