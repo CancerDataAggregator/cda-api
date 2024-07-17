@@ -109,10 +109,28 @@ def columns_query(db):
         }
     """
 
-    # Fake return for now
+    #Get Tables...
+    cols = []
+    
+    tables = DB_MAP.entity_tables.keys()
+
+    for table in tables:
+        #Get columns for this table...
+        columns = DB_MAP.get_metadata_table_columns(table)
+        for column in columns:
+            if column.name != 'id_alias':
+                col = dict()
+                col['table'] = column.table.name
+                col['column'] = column.name
+                col['data_type'] = str(column.type).lower()
+                col['nullable'] = column.nullable
+                col['description'] = 'unset'
+                cols.append(col)
+    
     ret = {
-        'result': [{'table': 'subject', 'column':'sex', 'data_type':'text', 'nullable': False, 'description':'boringdesc'}]
+        'result': cols
     }
+
     return ret
 
 

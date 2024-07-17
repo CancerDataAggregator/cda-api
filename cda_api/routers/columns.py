@@ -2,7 +2,6 @@ from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db, columns_query
 from cda_api.models import QNode, ColumnResponseObj
 from sqlalchemy.orm import Session
-from cda_api.db.query_utilities import check_columnname_exists
 from cda_api import get_logger
 log = get_logger()
 
@@ -24,4 +23,10 @@ def columns_endpoint(request: Request,
     Returns:
         ColumnResponseObj: _description_
     """
-    return columns_query(db)
+
+    try:
+        result = columns_query(db)
+    except Exception as e:
+        # TODO - possibly a better exception to throw
+        raise HTTPException(status_code=404, detail=e)
+    return result 
