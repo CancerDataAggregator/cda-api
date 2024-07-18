@@ -1,24 +1,75 @@
-from .query_utilities import get_mapping_column, check_columnname_exists
 from .query_operators import apply_filter_operator
-from .schema import COLUMN_MAP
-from cda_api import get_logger
+from cda_api import get_logger, ParsingError
+from .schema import get_db_map
+
 from cda_api.application_utilities import is_float, is_int
 
 log = get_logger()
+DB_MAP = get_db_map()
+
+import re
+import ast
 
 # Parse out the key components from the filter string
 def parse_filter_string(filter_string):
-    # TODO actually parse correctly
-    filter_split = filter_string.split()
-    filter_columnname = filter_split[0]
-    filter_operator = filter_split[1]
-    filter_value = filter_split[2]
-    if is_int(filter_value):
-        filter_value = int(filter_value)
-    elif is_float(filter_value):
-        filter_value = float(filter_value)
-    return filter_columnname, filter_operator, filter_value
+    # Clean up the filter
+    filter_string = filter_string.strip()
 
+    # Parse out the operator (Note: Order matters, you can't put = before <=)
+    operator_pattern = r"(?:\snot\s|\s)(?:!=|<>|<=|>=|=|<|>|is|in|like|between|not)+(?:\snot\s|\s)"
+    operator_rexp = re.compile(operator_pattern)
+    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string.lower())]
+    if len(parsed_operators) != 1:
+        raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
+
+    # Get the operator from the list of matches 
+    operator = parsed_operators[0]
+
+    # Verify the matched operator is valid
+    valid_operators = ['!=','<>','<=','>=','=','<','>','is','in','like','between',
+                    'not','is not','not in','not like','not between']
+    if operator not in valid_operators:
+        raise ParsingError(f'Parsed operator: "{operator}" not valid')
+
+    # Ensure the operator isn't at the beginning or the end of the filter string
+    operator_location = re.search(operator, filter_string)
+    if operator_location.start() == 0:
+        raise ParsingError(f'Missing column in filter before operator "{filter_string}"')
+
+    if operator_location.end() == len(filter_string):
+        raise ParsingError(f'Missing value after operator "{filter_string}"')
+
+    # Set columnname value to the stripped string before the operator
+    columnname = filter_string[:operator_location.start()].strip()
+
+    # Check if the string before the operator wasn't just whitespace
+    if len(columnname) < 1:
+        raise ParsingError(f'Missing column in filter before operator "{filter_string}"')
+
+    # Ensure there is no whitespace in the parsed columnname
+    if re.search('\s', columnname):
+        raise ParsingError(f'Invalid column "{columnname}" in filter: "{filter_string}"')
+
+    # Set columnname value to the stripped string after the operator
+    value_string = filter_string[operator_location.end():].strip()
+
+    # Use ast.literal_eval() to safely evaluate the value
+    try:
+        value = ast.literal_eval(value_string)
+    except Exception:
+        # If there is an error, just handle as a string
+        value = value_string
+
+    # Need to ensure lists and the operators "in"/"not in" are only ever used together
+    if isinstance(value, list) and (operator not in ['in', 'not in']):
+        raise ParsingError(f'Operator must be "in" or "not in" when using a list value -> filter: {filter_string}')
+
+    elif (not isinstance(value, list)) and (operator in ['in', 'not in']):
+        raise ParsingError(f'Value: {value_string} must be a list (ex. [1,2,3] or ["a","b","c"]) when using "in" or "not in" operators -> filter: "{filter_string}"')
+    
+    log.debug(f'columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}')
+    
+    return columnname, operator, value
 
 
 # Generate preselect filter conditional
@@ -28,18 +79,19 @@ def get_preselect_filter(endpoint_tablename, filter_string):
     filter_columnname, filter_operator, filter_value = parse_filter_string(filter_string)
 
     # ensure the unique column name exists in mapping and assign variables
-    check_columnname_exists(filter_columnname)
-    filter_col = COLUMN_MAP[filter_columnname]
+    filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
     # build the sqlalachemy orm filter with the components
-    # filter_clause = case_insensitive_like(filter_col['COLUMN'], filter_value)
-    filter_clause = apply_filter_operator(filter_col['COLUMN'], filter_value, filter_operator)
-
+    filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator)
+    
     # if the filter applies to a foreign table, preselect on the mapping column
-    if filter_col['TABLE_NAME'].lower() != endpoint_tablename.lower():
-        mapping_column = get_mapping_column(filter_col['TABLE_NAME'], endpoint_tablename)
+    if filter_column_info.tablename.lower() != endpoint_tablename.lower():
+        relationship = DB_MAP.get_relationship(entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename)
+        mapping_column = relationship.entity_collection
+        # mapping_column = get_mapping_column(filter_column_info.tablename, endpoint_tablename)
         filter_clause = mapping_column.any(filter_clause)
-
+        
+    
     return filter_clause
 
 # Build match_all and match_some filter conditional lists

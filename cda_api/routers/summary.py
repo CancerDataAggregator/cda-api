@@ -2,6 +2,9 @@ from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db, summary_query
 from cda_api.models import QNode, SummaryResponseObj
 from sqlalchemy.orm import Session
+from cda_api import get_logger
+
+log = get_logger()
 
 
 router = APIRouter(
@@ -50,5 +53,6 @@ def subject_summary_endpoint(request: Request,
         result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
     except Exception as e:
         # TODO - possibly a better exception to throw
-        raise HTTPException(status_code=404, detail=e)
+        log.exception(str(e))
+        raise HTTPException(status_code=404, detail=str(e))
     return result
