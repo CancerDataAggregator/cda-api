@@ -14,7 +14,7 @@ router = APIRouter(
 
 @router.post('/{columnname}')
 def unique_values_endpoint(request: Request, 
-                                column: str, 
+                                columnname: str, 
                                 system: str = '',
                                 count: bool = False,
                                 totalCount: bool = False,
@@ -35,7 +35,7 @@ def unique_values_endpoint(request: Request,
     try:
         # Get paged query result
         result = unique_value_query(db, 
-                                columnname=column,
+                                columnname=columnname,
                                 system=system,
                                 countOpt=count,
                                 totalCount=totalCount,

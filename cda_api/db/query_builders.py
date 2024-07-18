@@ -3,7 +3,7 @@ from .select_builder import build_select_clause, build_summary_select_clause
 from .query_utilities import query_to_string, build_match_query, build_unique_value_query, distinct_count
 from sqlalchemy import and_, or_, func
 from cda_api import get_logger
-from .schema import get_db_map
+from .schema import get_db_map, Base
 
 log = get_logger()
 DB_MAP = get_db_map()
@@ -138,3 +138,14 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
 
 
 
+def release_metadata_query(db):
+    query = db.query(Base.metadata.tables['release_metadata'])
+    log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
+    # Fake return for now
+    ret = {
+        'result': [{'release_metadata': 'success'}],
+        'query_sql': query_to_string(query),
+        'total_row_count': 0,
+        'next_url': ''
+    }
+    return ret

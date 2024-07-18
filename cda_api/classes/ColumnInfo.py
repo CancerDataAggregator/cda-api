@@ -5,10 +5,20 @@ from dataclasses import dataclass, field
 
 
 temp_column_category_map = {
-    'file': {'type': 'categorical', 
-             'format': 'categorical', 
-             'category': 'categorical', 
-             'size': 'continuous'},
+    'file': {
+        'type': 'categorical', 
+        'format': 'categorical', 
+        'category': 'categorical', 
+        'size': 'continuous'
+    },
+    'subject': {
+        'species': 'categorical',
+        'year_of_birth': 'continuous',
+        'year_of_death': 'continuous',
+        'cause_of_death': 'categorical',
+        'race': 'categorical',
+        'ethnicity': 'categorical'
+    }
 }
 
 @dataclass

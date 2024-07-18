@@ -34,4 +34,4 @@ class UniqueValueResponseObj(BaseModel):
 
 # TODO: change to represent actual release metadata result
 class ReleaseMetadataObj(BaseModel):
-    release: str
+    result: list[dict[str, Any] | None]
