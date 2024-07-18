@@ -7,14 +7,16 @@ def apply_filter_operator(filter_column, filter_value, filter_operator):
     match filter_operator.lower():
         case 'like':
             return case_insensitive_like(filter_column, filter_value)
-        case 'notlike':
+        case 'not like':
             return case_insensitive_not_like(filter_column, filter_value)
         case 'in':
             return in_array(filter_column, filter_value)
-        case 'notin':
+        case 'not in':
             return not_in_array(filter_column, filter_value)
         case '=':
-            return filter_column == filter_value
+            return filter_column == filter_value # TODO Case insensitive for string (not numeric)
+        case '!=':
+            return filter_column != filter_value # TODO Case insensitive for string (not numeric)
         case '<':
             return filter_column < filter_value
         case '<=':
@@ -23,8 +25,6 @@ def apply_filter_operator(filter_column, filter_value, filter_operator):
             return filter_column > filter_value
         case '>=':
             return filter_column >= filter_value
-        case '!=':
-            return filter_column != filter_value
         case _:
             log.exception(f'Unexpected operator: {filter_operator}')
             raise ValueError
@@ -39,31 +39,7 @@ def case_insensitive_not_like(column, value):
     return func.coalesce(func.upper(column), '').not_like(func.upper(value))
 
 def in_array(column, value):
-    if not isinstance(value, list):
-        try:
-            # TODO - better implementation needed
-            value_list = eval(value)
-            if not isinstance(value_list, list):
-                log.exception(f'Expected list: {value}')
-                raise TypeError
-        except Exception as e:
-            log.exception(f'Expected list: {value}\n{e}')
-            raise
-        return column.in_(value_list)
-    else: 
-        return column.in_(value)
+    return column.in_(value)
 
 def not_in_array(column, value):
-    if not isinstance(value, list):
-        try:
-            # TODO - better implementation needed
-            value_list = eval(value)
-            if not isinstance(value_list, list):
-                log.exception(f'Expected list: {value}')
-                raise TypeError
-        except Exception as e:
-            log.exception(f'Expected list: {value}\n{e}')
-            raise
-        return column.notin_(value_list)
-    else: 
-        return column.notin_(value)
+    return column.notin_(value)
