@@ -95,6 +95,44 @@ def summary_query(db, endpoint_tablename, qnode):
     }
     return ret
 
+# TODO
+def columns_query(db):
+    """Generates list of column info for entity tables.
+
+    Args:
+        db (Session): Database session object
+
+    Returns:
+        ColumnResponseObj: 
+        {
+            'result': [{'key': 'value'}]
+        }
+    """
+
+    cols = []
+    
+    #Get tablenames...
+    tablenames = DB_MAP.entity_tables.keys()
+
+    for tablename in tablenames:
+        #Get columns for this table...
+        columns = DB_MAP.get_metadata_table_columns(tablename)
+        for column in columns:
+            if column.name != 'id_alias':
+                col = dict()
+                col['table'] = column.table.name
+                col['column'] = column.name
+                col['data_type'] = str(column.type).lower()
+                col['nullable'] = column.nullable
+                col['description'] = 'unset'
+                cols.append(col)
+    
+    ret = {
+        'result': cols
+    }
+
+    return ret
+
 
 # TODO
 def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offset):
