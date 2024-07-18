@@ -97,7 +97,7 @@ def summary_query(db, endpoint_tablename, qnode):
 
 # TODO
 def columns_query(db):
-    """Generates json formatted frequency results based on query for specific column
+    """Generates list of column info for entity tables.
 
     Args:
         db (Session): Database session object
@@ -105,18 +105,18 @@ def columns_query(db):
     Returns:
         ColumnResponseObj: 
         {
-            'result': [{'frequency': 'data'}]
+            'result': [{'key': 'value'}]
         }
     """
 
-    #Get Tables...
     cols = []
     
-    tables = DB_MAP.entity_tables.keys()
+    #Get tablenames...
+    tablenames = DB_MAP.entity_tables.keys()
 
-    for table in tables:
+    for tablename in tablenames:
         #Get columns for this table...
-        columns = DB_MAP.get_metadata_table_columns(table)
+        columns = DB_MAP.get_metadata_table_columns(tablename)
         for column in columns:
             if column.name != 'id_alias':
                 col = dict()
