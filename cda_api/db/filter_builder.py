@@ -2,8 +2,6 @@ from .query_operators import apply_filter_operator
 from cda_api import get_logger, ParsingError
 from .schema import get_db_map
 
-from cda_api.application_utilities import is_float, is_int
-
 log = get_logger()
 DB_MAP = get_db_map()
 
@@ -88,9 +86,7 @@ def get_preselect_filter(endpoint_tablename, filter_string):
     if filter_column_info.tablename.lower() != endpoint_tablename.lower():
         relationship = DB_MAP.get_relationship(entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename)
         mapping_column = relationship.entity_collection
-        # mapping_column = get_mapping_column(filter_column_info.tablename, endpoint_tablename)
         filter_clause = mapping_column.any(filter_clause)
-        
     
     return filter_clause
 

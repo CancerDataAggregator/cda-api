@@ -1,6 +1,6 @@
 from .schema import get_db_map
 from cda_api import get_logger
-from .query_utilities import build_match_query, total_count, grouped_count, get_cte_column, data_source_counts, entity_file_count
+from .query_utilities import build_match_query, total_count, numeric_summary, categorical_summary, get_cte_column, data_source_counts, entity_count
 from .filter_builder import build_match_conditons
 log = get_logger()
 DB_MAP = get_db_map()
@@ -43,60 +43,47 @@ def build_select_clause(entity_tablename, qnode):
 
 
 def build_summary_select_clause(db, endpoint_tablename, qnode):
-    column_map = DB_MAP.column_map
-    # Temporary summary column mapping
-    SUMMARY_MAP = {
-        'subject': {
-            'total_count_columns': [column_map['subject_integer_id_alias']],
-            'grouped_count_columns': [column_map['race'], 
-                                    column_map['ethnicity'],
-                                    column_map['cause_of_death']]
-        }
-    }
-
-    # Build preselect filter with select columns from temporary summary map
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
-    summary_select_clause = []
-    total_count_columns = SUMMARY_MAP[endpoint_tablename]['total_count_columns']
-    grouped_count_columns = SUMMARY_MAP[endpoint_tablename]['grouped_count_columns']
-    preselect_select_columns = [column_info.metadata_column for column_info in 
-                                total_count_columns + grouped_count_columns
-                                if column_info.tablename == endpoint_tablename]
-    preselect_select_columns += [column for column in DB_MAP.get_metadata_table_columns(endpoint_tablename)
-                                 if 'data_at' in column.name]
+    endpoint_columns = DB_MAP.get_metadata_table_columns(endpoint_tablename)
+    endpoint_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
     preselect_query = build_match_query(db=db,
-                                        select_columns=preselect_select_columns, 
+                                        select_columns=endpoint_columns, 
                                         match_all_conditions=match_all_conditions,
                                         match_some_conditions=match_some_conditions)
     preselect_query = preselect_query.cte('filter_preselect')
 
     # Get total counts
-    for column_info in total_count_columns:
-        if 'id_alias' in column_info.columnname:
-            alias = 'total_count'
-        else:
-            alias = f"total_{column_info.columnname}"
-        column_summary = total_count(db, get_cte_column(preselect_query, column_info.columnname)).label(alias)
-        if summary_select_clause:
-            summary_select_clause.append(column_summary)
-        else:
-            summary_select_clause = [column_summary]
+    summary_select_clause = [total_count(db, get_cte_column(preselect_query, 'id_alias')).label('total_count')]
+    
+    # Get file/subject counts
+    if endpoint_tablename != 'subject':
+        entity_to_count = 'subject'
+    else:
+        entity_to_count = 'file'
+    sub_file_count = entity_count(db=db,
+                                endpoint_tablename=endpoint_tablename, 
+                                preselect_query=preselect_query,
+                                entity_to_count=entity_to_count)
+    summary_select_clause.append(sub_file_count.label(f'{entity_to_count}_count'))
 
-    # Get file counts
-    file_count = entity_file_count(db=db,
-                                   endpoint_tablename=endpoint_tablename, 
-                                    preselect_query=preselect_query)
-    summary_select_clause.append(file_count.label('file_count'))
-
-    # Get categorical(grouped) column counts
-    for column_info in grouped_count_columns:
-        alias = f"{column_info.columnname}_count"
-        column_summary = grouped_count(db, get_cte_column(preselect_query, column_info.columnname)).label(alias)
-        summary_select_clause.append(column_summary)
+    # Get categorical & numeric summaries
+    for column_info in endpoint_column_infos:
+        column_summary = None
+        preselect_column = get_cte_column(preselect_query, column_info.columnname)
+        match column_info.category:
+            case 'numeric':
+                column_summary = numeric_summary(db, preselect_column)
+                summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
+            case 'categorical':
+                column_summary = categorical_summary(db, preselect_column)
+                summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
+            case _:
+                pass
 
     # Get data_source counts
     data_at_columns = [column for column in preselect_query.c if 'data_at' in column.name]
     data_count_select = data_source_counts(db, data_at_columns)
     summary_select_clause.append(data_count_select.label('data_source'))
-
+    
+    
     return summary_select_clause

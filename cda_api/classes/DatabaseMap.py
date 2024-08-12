@@ -2,8 +2,8 @@ from cda_api import ColumnNotFound, RelationshipNotFound, TableNotFound, get_log
 from .ColumnInfo import ColumnInfo
 from .EntityRelationship import EntityRelationship
 from sqlalchemy import inspect, Column
-log = get_logger()
 
+log = get_logger()
 
 class DatabaseMap():
     def __init__(self, db_base):
@@ -57,6 +57,7 @@ class DatabaseMap():
             for relationship in i.relationships:
                 if tablename != relationship.target.name:
                     self.relationship_map[tablename][relationship.target.name] = EntityRelationship(tablename, relationship)
+
         
 
     def get_column_info(self, columnname) -> ColumnInfo:

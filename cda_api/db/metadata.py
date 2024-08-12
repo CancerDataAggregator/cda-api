@@ -8,7 +8,9 @@ def get_release_metadata(db):
     query = db.query(Base.metadata.tables['release_metadata'])
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
     # Fake return for now
+    result = query.all()
+    result = [row for row, in result]
     ret = {
-        'result': [{'release_metadata': 'success'}]
+        'result': result
     }
     return ret

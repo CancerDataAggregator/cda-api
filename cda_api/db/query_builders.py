@@ -34,23 +34,28 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
     select_columns, mapping_columns = build_select_clause(endpoint_tablename, qnode)
 
-    query = build_match_query(db=db, 
+    subquery = build_match_query(db=db, 
                               select_columns=select_columns,
                               match_all_conditions=match_all_conditions,
                               match_some_conditions=match_some_conditions,
                               mapping_columns=mapping_columns)
+    subquery = subquery.subquery('json_result')
+    query = db.query(func.row_to_json(subquery.table_valued()))
     
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
     
-    # TODO - Currently no data but this will generate the actual result for paged queries
     # TODO - Need to figure out what to do when offset past available data
-    # result = q.offset(offset).limit(limit).all()
+    result = query.offset(offset).limit(limit).all()
+    
+    # TODO - consider this and think of a possible better solution (could double up in memory)
+    result = [row for row, in result]
 
+    # TODO update next_url 
     # Fake return for now
     ret = {
-        'result': [{'paged_query': 'success'}],
+        'result': result,
         'query_sql': query_to_string(query),
-        'total_row_count': 42,
+        'total_row_count': query.count(),
         'next_url': ''
     }
     return ret
@@ -77,7 +82,7 @@ def summary_query(db, endpoint_tablename, qnode):
     
 
     # Get summary count query
-    select_clause = build_summary_select_clause(db, 'subject', qnode)
+    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
     # wrap everything in a subquery
     subquery = db.query(*select_clause).subquery('json_result')
     # Apply row_to_json function
@@ -85,12 +90,12 @@ def summary_query(db, endpoint_tablename, qnode):
 
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
 
-    # TODO - This gets the result, but skipping for now while returning fake data
-    # result = q.all()
+    result = query.all()
+    result = [row for row, in result]
 
     # Fake return for now
     ret = {
-        'result': [{'summary_query': 'success'}],
+        'result': result,
         'query_sql': query_to_string(query)
     }
     return ret
@@ -151,10 +156,7 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
     """
     column = DB_MAP.get_meta_column(columnname)
 
-    if totalCount:
-        total_count_query = db.query(distinct_count(column))
-    else:
-        total_count_query = None
+    total_count_query = db.query(distinct_count(column))
     query = build_unique_value_query(db=db, 
                                      column=column, 
                                      system=system,
@@ -162,14 +164,16 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
                                      limit=limit,
                                      offset=offset)
 
-    # result = query.all()
-    # total_count = total_count_query.all()
+    result = query.offset(offset).limit(limit).all()
+    result = [row for row, in result]
+    total_count = total_count_query.scalar()
+    # print(total_count)
 
     # Fake return for now
     ret = {
-        'result': [{'frequency_query': 'success'}],
+        'result': result,
         'query_sql': query_to_string(query),
-        'total_row_count': 0,
+        'total_row_count': total_count,
         'next_url': ''
     }
     return ret

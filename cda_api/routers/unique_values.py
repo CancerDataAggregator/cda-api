@@ -41,6 +41,13 @@ def unique_values_endpoint(request: Request,
                                 totalCount=totalCount,
                                 limit=limit,
                                 offset=offset)
+        if result['total_row_count'] > offset+limit:
+            next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
+            result['next_url'] = next_url
+        else:
+            result['next_url'] = None
+        if not totalCount:
+            result['total_row_count'] = None
     except Exception as e:
         # TODO - possibly a better exception to throw
         raise HTTPException(status_code=404, detail=str(e))
