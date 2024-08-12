@@ -100,7 +100,8 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
     return query
 
 
-def build_unique_value_query(db, column, system = None, countOpt = False, limit=None, offset=None):
+def build_unique_value_query(db, column, system = None, countOpt = False):
+    log.debug('Building unique_values query')
     if countOpt:
         unique_values_query = db.query(column, func.count().label('value_count')).group_by(column).order_by(column)
     else:
@@ -114,12 +115,7 @@ def build_unique_value_query(db, column, system = None, countOpt = False, limit=
             error = SystemNotFound(f'system: {system} - not found')
             log.exception(error)
             raise error
-
-    if limit:
-        unique_values_query = unique_values_query.limit(limit)
-    if offset:
-        unique_values_query = unique_values_query.offset(offset)
-
+    
     unique_values_query = unique_values_query.subquery('column_json')
 
     query = db.query(func.row_to_json(unique_values_query.table_valued()))

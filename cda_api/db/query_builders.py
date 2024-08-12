@@ -160,14 +160,11 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
     query = build_unique_value_query(db=db, 
                                      column=column, 
                                      system=system,
-                                     countOpt=countOpt,
-                                     limit=limit,
-                                     offset=offset)
-
+                                     countOpt=countOpt)
+    
     result = query.offset(offset).limit(limit).all()
     result = [row for row, in result]
     total_count = total_count_query.scalar()
-    # print(total_count)
 
     # Fake return for now
     ret = {

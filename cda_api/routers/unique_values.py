@@ -14,13 +14,13 @@ router = APIRouter(
 
 @router.post('/{columnname}')
 def unique_values_endpoint(request: Request, 
-                                columnname: str, 
-                                system: str = '',
-                                count: bool = False,
-                                totalCount: bool = False,
-                                limit: int = None,
-                                offset: int = None,
-                                db: Session = Depends(get_db)) -> UniqueValueResponseObj:
+                            columnname: str, 
+                            system: str = '',
+                            count: bool = False,
+                            totalCount: bool = False,
+                            limit: int = None,
+                            offset: int = None,
+                            db: Session = Depends(get_db)) -> UniqueValueResponseObj:
     """_summary_
 
     Args:
@@ -41,13 +41,18 @@ def unique_values_endpoint(request: Request,
                                 totalCount=totalCount,
                                 limit=limit,
                                 offset=offset)
-        if result['total_row_count'] > offset+limit:
-            next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
-            result['next_url'] = next_url
+        # TODO need to figure out better way to handle limit and offset 
+        if offset and limit:
+            if result['total_row_count'] > offset+limit:
+                next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
+                result['next_url'] = next_url
+                print('Built next_url')
         else:
             result['next_url'] = None
+            print('next_url = None')
         if not totalCount:
             result['total_row_count'] = None
+            print('Overrode total_row_count')
     except Exception as e:
         # TODO - possibly a better exception to throw
         raise HTTPException(status_code=404, detail=str(e))
