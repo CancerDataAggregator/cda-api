@@ -107,10 +107,13 @@ def build_unique_value_query(db, column, system = None, countOpt = False):
     else:
         unique_values_query = db.query(distinct(column).label(column.name)).order_by(column)
 
+    total_count_query = db.query(distinct_count(column))
+
     if system:
         try:
             data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
             unique_values_query = unique_values_query.filter(data_system_column.is_(True))
+            total_count_query = total_count_query.filter(data_system_column.is_(True))
         except Exception as e:
             error = SystemNotFound(f'system: {system} - not found')
             log.exception(error)
@@ -118,5 +121,6 @@ def build_unique_value_query(db, column, system = None, countOpt = False):
     
     unique_values_query = unique_values_query.subquery('column_json')
 
+
     query = db.query(func.row_to_json(unique_values_query.table_valued()))
-    return query
+    return query, total_count_query

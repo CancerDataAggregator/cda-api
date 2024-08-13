@@ -42,17 +42,17 @@ def unique_values_endpoint(request: Request,
                                 limit=limit,
                                 offset=offset)
         # TODO need to figure out better way to handle limit and offset 
-        if offset and limit:
+        if (offset != None) and (limit != None):
             if result['total_row_count'] > offset+limit:
+                print('applying next_url')
                 next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
                 result['next_url'] = next_url
-                print('Built next_url')
         else:
             result['next_url'] = None
-            print('next_url = None')
+
         if not totalCount:
             result['total_row_count'] = None
-            print('Overrode total_row_count')
+
     except Exception as e:
         # TODO - possibly a better exception to throw
         raise HTTPException(status_code=404, detail=str(e))

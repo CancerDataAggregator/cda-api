@@ -156,8 +156,7 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
     """
     column = DB_MAP.get_meta_column(columnname)
 
-    total_count_query = db.query(distinct_count(column))
-    query = build_unique_value_query(db=db, 
+    query, total_count_query = build_unique_value_query(db=db, 
                                      column=column, 
                                      system=system,
                                      countOpt=countOpt)
