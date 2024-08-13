@@ -41,15 +41,13 @@ def unique_values_endpoint(request: Request,
                                 totalCount=totalCount,
                                 limit=limit,
                                 offset=offset)
-        # TODO need to figure out better way to handle limit and offset 
+        # TODO need to figure out better way to handle limit and offset
+        result['next_url'] = None
         if (offset != None) and (limit != None):
             if result['total_row_count'] > offset+limit:
-                print('applying next_url')
                 next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
                 result['next_url'] = next_url
-        else:
-            result['next_url'] = None
-
+            
         if not totalCount:
             result['total_row_count'] = None
 

@@ -30,7 +30,7 @@ def distinct_count(column):
     return func.count(distinct(column))
 
 # Gets the total distinct counts of a column as a subquery
-def total_count(db, column):
+def total_column_count_subquery(db, column):
     return db.query(distinct_count(column).label('count_result')).scalar_subquery()
 
 
@@ -48,7 +48,7 @@ def numeric_summary(db, column):
 
 # Gets the categorical(grouped) json counts of a row
 def categorical_summary(db, column):
-    column_preselect = db.query(column, func.count(column).label('count_result')).group_by(column).subquery('subquery')
+    column_preselect = db.query(column, func.count().label('count_result')).group_by(column).subquery('subquery')
     column_json = db.query(func.row_to_json(column_preselect.table_valued()).label(f'{column.name}_categories')).cte(f"json_{column.name}")
     return db.query(func.array_agg(get_cte_column(column_json, f'{column.name}_categories'))).scalar_subquery()
 

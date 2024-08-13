@@ -1,6 +1,6 @@
 from .schema import get_db_map
 from cda_api import get_logger
-from .query_utilities import build_match_query, total_count, numeric_summary, categorical_summary, get_cte_column, data_source_counts, entity_count
+from .query_utilities import build_match_query, total_column_count_subquery, numeric_summary, categorical_summary, get_cte_column, data_source_counts, entity_count
 from .filter_builder import build_match_conditons
 log = get_logger()
 DB_MAP = get_db_map()
@@ -53,7 +53,7 @@ def build_summary_select_clause(db, endpoint_tablename, qnode):
     preselect_query = preselect_query.cte('filter_preselect')
 
     # Get total counts
-    summary_select_clause = [total_count(db, get_cte_column(preselect_query, 'id_alias')).label('total_count')]
+    summary_select_clause = [total_column_count_subquery(db, get_cte_column(preselect_query, 'id_alias')).label('total_count')]
     
     # Get file/subject counts
     if endpoint_tablename != 'subject':
