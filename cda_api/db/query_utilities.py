@@ -1,14 +1,15 @@
 from sqlalchemy import func, Integer, distinct
+from sqlalchemy.dialects import postgresql
 import sqlparse
 from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
-from .schema import get_db_map
+from cda_api.db import get_db_map
 
 log = get_logger()
 DB_MAP = get_db_map()
 
 # Generates compiled SQL string from query object
 def query_to_string(q, indented=False) -> str:
-    sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}))
+    sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
     if indented:
         return sqlparse.format(sql_string, reindent=True, keyword_case='upper')
     else:

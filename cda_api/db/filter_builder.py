@@ -1,6 +1,6 @@
 from .query_operators import apply_filter_operator
 from cda_api import get_logger, ParsingError
-from .schema import get_db_map
+from cda_api.db import get_db_map
 
 log = get_logger()
 DB_MAP = get_db_map()

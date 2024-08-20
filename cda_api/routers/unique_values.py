@@ -1,5 +1,6 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
-from cda_api.db import get_db, unique_value_query
+from cda_api.db import get_db
+from cda_api.db.query_builders import unique_value_query
 from cda_api.models import QNode, UniqueValueResponseObj
 from sqlalchemy.orm import Session
 from cda_api import get_logger

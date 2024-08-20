@@ -3,7 +3,8 @@ from .select_builder import build_select_clause, build_summary_select_clause
 from .query_utilities import query_to_string, build_match_query, build_unique_value_query, distinct_count
 from sqlalchemy import and_, or_, func
 from cda_api import get_logger
-from .schema import get_db_map, Base
+from cda_api.db import get_db_map
+from cda_api.db.schema import Base
 
 log = get_logger()
 DB_MAP = get_db_map()
@@ -44,14 +45,11 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
     
-    # TODO - Need to figure out what to do when offset past available data
     result = query.offset(offset).limit(limit).all()
     
     # TODO - consider this and think of a possible better solution (could double up in memory)
     result = [row for row, in result]
 
-    # TODO update next_url 
-    # Fake return for now
     ret = {
         'result': result,
         'query_sql': query_to_string(query),
@@ -87,6 +85,7 @@ def summary_query(db, endpoint_tablename, qnode):
     subquery = db.query(*select_clause).subquery('json_result')
     # Apply row_to_json function
     query = db.query(func.row_to_json(subquery.table_valued()).label('results'))
+    
 
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
 

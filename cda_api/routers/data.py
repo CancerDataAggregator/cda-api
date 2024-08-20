@@ -1,5 +1,6 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
-from cda_api.db import get_db, paged_query
+from cda_api.db import get_db
+from cda_api.db.query_builders import paged_query
 from cda_api.models import QNode, PagedResponseObj
 from cda_api import get_logger
 from sqlalchemy.orm import Session
@@ -47,9 +48,10 @@ def subject_paged_endpoint(request: Request,
     try:
         # Get paged query result
         result = paged_query(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset)
-        if result['total_row_count'] > offset+limit:
-            next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
-            result['next_url'] = next_url
+        if (offset != None) and (limit != None):
+            if result['total_row_count'] > offset+limit:
+                next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
+                result['next_url'] = next_url
         else:
             result['next_url'] = None
     except Exception as e:
@@ -91,7 +93,15 @@ def file_paged_endpoint(request: Request,
     try:
         # Get paged query result
         result = paged_query(db, endpoint_tablename='file', qnode=qnode, limit=limit, offset=offset)
+        if (offset != None) and (limit != None):
+            if result['total_row_count'] > offset+limit:
+                next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
+                result['next_url'] = next_url
+        else:
+            result['next_url'] = None
     except Exception as e:
         # TODO - possibly a better exception to throw
-        raise HTTPException(status_code=404, detail=e)
+        log.error(e)
+        raise HTTPException(status_code=404, detail=str(e))
+    
     return result

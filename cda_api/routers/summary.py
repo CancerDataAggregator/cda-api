@@ -1,5 +1,6 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
-from cda_api.db import get_db, summary_query
+from cda_api.db import get_db
+from cda_api.db.query_builders import summary_query
 from cda_api.models import QNode, SummaryResponseObj
 from sqlalchemy.orm import Session
 from cda_api import get_logger

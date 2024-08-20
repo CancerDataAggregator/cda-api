@@ -1,7 +1,8 @@
-from .schema import get_db_map
+from cda_api.db import get_db_map
 from cda_api import get_logger
 from .query_utilities import build_match_query, total_column_count_subquery, numeric_summary, categorical_summary, get_cte_column, data_source_counts, entity_count
 from .filter_builder import build_match_conditons
+from sqlalchemy import Label
 log = get_logger()
 DB_MAP = get_db_map()
 
@@ -18,7 +19,7 @@ def build_select_clause(entity_tablename, qnode):
             additional_column = DB_MAP.get_meta_column(additional_columnname)
             if additional_column not in select_columns:
                 log.debug(f'Adding {additional_columnname} to SELECT clause')
-                select_columns.append(additional_column)
+                select_columns.append(additional_column.label(additional_columnname))
                 
 
     # Remove columns from select list
@@ -31,6 +32,8 @@ def build_select_clause(entity_tablename, qnode):
                 
     # Build out mapping column list for joins
     for column in select_columns:
+        if isinstance(column, Label):
+            column = column.element
         column_tablename = column.table.name
         if column_tablename != entity_tablename:
             log.debug(f'Mapping JOIN clause for {column.name}')
