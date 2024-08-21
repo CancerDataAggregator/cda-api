@@ -1,5 +1,6 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
-from cda_api.db import get_db, columns_query
+from cda_api.db import get_db
+from cda_api.db.query_builders import columns_query
 from cda_api.models import QNode, ColumnResponseObj
 from sqlalchemy.orm import Session
 from cda_api import get_logger
@@ -11,7 +12,7 @@ router = APIRouter(
     tags=["columns"]
 )
 
-@router.post('/')
+@router.get('/')
 def columns_endpoint(request: Request, 
                      db: Session = Depends(get_db)) -> ColumnResponseObj:
     """_summary_

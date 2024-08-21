@@ -9,22 +9,3 @@ def get_logger() -> logging.Logger:
     logging.config.dictConfig(log_config)
     logger = logging.getLogger("simple")
     return logger
-
-
-def is_float(element):
-    if element is None: 
-        return False
-    try:
-        float(element)
-        return True
-    except ValueError:
-        return False
-    
-def is_int(element):
-    if element is None: 
-        return False
-    try:
-        int(element)
-        return True
-    except ValueError:
-        return False

@@ -1,8 +1,6 @@
 from .query_operators import apply_filter_operator
 from cda_api import get_logger, ParsingError
-from .schema import get_db_map
-
-from cda_api.application_utilities import is_float, is_int
+from cda_api.db import get_db_map
 
 log = get_logger()
 DB_MAP = get_db_map()
@@ -13,12 +11,12 @@ import ast
 # Parse out the key components from the filter string
 def parse_filter_string(filter_string):
     # Clean up the filter
-    filter_string = filter_string.strip()
+    filter_string = filter_string.strip().lower()
 
     # Parse out the operator (Note: Order matters, you can't put = before <=)
     operator_pattern = r"(?:\snot\s|\s)(?:!=|<>|<=|>=|=|<|>|is|in|like|between|not)+(?:\snot\s|\s)"
     operator_rexp = re.compile(operator_pattern)
-    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string.lower())]
+    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string)]
     if len(parsed_operators) != 1:
         raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
 
@@ -30,7 +28,7 @@ def parse_filter_string(filter_string):
                     'not','is not','not in','not like','not between']
     if operator not in valid_operators:
         raise ParsingError(f'Parsed operator: "{operator}" not valid')
-
+    
     # Ensure the operator isn't at the beginning or the end of the filter string
     operator_location = re.search(operator, filter_string)
     if operator_location.start() == 0:
@@ -88,9 +86,7 @@ def get_preselect_filter(endpoint_tablename, filter_string):
     if filter_column_info.tablename.lower() != endpoint_tablename.lower():
         relationship = DB_MAP.get_relationship(entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename)
         mapping_column = relationship.entity_collection
-        # mapping_column = get_mapping_column(filter_column_info.tablename, endpoint_tablename)
         filter_clause = mapping_column.any(filter_clause)
-        
     
     return filter_clause
 

@@ -1,7 +1,7 @@
-from .connection import session, engine
-from .query_builders import paged_query, summary_query, columns_query, unique_value_query
-from .metadata import get_release_metadata
+from .connection import session
 from .schema import Base
+from cda_api.classes.DatabaseMap import DatabaseMap
+
 
 def get_db():
     db = session()
@@ -10,4 +10,6 @@ def get_db():
     finally:
         db.close()
 
-
+def get_db_map() -> DatabaseMap:
+    db_map = DatabaseMap(Base)
+    return db_map

@@ -1,5 +1,6 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
-from cda_api.db import get_db, get_release_metadata
+from cda_api.db.metadata import get_release_metadata
+from cda_api.db import get_db
 from cda_api.models import QNode, ReleaseMetadataObj
 from sqlalchemy.orm import Session
 

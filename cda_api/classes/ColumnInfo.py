@@ -1,32 +1,16 @@
+import cda_api.db
 from sqlalchemy.orm.decl_api import DeclarativeMeta
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy import Column, Table
 from dataclasses import dataclass, field
 
-
-temp_column_category_map = {
-    'file': {
-        'type': 'categorical', 
-        'format': 'categorical', 
-        'category': 'categorical', 
-        'size': 'continuous'
-    },
-    'subject': {
-        'species': 'categorical',
-        'year_of_birth': 'continuous',
-        'year_of_death': 'continuous',
-        'cause_of_death': 'categorical',
-        'race': 'categorical',
-        'ethnicity': 'categorical'
-    }
-}
-
 @dataclass
 class ColumnInfo():
-    unqiuename: str
+    uniquename: str
     entity_table: DeclarativeMeta
     metadata_table: Table
     metadata_column: Column
+    column_map: dict
     columnname: str = field(init=False)
     tablename: str = field(init=False)
     table_columnname: str = field(init=False)
@@ -40,11 +24,12 @@ class ColumnInfo():
         self.category = None
         if self.entity_table:
             self.entity_column = getattr(self.entity_table, self.columnname)
-            if self.tablename in temp_column_category_map.keys():
-                if self.columnname in temp_column_category_map[self.tablename].keys():
-                    self.category = temp_column_category_map[self.tablename][self.columnname]
+            if self.tablename in self.column_map.keys():
+                if self.columnname in self.column_map[self.tablename].keys():
+                    self.category = self.column_map[self.tablename][self.columnname]
         else:
             self.entity_column = None
 
     def in_entity_table(self):
         return bool(self.entity_table)
+

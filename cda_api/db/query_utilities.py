@@ -1,14 +1,15 @@
 from sqlalchemy import func, Integer, distinct
+from sqlalchemy.dialects import postgresql
 import sqlparse
 from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
-from .schema import get_db_map
+from cda_api.db import get_db_map
 
 log = get_logger()
 DB_MAP = get_db_map()
 
 # Generates compiled SQL string from query object
 def query_to_string(q, indented=False) -> str:
-    sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}))
+    sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
     if indented:
         return sqlparse.format(sql_string, reindent=True, keyword_case='upper')
     else:
@@ -30,15 +31,28 @@ def distinct_count(column):
     return func.count(distinct(column))
 
 # Gets the total distinct counts of a column as a subquery
-def total_count(db, column):
+def total_column_count_subquery(db, column):
     return db.query(distinct_count(column).label('count_result')).scalar_subquery()
 
 
+# Gets statistics of a row for numeric columns
+def numeric_summary(db, column):
+    column_subquery = db.query(func.min(column).label('min'),
+                 func.max(column).label('max'),
+                 func.avg(column).label('mean'),
+                 func.percentile_disc(0.5).within_group(column).label('median'),
+                 func.percentile_disc(0.25).within_group(column).label('lower_quartile'),
+                 func.percentile_disc(0.75).within_group(column).label('upper_quartile')).subquery('subquery')
+    column_json = db.query(func.row_to_json(column_subquery.table_valued()).label(f'{column.name}_stats')).cte(f"json_{column.name}")
+    return db.query(func.array_agg(get_cte_column(column_json, f"{column.name}_stats"))).scalar_subquery()
+
+
 # Gets the categorical(grouped) json counts of a row
-def grouped_count(db, column):
-    column_preselect = db.query(column, distinct_count(column).label('count_result')).group_by(column).subquery('subquery')
-    column_json = db.query(func.row_to_json(column_preselect.table_valued())).cte(f"json_{column.name}")
-    return db.query(func.array_agg(column_json.table_valued())).scalar_subquery()
+def categorical_summary(db, column):
+    column_preselect = db.query(column, func.count().label('count_result')).group_by(column).subquery('subquery')
+    column_json = db.query(func.row_to_json(column_preselect.table_valued()).label(f'{column.name}_categories')).cte(f"json_{column.name}")
+    return db.query(func.array_agg(get_cte_column(column_json, f'{column.name}_categories'))).scalar_subquery()
+
 
 
 # Combines the counts of data source columns into a single json for use in summary endpoint
@@ -50,14 +64,19 @@ def data_source_counts(db, data_source_columns):
     return data_source_json
 
 
-# Gets the total count of an entity's related files by only counting from the mapping table (ie. observation_of_subject)
-def entity_file_count(db, endpoint_tablename, preselect_query):
-    entity_file_relationship = DB_MAP.get_relationship(endpoint_tablename, 'file')
-    entity_to_file_local_column = entity_file_relationship.entity_column
-    entity_to_file_mapping_column = entity_file_relationship.entity_mapping_column
-    file_entity_subquery = db.query(get_cte_column(preselect_query, entity_to_file_local_column.name).label(entity_to_file_mapping_column.name))
-    file_count_select = db.query(func.count(distinct(entity_file_relationship.foreign_mapping_column)).label('count_result')).filter(entity_to_file_mapping_column.in_(file_entity_subquery)).scalar_subquery()
-    return file_count_select
+# Gets the total count of an entity's related files and subjects by only counting from the mapping table (ie. observation_of_subject)
+def entity_count(db, endpoint_tablename, preselect_query, entity_to_count):
+    entity_relationship = DB_MAP.get_relationship(endpoint_tablename, entity_to_count)
+    if entity_relationship.has_mapping_table:
+        entity_local_column = entity_relationship.entity_column
+        entity_mapping_column = entity_relationship.entity_mapping_column
+        subquery = db.query(get_cte_column(preselect_query, entity_local_column.name).label(entity_mapping_column.name))
+        entity_count_select = db.query(func.count(distinct(entity_relationship.foreign_mapping_column)).label('count_result')).filter(entity_mapping_column.in_(subquery)).scalar_subquery()
+    else:
+        entity_local_column = entity_relationship.entity_column
+        subquery = db.query(get_cte_column(preselect_query, entity_local_column.name).label(entity_local_column.name))
+        entity_count_select = db.query(func.count(distinct(entity_local_column)).label('count_result')).filter(entity_local_column.in_(subquery)).scalar_subquery()
+    return entity_count_select
 
 
 # Combines select columns, match conditions, and mapping columns into cohesive query
@@ -82,28 +101,27 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
     return query
 
 
-def build_unique_value_query(db, column, system = None, countOpt = False, limit=None, offset=None):
-    print('test')
+def build_unique_value_query(db, column, system = None, countOpt = False):
+    log.debug('Building unique_values query')
     if countOpt:
-        column_query = db.query(column, func.count().label('value_count')).group_by(column).order_by(column)
+        unique_values_query = db.query(column, func.count().label('value_count')).group_by(column).order_by(column)
     else:
-        column_query = db.query(distinct(column).label(column.name)).order_by(column)
+        unique_values_query = db.query(distinct(column).label(column.name)).order_by(column)
+
+    total_count_query = db.query(distinct_count(column))
 
     if system:
         try:
             data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
-            column_query = column_query.filter(data_system_column.is_(True))
+            unique_values_query = unique_values_query.filter(data_system_column.is_(True))
+            total_count_query = total_count_query.filter(data_system_column.is_(True))
         except Exception as e:
             error = SystemNotFound(f'system: {system} - not found')
             log.exception(error)
             raise error
+    
+    unique_values_query = unique_values_query.subquery('column_json')
 
-    if limit:
-        column_query = column_query.limit(limit)
-    if offset:
-        column_query = column_query.offset(offset)
 
-    column_query = column_query.subquery('column_json')
-
-    query = db.query(func.row_to_json(column_query.table_valued()))
-    return query
+    query = db.query(func.row_to_json(unique_values_query.table_valued()))
+    return query, total_count_query

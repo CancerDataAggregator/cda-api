@@ -3,7 +3,8 @@ from .select_builder import build_select_clause, build_summary_select_clause
 from .query_utilities import query_to_string, build_match_query, build_unique_value_query, distinct_count
 from sqlalchemy import and_, or_, func
 from cda_api import get_logger
-from .schema import get_db_map, Base
+from cda_api.db import get_db_map
+from cda_api.db.schema import Base
 
 log = get_logger()
 DB_MAP = get_db_map()
@@ -34,23 +35,25 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
     select_columns, mapping_columns = build_select_clause(endpoint_tablename, qnode)
 
-    query = build_match_query(db=db, 
+    subquery = build_match_query(db=db, 
                               select_columns=select_columns,
                               match_all_conditions=match_all_conditions,
                               match_some_conditions=match_some_conditions,
                               mapping_columns=mapping_columns)
+    subquery = subquery.subquery('json_result')
+    query = db.query(func.row_to_json(subquery.table_valued()))
     
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
     
-    # TODO - Currently no data but this will generate the actual result for paged queries
-    # TODO - Need to figure out what to do when offset past available data
-    # result = q.offset(offset).limit(limit).all()
+    result = query.offset(offset).limit(limit).all()
+    
+    # TODO - consider this and think of a possible better solution (could double up in memory)
+    result = [row for row, in result]
 
-    # Fake return for now
     ret = {
-        'result': [{'paged_query': 'success'}],
+        'result': result,
         'query_sql': query_to_string(query),
-        'total_row_count': 42,
+        'total_row_count': query.count(),
         'next_url': ''
     }
     return ret
@@ -77,20 +80,21 @@ def summary_query(db, endpoint_tablename, qnode):
     
 
     # Get summary count query
-    select_clause = build_summary_select_clause(db, 'subject', qnode)
+    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
     # wrap everything in a subquery
     subquery = db.query(*select_clause).subquery('json_result')
     # Apply row_to_json function
     query = db.query(func.row_to_json(subquery.table_valued()).label('results'))
+    
 
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
 
-    # TODO - This gets the result, but skipping for now while returning fake data
-    # result = q.all()
+    result = query.all()
+    result = [row for row, in result]
 
     # Fake return for now
     ret = {
-        'result': [{'summary_query': 'success'}],
+        'result': result,
         'query_sql': query_to_string(query)
     }
     return ret
@@ -151,25 +155,20 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
     """
     column = DB_MAP.get_meta_column(columnname)
 
-    if totalCount:
-        total_count_query = db.query(distinct_count(column))
-    else:
-        total_count_query = None
-    query = build_unique_value_query(db=db, 
+    query, total_count_query = build_unique_value_query(db=db, 
                                      column=column, 
                                      system=system,
-                                     countOpt=countOpt,
-                                     limit=limit,
-                                     offset=offset)
-
-    # result = query.all()
-    # total_count = total_count_query.all()
+                                     countOpt=countOpt)
+    
+    result = query.offset(offset).limit(limit).all()
+    result = [row for row, in result]
+    total_count = total_count_query.scalar()
 
     # Fake return for now
     ret = {
-        'result': [{'frequency_query': 'success'}],
+        'result': result,
         'query_sql': query_to_string(query),
-        'total_row_count': 0,
+        'total_row_count': total_count,
         'next_url': ''
     }
     return ret
