@@ -29,17 +29,15 @@ class EntityRelationship():
             raise RelationshipError(f'Error mapping between {self.entity_tablename} and {self.foreign_tablename} -> {self.relationship.remote_side}')
         self.mapping_table = list(mapping_table_columns)[0].table
         try: 
-            for column in mapping_table_columns:
-                if len(column.foreign_keys) != 1:
-                    raise RelationshipError(f'Individual foreign key for {column.name} not found when mapping between {self.entity_tablename} and {self.foreign_tablename} not found')
-                foreign_key = list(column.foreign_keys)[0]
-                foreign_tablename = foreign_key.column.table.name
-                if foreign_tablename == self.foreign_tablename:
-                    self.foreign_mapping_column = column
-                    self.foreign_column = foreign_key.column
+            for local, remote in self.relationship.local_remote_pairs:
+                if local.table.name == self.entity_tablename:
+                    self.entity_column = local
+                    self.entity_mapping_column = remote
+                elif local.table.name == self.foreign_tablename:
+                    self.foreign_column = local
+                    self.foreign_mapping_column = remote
                 else:
-                    self.entity_mapping_column = column
-                    self.entity_column = foreign_key.column
+                    raise RelationshipError(f'Error mapping between {self.entity_tablename} and {self.foreign_tablename} -> {self.relationship.local_remote_pairs}')
         except:
             log.exception(f"Error encountered while trying to build relationship between {self.entity_tablename} and {self.foreign_tablename}")
             raise RelationshipError
