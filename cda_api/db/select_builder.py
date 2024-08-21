@@ -1,48 +1,66 @@
 from cda_api.db import get_db_map
 from cda_api import get_logger
-from .query_utilities import build_match_query, total_column_count_subquery, numeric_summary, categorical_summary, get_cte_column, data_source_counts, entity_count
+from .query_utilities import build_match_query, build_foreign_array_preselect, total_column_count_subquery, numeric_summary, categorical_summary, get_cte_column, data_source_counts, entity_count
 from .filter_builder import build_match_conditons
 from sqlalchemy import Label
 log = get_logger()
 DB_MAP = get_db_map()
 
-def build_select_clause(entity_tablename, qnode):
+def build_fetch_rows_select_clause(db, entity_tablename, qnode, preselect_query):
     log.info('Building SELECT clause')
     add_columns = qnode.ADD_COLUMNS
     exclude_columns = qnode.EXCLUDE_COLUMNS
     select_columns = DB_MAP.get_metadata_table_columns(entity_tablename)
-    collection_columns = []
+    foreign_array_map = {}
+    foreign_array_preselects = []
+    foreign_joins = []
 
     # Add additional columns to select list
     if add_columns:
-        for additional_columnname in add_columns:
-            additional_column = DB_MAP.get_meta_column(additional_columnname)
-            if additional_column not in select_columns:
-                log.debug(f'Adding {additional_columnname} to SELECT clause')
-                select_columns.append(additional_column.label(additional_columnname))
-                
+        for add_columnname in add_columns:
+            add_column = DB_MAP.get_meta_column(add_columnname)
+            if add_column not in select_columns:
+                log.debug(f'Adding {add_columnname} to SELECT clause')
+                select_columns.append(add_column.label(add_columnname))
 
     # Remove columns from select list
     if exclude_columns:
         for exclude_columnname in exclude_columns:
             exclude_column = DB_MAP.get_meta_column(exclude_columnname)
             if exclude_column in select_columns:
-                log.debug(f'Removing {exclude_columnname} from SELECT clause')
-                select_columns.remove(exclude_column)
-                
-    # Build out mapping column list for joins
+                to_remove = []
+                for select_column in select_columns:
+                    if select_column.name == exclude_column.name:
+                        log.debug(f'Removing {exclude_columnname} from SELECT clause')
+                        to_remove.append(select_column)
+                select_columns = [col for col in select_columns if col not in to_remove]
+
+    # Build foreign_array_map
     for column in select_columns:
         if isinstance(column, Label):
+            unique_name = column.name
             column = column.element
-        column_tablename = column.table.name
-        if column_tablename != entity_tablename:
-            log.debug(f'Mapping JOIN clause for {column.name}')
-            relationship = DB_MAP.get_relationship(entity_tablename=entity_tablename, 
-                                                          foreign_tablename=column_tablename)
-            collection_column = relationship.entity_collection
-            collection_columns.append(collection_column)
+        if column.table.name != entity_tablename:
+            if column.table.name not in foreign_array_map.keys():
+                foreign_array_map[column.table.name] = [column.label(unique_name)]
+            else:
+                foreign_array_map[column.table.name].append(column.label(unique_name))
 
-    return select_columns, collection_columns
+    # Build foreign array columns
+    for foreign_tablename, columns in foreign_array_map.items():
+        foreign_array_preselect, foreign_join, preselect_columns = build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query)
+        foreign_array_preselects.append(foreign_array_preselect)
+        foreign_joins.append(foreign_join)
+        # Need to remove previous columns that were added to select_columns and replace them with the new preselect_columns
+        for column in columns:
+            to_remove = []
+            for select_column in select_columns:
+                if select_column.name == column.name:
+                    to_remove.append(select_column)
+            select_columns = [col for col in select_columns if col not in to_remove]
+        select_columns += preselect_columns
+        
+    return select_columns, foreign_array_preselects, foreign_joins
 
 
 def build_summary_select_clause(db, endpoint_tablename, qnode):

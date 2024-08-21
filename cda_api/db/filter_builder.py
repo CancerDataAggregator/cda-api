@@ -11,7 +11,7 @@ import ast
 # Parse out the key components from the filter string
 def parse_filter_string(filter_string):
     # Clean up the filter
-    filter_string = filter_string.strip().lower()
+    filter_string = filter_string.strip()
 
     # Parse out the operator (Note: Order matters, you can't put = before <=)
     operator_pattern = r"(?:\snot\s|\s)(?:!=|<>|<=|>=|=|<|>|is|in|like|between|not)+(?:\snot\s|\s)"
@@ -30,7 +30,7 @@ def parse_filter_string(filter_string):
         raise ParsingError(f'Parsed operator: "{operator}" not valid')
     
     # Ensure the operator isn't at the beginning or the end of the filter string
-    operator_location = re.search(operator, filter_string)
+    operator_location = re.search(operator, filter_string.lower())
     if operator_location.start() == 0:
         raise ParsingError(f'Missing column in filter before operator "{filter_string}"')
 

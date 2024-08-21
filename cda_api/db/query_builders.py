@@ -1,6 +1,6 @@
 from .filter_builder import build_match_conditons
-from .select_builder import build_select_clause, build_summary_select_clause
-from .query_utilities import query_to_string, build_match_query, build_unique_value_query, distinct_count
+from .select_builder import build_fetch_rows_select_clause, build_summary_select_clause
+from .query_utilities import query_to_string, build_match_query, build_unique_value_query, distinct_count, build_filter_preselect
 from sqlalchemy import and_, or_, func
 from cda_api import get_logger
 from cda_api.db import get_db_map
@@ -33,21 +33,26 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     log.info('Building paged query')
     # Build filter conditionals, select columns, and mapping columns lists
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
-    select_columns, mapping_columns = build_select_clause(endpoint_tablename, qnode)
 
-    subquery = build_match_query(db=db, 
-                              select_columns=select_columns,
-                              match_all_conditions=match_all_conditions,
-                              match_some_conditions=match_some_conditions,
-                              mapping_columns=mapping_columns)
-    subquery = subquery.subquery('json_result')
+    preselect_query, endpoint_id_alias = build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions)
+
+    select_columns, foreign_array_preselects, foreign_joins = build_fetch_rows_select_clause(db, endpoint_tablename, qnode, preselect_query)
+
+    query = db.query(*select_columns)
+
+    if foreign_joins:
+        for foreign_join in foreign_joins:
+            query = query.join(**foreign_join)
+    else:
+        query = query.filter(endpoint_id_alias.in_(preselect_query))
+        
+    subquery = query.subquery('json_result')
     query = db.query(func.row_to_json(subquery.table_valued()))
     
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
     
     result = query.offset(offset).limit(limit).all()
     
-    # TODO - consider this and think of a possible better solution (could double up in memory)
     result = [row for row, in result]
 
     ret = {

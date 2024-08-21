@@ -79,6 +79,59 @@ def entity_count(db, endpoint_tablename, preselect_query, entity_to_count):
     return entity_count_select
 
 
+def unique_column_array_agg(column):
+    return func.array_remove(func.array_agg(distinct(column)), None).label(column.name)
+
+def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query):
+    relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
+    if relation.has_mapping_table:
+        select_cols = [unique_column_array_agg(column) for column in columns] + [relation.entity_mapping_column]
+        foreign_array_preselect = db.query(
+                                    *select_cols
+                                ).filter(
+                                    relation.entity_mapping_column.in_(preselect_query)
+                                ).group_by(
+                                    relation.entity_mapping_column
+                                ).join(
+                                    relation.mapping_table, relation.foreign_column == relation.foreign_mapping_column
+                                ).cte(
+                                    f'{foreign_tablename}_columns'
+                                )
+        target = foreign_array_preselect
+        onclause = getattr(foreign_array_preselect.c, relation.entity_mapping_column.name) == relation.entity_column
+        preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.entity_mapping_column.name]
+        foreign_join = {'target': target, 'onclause': onclause}
+    else:
+        select_cols = [unique_column_array_agg(column) for column in columns] + [relation.foreign_column]
+        foreign_array_preselect = db.query(
+                                    *select_cols
+                                ).filter(
+                                    relation.foreign_column.in_(preselect_query)
+                                ).group_by(
+                                    relation.foreign_column
+                                ).cte(
+                                    f'{foreign_tablename}_columns'
+                                )
+        target = foreign_array_preselect
+        onclause = getattr(foreign_array_preselect.c, relation.foreign_column.name) == relation.entity_column
+        preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.foreign_column.name]
+        foreign_join = {'target': target, 'onclause': onclause}
+    return foreign_array_preselect, foreign_join, preselect_columns
+
+def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
+    endpoint_id_alias = DB_MAP.get_meta_column(f"{endpoint_tablename}_id_alias")
+    preselect_cte = db.query(endpoint_id_alias.label('id_alias'))
+    if match_all_conditions and match_some_conditions:
+        preselect_cte = preselect_cte.filter(*match_all_conditions).filter(*match_some_conditions)
+    elif match_all_conditions:
+        preselect_cte = preselect_cte.filter(*match_all_conditions)
+    elif match_some_conditions:
+        preselect_cte = preselect_cte.filter(*match_some_conditions)
+    preselect_cte = preselect_cte.cte(f'{endpoint_tablename}_preselect')
+    preselect_query = db.query(preselect_cte.c.id_alias)
+    return preselect_query, endpoint_id_alias
+
+
 # Combines select columns, match conditions, and mapping columns into cohesive query
 def build_match_query(db, select_columns, match_all_conditions=None, match_some_conditions=None, mapping_columns=None):
     # Add select columns
