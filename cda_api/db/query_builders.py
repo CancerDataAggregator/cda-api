@@ -125,12 +125,13 @@ def columns_query(db):
 
     for tablename in tablenames:
         #Get columns for this table...
-        columns = DB_MAP.get_metadata_table_columns(tablename)
-        for column in columns:
+        columns = DB_MAP.get_table_column_infos(tablename)
+        for column_info in columns:
+            column = column_info.metadata_column
             if column.name != 'id_alias':
                 col = dict()
-                col['table'] = column.table.name
-                col['column'] = column.name
+                col['table'] = column_info.tablename
+                col['column'] = column_info.uniquename
                 col['data_type'] = str(column.type).lower()
                 col['nullable'] = column.nullable
                 col['description'] = 'unset'
