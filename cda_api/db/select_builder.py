@@ -11,7 +11,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, preselect_query)
     add_columns = qnode.ADD_COLUMNS
     exclude_columns = qnode.EXCLUDE_COLUMNS
     table_column_infos = DB_MAP.get_table_column_infos(entity_tablename)
-    select_columns = [column_info.metadata_column for column_info in table_column_infos if column_info.fetch_rows_returns]
+    select_columns = [column_info.metadata_column.label(column_info.uniquename) for column_info in table_column_infos if column_info.fetch_rows_returns]
     foreign_array_map = {}
     foreign_array_preselects = []
     foreign_joins = []

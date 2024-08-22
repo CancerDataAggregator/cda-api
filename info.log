@@ -808,3 +808,9 @@ AttributeError: crdc_id
 2024-08-22 10:59:11,106 - simple - INFO: Building paged query
 2024-08-22 10:59:11,106 - simple - INFO: Building MATCH conditions
 2024-08-22 10:59:11,108 - simple - INFO: Building SELECT clause
+2024-08-22 17:10:37,702 - simple - INFO: Building paged query
+2024-08-22 17:10:37,702 - simple - INFO: Building MATCH conditions
+2024-08-22 17:10:59,889 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
+2024-08-22 17:10:59,890 - simple - INFO: Building paged query
+2024-08-22 17:10:59,890 - simple - INFO: Building MATCH conditions
+2024-08-22 17:10:59,891 - simple - INFO: Building SELECT clause
