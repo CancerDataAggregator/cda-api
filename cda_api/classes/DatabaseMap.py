@@ -1,47 +1,27 @@
 from cda_api import ColumnNotFound, RelationshipNotFound, TableNotFound, get_logger
 from .ColumnInfo import ColumnInfo
 from .EntityRelationship import EntityRelationship
-from sqlalchemy import inspect, Column
+from sqlalchemy import inspect, Column, func
 from cda_api.db.schema import Base
 from cda_api.db.connection import session
 
 log = get_logger()
 
-COLUMN_TYPE_MAP = {'file': {'access': 'categorical',
-  'size': 'numeric',
-  'checksum_type': 'categorical',
-  'format': 'categorical',
-  'type': 'categorical',
-  'category': 'categorical',
-  'anatomic_site': 'categorical',
-  'tumor_vs_normal': 'categorical'},
- 'observation': {'vital_status': 'categorical',
-  'sex': 'categorical',
-  'year_of_observation': 'numeric',
-  'diagnosis': 'categorical',
-  'morphology': 'categorical',
-  'grade': 'categorical',
-  'stage': 'categorical',
-  'observed_anatomic_site': 'categorical',
-  'resection_anatomic_site': 'categorical'},
- 'project': {'type': 'categorical'},
- 'subject': {'species': 'categorical',
-  'year_of_birth': 'numeric',
-  'year_of_death': 'numeric',
-  'cause_of_death': 'categorical',
-  'race': 'categorical',
-  'ethnicity': 'categorical'},
- 'treatment': {'anatomic_site': 'categorical',
-  'type': 'categorical',
-  'therapeutic_agent': 'categorical'}}
-
-# # Build Column Type Map
-# release_metadata = Base.metadata.tables['release_metadata']
-# q = session().query(release_metadata.columns['cda_table'], release_metadata.columns['cda_column'], release_metadata.columns['cda_column_type'])
-# result = q.all()
-# COLUMN_TYPE_MAP = {tablename: {} for tablename, _, _ in result}
-# for tablename, columnname, column_type in result:
-#     COLUMN_TYPE_MAP[tablename][columnname] = column_type
+# Build Column Metadata Map
+column_metadata = Base.metadata.tables['column_metadata']
+subquery = session().query(column_metadata).subquery('json_result')
+query = session().query(func.row_to_json(subquery.table_valued()))
+result = query.all()
+result = [row for row, in result]
+COLUMN_METADATA_MAP = {}
+for row in result:
+    tablename = row['cda_table']
+    columnname = row['cda_column']
+    metadata = {k:v for k,v in row.items() if k not in ['cda_table', 'cda_column']}
+    if tablename not in COLUMN_METADATA_MAP.keys():
+        COLUMN_METADATA_MAP[tablename] = {}
+    if columnname not in COLUMN_METADATA_MAP[tablename].keys():
+        COLUMN_METADATA_MAP[tablename][columnname] = metadata
 
 class DatabaseMap():
     def __init__(self, db_base):
@@ -86,7 +66,7 @@ class DatabaseMap():
                                                          entity_table=entity_table, 
                                                          metadata_table=metadata_table, 
                                                          metadata_column=metadata_column,
-                                                         column_map=COLUMN_TYPE_MAP)
+                                                         column_metadata_map=COLUMN_METADATA_MAP)
                 
     def _build_relationship_map(self):
         self.relationship_map = {}

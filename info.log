@@ -663,3 +663,148 @@ Traceback (most recent call last):
     raise ColumnNotFound(log_message)
 cda_api.classes.exceptions.ColumnNotFound: Column Not Found: file_data_at_doijaoisj
 'file_data_at_doijaoisj'
+2024-08-22 10:05:34,323 - simple - INFO: Building paged query
+2024-08-22 10:05:34,323 - simple - INFO: Building MATCH conditions
+2024-08-22 10:16:20,373 - simple - INFO: Building paged query
+2024-08-22 10:16:20,373 - simple - INFO: Building MATCH conditions
+2024-08-22 10:17:23,648 - simple - INFO: Building paged query
+2024-08-22 10:17:23,648 - simple - INFO: Building MATCH conditions
+2024-08-22 10:20:17,466 - simple - INFO: Building paged query
+2024-08-22 10:20:17,467 - simple - INFO: Building MATCH conditions
+2024-08-22 10:20:17,468 - simple - ERROR: 'ColumnInfo' object has no attribute 'column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
+    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
+    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in build_summary_select_clause
+    select_columns = [column_info.column for column_info in endpoint_column_infos if column_info.summary_display]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in <listcomp>
+    select_columns = [column_info.column for column_info in endpoint_column_infos if column_info.summary_display]
+                      ^^^^^^^^^^^^^^^^^^
+AttributeError: 'ColumnInfo' object has no attribute 'column'
+2024-08-22 10:20:34,583 - simple - INFO: Building paged query
+2024-08-22 10:20:34,584 - simple - INFO: Building MATCH conditions
+2024-08-22 10:20:34,586 - simple - ERROR: 'ColumnInfo' object has no attribute 'meta_column'
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
+    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
+    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in build_summary_select_clause
+    select_columns = [column_info.meta_column for column_info in endpoint_column_infos if column_info.summary_display]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in <listcomp>
+    select_columns = [column_info.meta_column for column_info in endpoint_column_infos if column_info.summary_display]
+                      ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ColumnInfo' object has no attribute 'meta_column'
+2024-08-22 10:21:00,811 - simple - INFO: Building paged query
+2024-08-22 10:21:00,811 - simple - INFO: Building MATCH conditions
+2024-08-22 10:21:00,812 - simple - ERROR: id_alias
+Traceback (most recent call last):
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1617, in __getattr__
+    return self._index[key][1]
+           ~~~~~~~~~~~^^^^^
+KeyError: 'id_alias'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
+    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
+    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 78, in build_summary_select_clause
+    summary_select_clause = [total_column_count_subquery(db, get_cte_column(preselect_query, 'id_alias')).label('total_count')]
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 26, in get_cte_column
+    return getattr(cte.c, columnname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1619, in __getattr__
+    raise AttributeError(key) from err
+AttributeError: id_alias
+2024-08-22 10:21:37,095 - simple - INFO: Building paged query
+2024-08-22 10:21:37,095 - simple - INFO: Building MATCH conditions
+2024-08-22 10:21:37,097 - simple - ERROR: id
+Traceback (most recent call last):
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1617, in __getattr__
+    return self._index[key][1]
+           ~~~~~~~~~~~^^^^^
+KeyError: 'id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
+    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
+    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 94, in build_summary_select_clause
+    preselect_column = get_cte_column(preselect_query, column_info.columnname)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 26, in get_cte_column
+    return getattr(cte.c, columnname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1619, in __getattr__
+    raise AttributeError(key) from err
+AttributeError: id
+2024-08-22 10:22:00,300 - simple - INFO: Building paged query
+2024-08-22 10:22:00,300 - simple - INFO: Building MATCH conditions
+2024-08-22 10:22:00,302 - simple - ERROR: crdc_id
+Traceback (most recent call last):
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1617, in __getattr__
+    return self._index[key][1]
+           ~~~~~~~~~~~^^^^^
+KeyError: 'crdc_id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
+    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
+    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 94, in build_summary_select_clause
+    preselect_column = get_cte_column(preselect_query, column_info.columnname)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 26, in get_cte_column
+    return getattr(cte.c, columnname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1619, in __getattr__
+    raise AttributeError(key) from err
+AttributeError: crdc_id
+2024-08-22 10:22:20,047 - simple - INFO: Building paged query
+2024-08-22 10:22:20,047 - simple - INFO: Building MATCH conditions
+2024-08-22 10:23:48,004 - simple - INFO: Building paged query
+2024-08-22 10:23:48,004 - simple - INFO: Building MATCH conditions
+2024-08-22 10:31:01,269 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-22 10:31:01,269 - simple - INFO: Building paged query
+2024-08-22 10:31:01,269 - simple - INFO: Building MATCH conditions
+2024-08-22 10:31:01,271 - simple - INFO: Building SELECT clause
+2024-08-22 10:31:51,669 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-22 10:31:51,669 - simple - INFO: Building paged query
+2024-08-22 10:31:51,669 - simple - INFO: Building MATCH conditions
+2024-08-22 10:31:51,670 - simple - INFO: Building SELECT clause
+2024-08-22 10:32:47,077 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
+2024-08-22 10:32:47,077 - simple - INFO: Building paged query
+2024-08-22 10:32:47,077 - simple - INFO: Building MATCH conditions
+2024-08-22 10:32:47,079 - simple - INFO: Building SELECT clause
+2024-08-22 10:33:11,394 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
+2024-08-22 10:33:11,394 - simple - INFO: Building paged query
+2024-08-22 10:33:11,394 - simple - INFO: Building MATCH conditions
+2024-08-22 10:33:11,397 - simple - INFO: Building SELECT clause
+2024-08-22 10:59:11,106 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
+2024-08-22 10:59:11,106 - simple - INFO: Building paged query
+2024-08-22 10:59:11,106 - simple - INFO: Building MATCH conditions
+2024-08-22 10:59:11,108 - simple - INFO: Building SELECT clause

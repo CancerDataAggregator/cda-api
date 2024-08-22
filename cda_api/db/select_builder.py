@@ -10,7 +10,8 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, preselect_query)
     log.info('Building SELECT clause')
     add_columns = qnode.ADD_COLUMNS
     exclude_columns = qnode.EXCLUDE_COLUMNS
-    select_columns = DB_MAP.get_metadata_table_columns(entity_tablename)
+    table_column_infos = DB_MAP.get_table_column_infos(entity_tablename)
+    select_columns = [column_info.metadata_column for column_info in table_column_infos if column_info.fetch_rows_returns]
     foreign_array_map = {}
     foreign_array_preselects = []
     foreign_joins = []
@@ -59,7 +60,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, preselect_query)
                     to_remove.append(select_column)
             select_columns = [col for col in select_columns if col not in to_remove]
         select_columns += preselect_columns
-        
+
     return select_columns, foreign_array_preselects, foreign_joins
 
 
@@ -91,20 +92,23 @@ def build_summary_select_clause(db, endpoint_tablename, qnode):
     for column_info in endpoint_column_infos:
         column_summary = None
         preselect_column = get_cte_column(preselect_query, column_info.columnname)
-        match column_info.category:
-            case 'numeric':
-                column_summary = numeric_summary(db, preselect_column)
-                summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
-            case 'categorical':
-                column_summary = categorical_summary(db, preselect_column)
-                summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
-            case _:
-                pass
+        if column_info.summary_display and  column_info.process_before_display != 'data_source':
+            match column_info.column_type:
+                case 'numeric':
+                    column_summary = numeric_summary(db, preselect_column)
+                    summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
+                case 'categorical':
+                    column_summary = categorical_summary(db, preselect_column)
+                    summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
+                case _:
+                    log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
+                    pass
 
     # Get data_source counts
-    data_at_columns = [column for column in preselect_query.c if 'data_at' in column.name]
-    data_count_select = data_source_counts(db, data_at_columns)
-    summary_select_clause.append(data_count_select.label('data_source'))
-    
+    table_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
+    data_source_columnnames = [column_info.columnname for column_info in table_column_infos if column_info.process_before_display == 'data_source']
+    data_source_columns = [column for column in preselect_query.c if column.name in data_source_columnnames]
+    data_source_count_select = data_source_counts(db, data_source_columns)
+    summary_select_clause.append(data_source_count_select.label('data_source'))
     
     return summary_select_clause
