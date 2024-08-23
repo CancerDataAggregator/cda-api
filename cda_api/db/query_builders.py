@@ -42,7 +42,7 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
 
     if foreign_joins:
         for foreign_join in foreign_joins:
-            query = query.join(**foreign_join)
+            query = query.join(**foreign_join, isouter=True)
     else:
         query = query.filter(endpoint_id_alias.in_(preselect_query))
         
