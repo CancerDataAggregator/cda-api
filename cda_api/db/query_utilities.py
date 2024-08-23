@@ -1,4 +1,4 @@
-from sqlalchemy import func, Integer, distinct
+from sqlalchemy import func, Integer, distinct, and_, or_
 from sqlalchemy.dialects import postgresql
 import sqlparse
 from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
@@ -119,14 +119,21 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
     return foreign_array_preselect, foreign_join, preselect_columns
 
 def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
+    # Get the id_alias column
     endpoint_id_alias = DB_MAP.get_meta_column(f"{endpoint_tablename}_id_alias")
+
+    # Set up the CTE preselect by selecting the id_alias column from it
     preselect_cte = db.query(endpoint_id_alias.label('id_alias'))
+
+    # Apply filter conditionals
     if match_all_conditions and match_some_conditions:
-        preselect_cte = preselect_cte.filter(*match_all_conditions).filter(*match_some_conditions)
+        preselect_cte = preselect_cte.filter(and_(*match_all_conditions)).filter(or_(*match_some_conditions))
     elif match_all_conditions:
-        preselect_cte = preselect_cte.filter(*match_all_conditions)
+        preselect_cte = preselect_cte.filter(and_(*match_all_conditions))
     elif match_some_conditions:
-        preselect_cte = preselect_cte.filter(*match_some_conditions)
+        preselect_cte = preselect_cte.filter(or_(*match_some_conditions))
+    
+
     preselect_cte = preselect_cte.cte(f'{endpoint_tablename}_preselect')
     preselect_query = db.query(preselect_cte.c.id_alias)
     return preselect_query, endpoint_id_alias
@@ -139,11 +146,11 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
 
     #Add filters
     if match_all_conditions and match_some_conditions:
-        query = query.filter(*match_all_conditions).filter(*match_some_conditions)
+        query = query.filter(and_(*match_all_conditions)).filter(or_(*match_some_conditions))
     elif match_all_conditions:
-        query = query.filter(*match_all_conditions)
+        query = query.filter(and_(*match_all_conditions))
     elif match_some_conditions:
-        query = query.filter(*match_some_conditions)
+        query = query.filter(or_(*match_some_conditions))
 
     # Add joins
     if mapping_columns:

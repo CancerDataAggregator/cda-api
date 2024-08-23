@@ -1,7 +1,8 @@
 from .filter_builder import build_match_conditons
-from .select_builder import build_fetch_rows_select_clause, build_summary_select_clause
-from .query_utilities import query_to_string, build_match_query, build_unique_value_query, distinct_count, build_filter_preselect
-from sqlalchemy import and_, or_, func
+from .select_builder import build_fetch_rows_select_clause
+from .query_utilities import query_to_string, build_match_query, build_unique_value_query, build_filter_preselect, total_column_count_subquery
+from .query_utilities import entity_count, get_cte_column, numeric_summary, categorical_summary, data_source_counts
+from sqlalchemy import func
 from cda_api import get_logger
 from cda_api.db import get_db_map
 from cda_api.db.schema import Base
@@ -31,6 +32,7 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     """
 
     log.info('Building paged query')
+
     # Build filter conditionals
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
 
@@ -56,9 +58,11 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     query = db.query(func.row_to_json(subquery.table_valued()))
     
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
-    
+
+    # Get results from the database
     result = query.offset(offset).limit(limit).all()
     
+    # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     result = [row for row, in result]
 
     ret = {
@@ -89,12 +93,67 @@ def summary_query(db, endpoint_tablename, qnode):
 
     log.info('Building paged query')
     
+    # Build filter conditionals
+    match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
+    
+    # Build preselect query
+    endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
+    endpoint_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
+    preselect_query = build_match_query(db=db,
+                                        select_columns=endpoint_columns, 
+                                        match_all_conditions=match_all_conditions,
+                                        match_some_conditions=match_some_conditions)
+    preselect_query = preselect_query.cte('filter_preselect')
 
-    # Get summary count query
-    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
-    # wrap everything in a subquery
-    subquery = db.query(*select_clause).subquery('json_result')
-    # Apply row_to_json function
+    # Create list for select clause
+    summary_select_clause = []
+
+    # Get total count query
+    total_count = total_column_count_subquery(db, get_cte_column(preselect_query, f'{endpoint_tablename}_id_alias')).label('total_count')
+    summary_select_clause.append(total_count)
+
+    # Get file or subject count
+    if endpoint_tablename != 'subject':
+        entity_to_count = 'subject'
+    else:
+        entity_to_count = 'file'
+    sub_file_count = entity_count(db=db,
+                                  endpoint_tablename=endpoint_tablename, 
+                                  preselect_query=preselect_query,
+                                  entity_to_count=entity_to_count)
+    summary_select_clause.append(sub_file_count.label(f'{entity_to_count}_count'))
+
+    # Get categorical & numeric summaries
+    ## Step through each column in the endpoint table
+    for column_info in endpoint_column_infos:
+        column_summary = None
+        ## Get the preselect column
+        preselect_column = get_cte_column(preselect_query, column_info.uniquename)
+        ## If column is supposed to be displayed in summary but not a data_source column:
+        if column_info.summary_display and column_info.process_before_display != 'data_source':
+            match column_info.column_type:
+                case 'numeric':
+                    column_summary = numeric_summary(db, preselect_column)
+                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
+                case 'categorical':
+                    column_summary = categorical_summary(db, preselect_column)
+                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
+                case _:
+                    log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
+                    pass
+
+    # Get data_source counts
+    table_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
+    ## Get unique names of columns that have process_before_display of 'data_source' in the column_metadata table
+    data_source_columnnames = [column_info.uniquename for column_info in table_column_infos if column_info.process_before_display == 'data_source']
+    ## Get preselect columns of the 'data_source' columns
+    data_source_columns = [column for column in preselect_query.c if column.name in data_source_columnnames]
+    ## Get the data source select query
+    data_source_count_select = data_source_counts(db, data_source_columns)
+    summary_select_clause.append(data_source_count_select.label('data_source'))
+    
+    # Wrap everything in a subquery
+    subquery = db.query(*summary_select_clause).subquery('json_result')
     query = db.query(func.row_to_json(subquery.table_valued()).label('results'))
     
 
@@ -116,6 +175,7 @@ def columns_query(db):
 
     Args:
         db (Session): Database session object
+        TODO
 
     Returns:
         ColumnResponseObj: 
@@ -126,11 +186,10 @@ def columns_query(db):
 
     cols = []
     
-    #Get tablenames...
     tablenames = DB_MAP.entity_tables.keys()
 
+    # Step through columns in each table and use their ColumnInfo class to return required information
     for tablename in tablenames:
-        #Get columns for this table...
         columns = DB_MAP.get_table_column_infos(tablename)
         for column_info in columns:
             column = column_info.metadata_column
@@ -150,7 +209,6 @@ def columns_query(db):
     return ret
 
 
-# TODO
 def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offset):
     """Generates json formatted frequency results based on query for specific column
 

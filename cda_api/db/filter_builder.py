@@ -95,9 +95,11 @@ def build_match_conditons(endpoint_tablename, qnode):
     log.info('Building MATCH conditions')
     match_all_conditions = []
     match_some_conditions = []
+    # match_all_conditions will be all AND'd together
     if qnode.MATCH_ALL:
         match_all_conditions = [get_preselect_filter(endpoint_tablename, filter_string)
                                     for filter_string in qnode.MATCH_ALL]
+    # match_some_conditions will be all OR'd together 
     if qnode.MATCH_SOME:
         match_some_conditions = [get_preselect_filter(endpoint_tablename, filter_string)
                                     for filter_string in qnode.MATCH_SOME]
