@@ -31,21 +31,27 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     """
 
     log.info('Building paged query')
-    # Build filter conditionals, select columns, and mapping columns lists
+    # Build filter conditionals
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
 
-    preselect_query, endpoint_id_alias = build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions)
+    # Build the preselect query 
+    filter_preselect_query, endpoint_id_alias = build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions)
 
-    select_columns, foreign_array_preselects, foreign_joins = build_fetch_rows_select_clause(db, endpoint_tablename, qnode, preselect_query)
+    # Build the select columns and joins to foreign column array preselects
+    select_columns, foreign_array_preselects, foreign_joins = build_fetch_rows_select_clause(db, endpoint_tablename, qnode, filter_preselect_query)
 
+    # Add select columns
     query = db.query(*select_columns)
 
+    # Add joins to foreign table preselects
     if foreign_joins:
         for foreign_join in foreign_joins:
             query = query.join(**foreign_join, isouter=True)
-    else:
-        query = query.filter(endpoint_id_alias.in_(preselect_query))
-        
+    
+    # Apply filterpreselect
+    query = query.filter(endpoint_id_alias.in_(filter_preselect_query))
+    
+    # Convert to json format
     subquery = query.subquery('json_result')
     query = db.query(func.row_to_json(subquery.table_valued()))
     

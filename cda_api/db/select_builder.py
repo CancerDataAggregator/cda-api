@@ -6,7 +6,7 @@ from sqlalchemy import Label
 log = get_logger()
 DB_MAP = get_db_map()
 
-def build_fetch_rows_select_clause(db, entity_tablename, qnode, preselect_query):
+def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query):
     log.info('Building SELECT clause')
     add_columns = qnode.ADD_COLUMNS
     exclude_columns = qnode.EXCLUDE_COLUMNS
@@ -49,7 +49,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, preselect_query)
 
     # Build foreign array columns
     for foreign_tablename, columns in foreign_array_map.items():
-        foreign_array_preselect, foreign_join, preselect_columns = build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query)
+        foreign_array_preselect, foreign_join, preselect_columns = build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, filter_preselect_query)
         foreign_array_preselects.append(foreign_array_preselect)
         foreign_joins.append(foreign_join)
         # Need to remove previous columns that were added to select_columns and replace them with the new preselect_columns
