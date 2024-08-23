@@ -14,9 +14,15 @@ def apply_filter_operator(filter_column, filter_value, filter_operator):
         case 'not in':
             return not_in_array(filter_column, filter_value)
         case '=':
-            return filter_column == filter_value # TODO Case insensitive for string (not numeric)
+            if isinstance(filter_value, str):
+                return case_insensitive_equals(filter_column, filter_value)
+            else:
+                return filter_column == filter_value
         case '!=':
-            return filter_column != filter_value # TODO Case insensitive for string (not numeric)
+            if isinstance(filter_value, str):
+                return case_insensitive_not_equals(filter_column, filter_value)
+            else:
+                return filter_column != filter_value
         case '<':
             return filter_column < filter_value
         case '<=':
@@ -33,10 +39,17 @@ def apply_filter_operator(filter_column, filter_value, filter_operator):
 def case_insensitive_like(column, value):
     return func.coalesce(func.upper(column), '').like(func.upper(value))
 
+# Returns a case insensitive equals filter conditional object
+def case_insensitive_equals(column, value):
+    return func.coalesce(func.upper(column), '') == func.upper(value)
 
 # Returns a case insensitive like filter conditional object
 def case_insensitive_not_like(column, value):
     return func.coalesce(func.upper(column), '').not_like(func.upper(value))
+
+# Returns a case insensitive equals filter conditional object
+def case_insensitive_not_equals(column, value):
+    return func.coalesce(func.upper(column), '') == func.upper(value)
 
 def in_array(column, value):
     return column.in_(value)
