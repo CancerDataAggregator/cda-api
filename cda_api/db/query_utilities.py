@@ -67,14 +67,14 @@ def data_source_counts(db, data_source_columns):
 # Gets the total count of an entity's related files and subjects by only counting from the mapping table (ie. observation_of_subject)
 def entity_count(db, endpoint_tablename, preselect_query, entity_to_count):
     entity_relationship = DB_MAP.get_relationship(endpoint_tablename, entity_to_count)
+    entity_local_column = entity_relationship.entity_column
+    entity_local_column_uniquename = DB_MAP.get_column_uniquename(entity_local_column.name, entity_local_column.table.name)
     if entity_relationship.has_mapping_table:
-        entity_local_column = entity_relationship.entity_column
         entity_mapping_column = entity_relationship.entity_mapping_column
-        subquery = db.query(get_cte_column(preselect_query, entity_local_column.name).label(entity_mapping_column.name))
+        subquery = db.query(get_cte_column(preselect_query, entity_local_column_uniquename).label(entity_local_column_uniquename))
         entity_count_select = db.query(func.count(distinct(entity_relationship.foreign_mapping_column)).label('count_result')).filter(entity_mapping_column.in_(subquery)).scalar_subquery()
     else:
-        entity_local_column = entity_relationship.entity_column
-        subquery = db.query(get_cte_column(preselect_query, entity_local_column.name).label(entity_local_column.name))
+        subquery = db.query(get_cte_column(preselect_query, entity_local_column_uniquename).label(entity_local_column_uniquename))
         entity_count_select = db.query(func.count(distinct(entity_local_column)).label('count_result')).filter(entity_local_column.in_(subquery)).scalar_subquery()
     return entity_count_select
 

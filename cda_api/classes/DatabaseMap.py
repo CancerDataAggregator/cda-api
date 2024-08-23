@@ -146,3 +146,28 @@ class DatabaseMap():
             log_message = f'Unable to find entity table {tablename}\n{e}'
             log.exception(log_message)
             raise TableNotFound(log_message)
+        
+    def get_uniquename_metadata_table_columns(self, tablename):
+        try:
+            column_infos = self.get_table_column_infos(tablename)
+            return [column_info.metadata_column.label(column_info.uniquename) for column_info in column_infos]
+        except Exception as e:
+            log_message = f'Unable to find entity table {tablename}\n{e}'
+            log.exception(log_message)
+            raise TableNotFound(log_message)
+
+    def get_column_uniquename(self, columnname, tablename):
+        try:
+            column_infos = self.get_table_column_infos(tablename)
+            uniquename = [column_info.uniquename for column_info in column_infos if column_info.columnname == columnname][0]
+            if not uniquename:
+                log.error(f'Unable to get unique name for "{columnname}" in {tablename}')
+                raise ColumnNotFound
+            return uniquename
+        except ColumnNotFound as cnf:
+            raise cnf
+        except TableNotFound as tnf:
+            raise tnf
+        except Exception as e:
+            log.exception(e)
+            raise TableNotFound(e)

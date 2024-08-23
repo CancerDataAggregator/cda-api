@@ -66,8 +66,9 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, preselect_query)
 
 def build_summary_select_clause(db, endpoint_tablename, qnode):
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
-    endpoint_columns = DB_MAP.get_metadata_table_columns(endpoint_tablename)
+    endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
     endpoint_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
+    log.debug('Builiding preselct query')
     preselect_query = build_match_query(db=db,
                                         select_columns=endpoint_columns, 
                                         match_all_conditions=match_all_conditions,
@@ -75,38 +76,40 @@ def build_summary_select_clause(db, endpoint_tablename, qnode):
     preselect_query = preselect_query.cte('filter_preselect')
 
     # Get total counts
-    summary_select_clause = [total_column_count_subquery(db, get_cte_column(preselect_query, 'id_alias')).label('total_count')]
+    summary_select_clause = [total_column_count_subquery(db, get_cte_column(preselect_query, f'{endpoint_tablename}_id_alias')).label('total_count')]
     
     # Get file/subject counts
     if endpoint_tablename != 'subject':
         entity_to_count = 'subject'
     else:
         entity_to_count = 'file'
+    log.debug('Building entity count')
     sub_file_count = entity_count(db=db,
                                 endpoint_tablename=endpoint_tablename, 
                                 preselect_query=preselect_query,
                                 entity_to_count=entity_to_count)
     summary_select_clause.append(sub_file_count.label(f'{entity_to_count}_count'))
 
+    log.debug('Building categorical and numeric summaries')
     # Get categorical & numeric summaries
     for column_info in endpoint_column_infos:
         column_summary = None
-        preselect_column = get_cte_column(preselect_query, column_info.columnname)
+        preselect_column = get_cte_column(preselect_query, column_info.uniquename)
         if column_info.summary_display and  column_info.process_before_display != 'data_source':
             match column_info.column_type:
                 case 'numeric':
                     column_summary = numeric_summary(db, preselect_column)
-                    summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
+                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
                 case 'categorical':
                     column_summary = categorical_summary(db, preselect_column)
-                    summary_select_clause.append(column_summary.label(f'{column_info.columnname}_summary'))
+                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
                 case _:
                     log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
                     pass
-
+    log.debug('Building data source counts')
     # Get data_source counts
     table_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
-    data_source_columnnames = [column_info.columnname for column_info in table_column_infos if column_info.process_before_display == 'data_source']
+    data_source_columnnames = [column_info.uniquename for column_info in table_column_infos if column_info.process_before_display == 'data_source']
     data_source_columns = [column for column in preselect_query.c if column.name in data_source_columnnames]
     data_source_count_select = data_source_counts(db, data_source_columns)
     summary_select_clause.append(data_source_count_select.label('data_source'))
