@@ -15,7 +15,7 @@ def parse_filter_string(filter_string, log):
     # Parse out the operator (Note: Order matters, you can't put = before <=)
     operator_pattern = r"(?:\snot\s|\s)(?:!=|<>|<=|>=|=|<|>|is|in|like|between|not)+(?:\snot\s|\s)"
     operator_rexp = re.compile(operator_pattern)
-    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string)]
+    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string.lower())]
     if len(parsed_operators) != 1:
         raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
 
