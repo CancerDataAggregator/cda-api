@@ -1,4 +1,4 @@
-from cda_api.db import engine
+from cda_api.db.connection import engine
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 

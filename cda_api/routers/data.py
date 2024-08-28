@@ -43,7 +43,7 @@ def subject_fetch_rows_endpoint(request: Request,
     
     qid = str(uuid.uuid4())
     log = get_logger(qid)
-    log.info(f'subject paged endpoint hit: {request.client}')
+    log.info(f'data/subject endpoint hit: {request.client}')
     log.info(f'QNode: {qnode.as_string()}') 
     log.info(f'{request.url}')
    

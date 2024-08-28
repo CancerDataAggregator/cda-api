@@ -441,3 +441,170 @@ FROM filter_preselect) AS subquery) AS data_source) AS json_result]
 2024-08-28 13:36:26,214 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Query execution time: 0.2494199275970459s
 2024-08-28 13:36:26,214 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Returning 100 rows out of 479 results | limit=100 & offset=0
 2024-08-28 13:36:26,220 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Success
+2024-08-28 14:03:12,775 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=64199)
+2024-08-28 14:03:12,775 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Lenalidomide", "subject_data_at_cds = True", "race LIKE %hite"], "MATCH_SOME": None, "ADD_COLUMNS": ["therapeutic_agent"], "EXCLUDE_COLUMNS": None}
+2024-08-28 14:03:12,775 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 14:03:12,775 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: Building fetch_rows query
+2024-08-28 14:03:12,775 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: Building MATCH conditions
+2024-08-28 14:03:12,777 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: Building SELECT clause
+2024-08-28 14:03:13,257 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: Query execution time: 0.4612460136413574s
+2024-08-28 14:03:13,258 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: Returning 0 rows out of 0 results | limit=100 & offset=0
+2024-08-28 14:03:13,262 - 97eb3b93-5bd8-4218-8336-2e1dabc8bd88 - INFO: Success
+2024-08-28 14:03:56,548 - 1ce1801a-ccad-4a63-b1c9-0f95cd5f76e8 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=64219)
+2024-08-28 14:03:56,548 - 1ce1801a-ccad-4a63-b1c9-0f95cd5f76e8 - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Lenalidomide", "subject_data_at_cds = True", "race LIKE %hite"], "MATCH_SOME": None, "ADD_COLUMNS": ["therapeutic_agent"], "EXCLUDE_COLUMNS": None}
+2024-08-28 14:03:56,548 - 1ce1801a-ccad-4a63-b1c9-0f95cd5f76e8 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 14:03:56,548 - 1ce1801a-ccad-4a63-b1c9-0f95cd5f76e8 - INFO: Building fetch_rows query
+2024-08-28 14:03:56,548 - 1ce1801a-ccad-4a63-b1c9-0f95cd5f76e8 - INFO: Building MATCH conditions
+2024-08-28 14:03:56,549 - 1ce1801a-ccad-4a63-b1c9-0f95cd5f76e8 - ERROR: Unable to parse out operator in filter: "race LIKE %hite"
+2024-08-28 15:44:33,582 - 7a96889f-1d15-4a21-96cf-035169fff333 - INFO: data/subject endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 15:44:33,582 - 7a96889f-1d15-4a21-96cf-035169fff333 - INFO: QNode: {"MATCH_ALL": ["subject_id_alias < 0"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 15:44:33,582 - 7a96889f-1d15-4a21-96cf-035169fff333 - INFO: http://testserver/data/subject
+2024-08-28 15:54:14,372 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: data/subject endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 15:54:14,372 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: QNode: {"MATCH_ALL": ["subject_id_alias < 0"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 15:54:14,372 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: http://testserver/data/subject
+2024-08-28 15:54:14,372 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: Building fetch_rows query
+2024-08-28 15:54:14,372 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: Building MATCH conditions
+2024-08-28 15:54:14,373 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: Building SELECT clause
+2024-08-28 15:54:14,819 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: Query execution time: 0.4377589225769043s
+2024-08-28 15:54:14,819 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: Returning 0 rows out of 0 results | limit=100 & offset=0
+2024-08-28 15:54:14,823 - 0bf381de-8b7f-4a65-ba7c-d46c9f0b4e88 - INFO: Success
+2024-08-28 15:56:00,542 - 90dfb17a-ca47-48a6-ac96-705a2867c243 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=65425)
+2024-08-28 15:56:00,542 - 90dfb17a-ca47-48a6-ac96-705a2867c243 - INFO: http://127.0.0.1:8000/unique_values/sex?count=false&totalCount=false
+2024-08-28 15:56:00,542 - 90dfb17a-ca47-48a6-ac96-705a2867c243 - INFO: Building unique_values query
+2024-08-28 15:56:50,706 - c255762e-7634-45e1-ae86-ba1b6eaf1221 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=65445)
+2024-08-28 15:56:50,706 - c255762e-7634-45e1-ae86-ba1b6eaf1221 - INFO: http://127.0.0.1:8000/unique_values/sex?count=false&totalCount=false
+2024-08-28 15:56:50,706 - c255762e-7634-45e1-ae86-ba1b6eaf1221 - INFO: Building unique_values query
+2024-08-28 15:56:50,707 - c255762e-7634-45e1-ae86-ba1b6eaf1221 - ERROR: cannot access local variable 'total_count' where it is not associated with a value
+2024-08-28 15:57:08,883 - dd150574-5a29-4012-af64-ca409e0a4e76 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=65454)
+2024-08-28 15:57:08,883 - dd150574-5a29-4012-af64-ca409e0a4e76 - INFO: http://127.0.0.1:8000/unique_values/sex?count=false&totalCount=false
+2024-08-28 15:57:08,883 - dd150574-5a29-4012-af64-ca409e0a4e76 - INFO: Building unique_values query
+2024-08-28 15:57:08,884 - dd150574-5a29-4012-af64-ca409e0a4e76 - ERROR: <built-in method with_traceback of UnboundLocalError object at 0x1057b68c0>
+2024-08-28 15:57:35,701 - 3332ab6e-2689-4b7f-93e7-d7573981e2d5 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=65468)
+2024-08-28 15:57:35,701 - 3332ab6e-2689-4b7f-93e7-d7573981e2d5 - INFO: http://127.0.0.1:8000/unique_values/sex?count=false&totalCount=false
+2024-08-28 15:57:35,701 - 3332ab6e-2689-4b7f-93e7-d7573981e2d5 - INFO: Building unique_values query
+2024-08-28 15:58:57,996 - 802edaae-c50b-4425-8790-5e2cc90d127a - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49154)
+2024-08-28 15:58:57,996 - 802edaae-c50b-4425-8790-5e2cc90d127a - INFO: http://127.0.0.1:8000/unique_values/sex?count=false&totalCount=false
+2024-08-28 15:58:57,996 - 802edaae-c50b-4425-8790-5e2cc90d127a - INFO: Building unique_values query
+2024-08-28 15:58:57,997 - 802edaae-c50b-4425-8790-5e2cc90d127a - ERROR: cannot access local variable 'total_count' where it is not associated with a value
+2024-08-28 16:01:00,938 - e7fb23f9-dfa8-4ccc-a4f4-dee253fae945 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49229)
+2024-08-28 16:01:00,938 - e7fb23f9-dfa8-4ccc-a4f4-dee253fae945 - INFO: http://127.0.0.1:8000/unique_values/sex?count=false&totalCount=false
+2024-08-28 16:01:00,939 - e7fb23f9-dfa8-4ccc-a4f4-dee253fae945 - INFO: Building unique_values query
+2024-08-28 16:01:01,493 - e7fb23f9-dfa8-4ccc-a4f4-dee253fae945 - INFO: Query execution time: 0.5484600067138672s
+2024-08-28 16:01:01,494 - e7fb23f9-dfa8-4ccc-a4f4-dee253fae945 - INFO: Returning 5 rows out of 4 results | limit=None & offset=None
+2024-08-28 16:04:03,357 - 016509f1-75cd-4ca8-920d-5aea5f387a26 - INFO: unique_values endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 16:04:03,357 - 016509f1-75cd-4ca8-920d-5aea5f387a26 - INFO: http://testserver/unique_values/sex?count=false&totalCount=false
+2024-08-28 16:04:03,357 - 016509f1-75cd-4ca8-920d-5aea5f387a26 - INFO: Building unique_values query
+2024-08-28 16:04:03,858 - 016509f1-75cd-4ca8-920d-5aea5f387a26 - INFO: Query execution time: 0.487393856048584s
+2024-08-28 16:04:03,860 - 016509f1-75cd-4ca8-920d-5aea5f387a26 - INFO: Returning 5 rows out of 4 results | limit=None & offset=None
+2024-08-28 16:04:13,209 - 6ed38d7a-56f7-46f2-a25b-756cf2e330c0 - INFO: unique_values endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 16:04:13,209 - 6ed38d7a-56f7-46f2-a25b-756cf2e330c0 - INFO: http://testserver/unique_values/sex?count=false&totalCount=false
+2024-08-28 16:04:13,209 - 6ed38d7a-56f7-46f2-a25b-756cf2e330c0 - INFO: Building unique_values query
+2024-08-28 16:04:13,712 - 6ed38d7a-56f7-46f2-a25b-756cf2e330c0 - INFO: Query execution time: 0.4977841377258301s
+2024-08-28 16:04:13,712 - 6ed38d7a-56f7-46f2-a25b-756cf2e330c0 - INFO: Returning 5 rows out of 4 results | limit=None & offset=None
+2024-08-28 16:06:14,579 - fcd698ae-23d3-4a3a-b998-67d10e51bddb - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49354)
+2024-08-28 16:06:14,580 - fcd698ae-23d3-4a3a-b998-67d10e51bddb - INFO: http://127.0.0.1:8000/unique_values/sex?system=pdc&count=false&totalCount=false&limit=10&offset=0
+2024-08-28 16:06:14,580 - fcd698ae-23d3-4a3a-b998-67d10e51bddb - INFO: Building unique_values query
+2024-08-28 16:06:15,033 - fcd698ae-23d3-4a3a-b998-67d10e51bddb - INFO: Query execution time: 0.44660282135009766s
+2024-08-28 16:06:15,033 - fcd698ae-23d3-4a3a-b998-67d10e51bddb - INFO: Returning 5 rows out of 4 results | limit=10 & offset=0
+2024-08-28 16:06:21,238 - cffba729-39d6-4e9b-b280-67282d464a4a - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49358)
+2024-08-28 16:06:21,239 - cffba729-39d6-4e9b-b280-67282d464a4a - INFO: http://127.0.0.1:8000/unique_values/sex?system=pdc&count=false&totalCount=false&limit=5&offset=0
+2024-08-28 16:06:21,239 - cffba729-39d6-4e9b-b280-67282d464a4a - INFO: Building unique_values query
+2024-08-28 16:06:21,395 - cffba729-39d6-4e9b-b280-67282d464a4a - INFO: Query execution time: 0.15268993377685547s
+2024-08-28 16:06:21,396 - cffba729-39d6-4e9b-b280-67282d464a4a - INFO: Returning 5 rows out of 4 results | limit=5 & offset=0
+2024-08-28 16:06:26,463 - b0314f16-8833-4e96-a2d2-250b04fd61af - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49364)
+2024-08-28 16:06:26,463 - b0314f16-8833-4e96-a2d2-250b04fd61af - INFO: http://127.0.0.1:8000/unique_values/sex?system=pdc&count=false&totalCount=false&limit=2&offset=0
+2024-08-28 16:06:26,464 - b0314f16-8833-4e96-a2d2-250b04fd61af - INFO: Building unique_values query
+2024-08-28 16:06:26,614 - b0314f16-8833-4e96-a2d2-250b04fd61af - INFO: Query execution time: 0.14600825309753418s
+2024-08-28 16:06:26,614 - b0314f16-8833-4e96-a2d2-250b04fd61af - INFO: Returning 2 rows out of 4 results | limit=2 & offset=0
+2024-08-28 16:16:02,196 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: data/subject endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 16:16:02,196 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: QNode: {"MATCH_ALL": ["subject_id_alias < 0"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 16:16:02,196 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: http://testserver/data/subject
+2024-08-28 16:16:02,196 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: Building fetch_rows query
+2024-08-28 16:16:02,196 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: Building MATCH conditions
+2024-08-28 16:16:02,196 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: Building SELECT clause
+2024-08-28 16:16:02,709 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: Query execution time: 0.5046582221984863s
+2024-08-28 16:16:02,710 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: Returning 0 rows out of 0 results | limit=100 & offset=0
+2024-08-28 16:16:02,713 - 32361208-2a38-4f2d-8cf4-9de5bbee67b8 - INFO: Success
+2024-08-28 16:17:01,803 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: data/subject endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 16:17:01,803 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: QNode: {"MATCH_ALL": ["subject_id_alias < 0"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 16:17:01,803 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: http://testserver/data/subject
+2024-08-28 16:17:01,803 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: Building fetch_rows query
+2024-08-28 16:17:01,803 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: Building MATCH conditions
+2024-08-28 16:17:01,804 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: Building SELECT clause
+2024-08-28 16:17:02,314 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: Query execution time: 0.5019152164459229s
+2024-08-28 16:17:02,314 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: Returning 0 rows out of 0 results | limit=100 & offset=0
+2024-08-28 16:17:02,317 - e6ec0b0c-d3e4-4175-b3cb-171e2f0c60ab - INFO: Success
+2024-08-28 16:19:27,671 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: data/subject endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 16:19:27,671 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: QNode: {"MATCH_ALL": ["subject_id_alias < 0"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 16:19:27,671 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: http://testserver/data/subject
+2024-08-28 16:19:27,671 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: Building fetch_rows query
+2024-08-28 16:19:27,671 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: Building MATCH conditions
+2024-08-28 16:19:27,672 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: Building SELECT clause
+2024-08-28 16:19:28,182 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: Query execution time: 0.5016958713531494s
+2024-08-28 16:19:28,182 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: Returning 0 rows out of 0 results | limit=100 & offset=0
+2024-08-28 16:19:28,185 - b0b47e9f-e3b2-4c1a-8a0d-4eebcc502b70 - INFO: Success
+2024-08-28 16:22:10,418 - d16609c0-9f9b-4058-b211-aba62ec29102 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49646)
+2024-08-28 16:22:10,418 - d16609c0-9f9b-4058-b211-aba62ec29102 - INFO: http://127.0.0.1:8000/unique_values/?columnname=sex&count=false&totalCount=false
+2024-08-28 16:22:10,419 - d16609c0-9f9b-4058-b211-aba62ec29102 - INFO: Building unique_values query
+2024-08-28 16:22:10,930 - d16609c0-9f9b-4058-b211-aba62ec29102 - INFO: Query execution time: 0.5045890808105469s
+2024-08-28 16:22:10,930 - d16609c0-9f9b-4058-b211-aba62ec29102 - INFO: Returning 5 rows out of 4 results | limit=None & offset=None
+2024-08-28 16:22:42,884 - a7172776-d33a-4e10-b102-79cf3ff46e92 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49666)
+2024-08-28 16:22:42,884 - a7172776-d33a-4e10-b102-79cf3ff46e92 - INFO: http://127.0.0.1:8000/unique_values/sex?count=false&totalCount=false
+2024-08-28 16:22:42,884 - a7172776-d33a-4e10-b102-79cf3ff46e92 - INFO: Building unique_values query
+2024-08-28 16:22:43,372 - a7172776-d33a-4e10-b102-79cf3ff46e92 - INFO: Query execution time: 0.48169612884521484s
+2024-08-28 16:22:43,373 - a7172776-d33a-4e10-b102-79cf3ff46e92 - INFO: Returning 5 rows out of 4 results | limit=None & offset=None
+2024-08-28 16:24:35,859 - a27248c7-820d-4ca2-8d95-01e50881bf49 - INFO: unique_values endpoint hit: Address(host='testclient', port=50000)
+2024-08-28 16:24:35,860 - a27248c7-820d-4ca2-8d95-01e50881bf49 - INFO: http://testserver/unique_values/sex?count=false&totalCount=false
+2024-08-28 16:24:35,860 - a27248c7-820d-4ca2-8d95-01e50881bf49 - INFO: Building unique_values query
+2024-08-28 16:24:36,361 - a27248c7-820d-4ca2-8d95-01e50881bf49 - INFO: Query execution time: 0.4967670440673828s
+2024-08-28 16:24:36,361 - a27248c7-820d-4ca2-8d95-01e50881bf49 - INFO: Returning 5 rows out of 4 results | limit=None & offset=None
+2024-08-28 16:26:21,666 - 1f8636b9-e5d7-4863-a51b-c91ad5c53fd8 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49743)
+2024-08-28 16:26:21,666 - 1f8636b9-e5d7-4863-a51b-c91ad5c53fd8 - INFO: http://127.0.0.1:8000/unique_values/sex?count=true&totalCount=false
+2024-08-28 16:26:21,666 - 1f8636b9-e5d7-4863-a51b-c91ad5c53fd8 - INFO: Building unique_values query
+2024-08-28 16:26:22,181 - 1f8636b9-e5d7-4863-a51b-c91ad5c53fd8 - INFO: Query execution time: 0.505342960357666s
+2024-08-28 16:26:22,181 - 1f8636b9-e5d7-4863-a51b-c91ad5c53fd8 - INFO: Returning 5 rows out of 4 results | limit=None & offset=None
+2024-08-28 16:32:02,824 - 1b010963-5568-4ac5-ba13-6b0d2ec789c4 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49813)
+2024-08-28 16:32:02,824 - 1b010963-5568-4ac5-ba13-6b0d2ec789c4 - INFO: http://127.0.0.1:8000/unique_values/sex?count=true&totalCount=true
+2024-08-28 16:32:02,824 - 1b010963-5568-4ac5-ba13-6b0d2ec789c4 - INFO: Building unique_values query
+2024-08-28 16:32:03,278 - 1b010963-5568-4ac5-ba13-6b0d2ec789c4 - ERROR: 'int' object has no attribute 'statement'
+2024-08-28 16:33:33,327 - 7be1bd9a-3b40-4891-9227-e1b2ba0448eb - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49839)
+2024-08-28 16:33:33,327 - 7be1bd9a-3b40-4891-9227-e1b2ba0448eb - INFO: http://127.0.0.1:8000/unique_values/sex?count=true&totalCount=true
+2024-08-28 16:33:33,328 - 7be1bd9a-3b40-4891-9227-e1b2ba0448eb - INFO: Building unique_values query
+2024-08-28 16:33:33,872 - 7be1bd9a-3b40-4891-9227-e1b2ba0448eb - ERROR: Multiple rows were found when exactly one was required
+2024-08-28 16:33:46,406 - 097c63f0-ca62-4ee1-9649-e954f1e05467 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49850)
+2024-08-28 16:33:46,407 - 097c63f0-ca62-4ee1-9649-e954f1e05467 - INFO: http://127.0.0.1:8000/unique_values/sex?count=true&totalCount=true
+2024-08-28 16:33:46,407 - 097c63f0-ca62-4ee1-9649-e954f1e05467 - INFO: Building unique_values query
+2024-08-28 16:33:46,941 - 097c63f0-ca62-4ee1-9649-e954f1e05467 - INFO: Query execution time: 0.5261139869689941s
+2024-08-28 16:33:46,941 - 097c63f0-ca62-4ee1-9649-e954f1e05467 - INFO: Returning 5 rows out of 5 results | limit=None & offset=None
+2024-08-28 16:39:42,427 - 2f1d82e6-4170-4169-97d6-25328ecdd0aa - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49915)
+2024-08-28 16:39:42,427 - 2f1d82e6-4170-4169-97d6-25328ecdd0aa - INFO: http://127.0.0.1:8000/unique_values/sex?count=true&totalCount=true
+2024-08-28 16:39:42,427 - 2f1d82e6-4170-4169-97d6-25328ecdd0aa - INFO: Building unique_values query
+2024-08-28 16:39:42,428 - 2f1d82e6-4170-4169-97d6-25328ecdd0aa - ERROR: FROM expression, such as a Table or alias() object expected, got <sqlalchemy.sql.elements.TableValuedColumn at 0x11cc8ea90; column_json>.
+2024-08-28 16:39:53,003 - b5e29e09-a12a-49ed-9997-bb388f1434b4 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49920)
+2024-08-28 16:39:53,003 - b5e29e09-a12a-49ed-9997-bb388f1434b4 - INFO: http://127.0.0.1:8000/unique_values/sex?count=true&totalCount=true
+2024-08-28 16:39:53,003 - b5e29e09-a12a-49ed-9997-bb388f1434b4 - INFO: Building unique_values query
+2024-08-28 16:39:53,475 - b5e29e09-a12a-49ed-9997-bb388f1434b4 - INFO: Query execution time: 0.46730804443359375s
+2024-08-28 16:39:53,476 - b5e29e09-a12a-49ed-9997-bb388f1434b4 - INFO: Returning 5 rows out of 1 results | limit=None & offset=None
+2024-08-28 16:40:30,499 - 5f6480be-75d3-4b80-8688-7fc8ea07c3aa - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=49933)
+2024-08-28 16:40:30,499 - 5f6480be-75d3-4b80-8688-7fc8ea07c3aa - INFO: http://127.0.0.1:8000/unique_values/sex?count=true&totalCount=true
+2024-08-28 16:40:30,499 - 5f6480be-75d3-4b80-8688-7fc8ea07c3aa - INFO: Building unique_values query
+2024-08-28 16:40:30,973 - 5f6480be-75d3-4b80-8688-7fc8ea07c3aa - INFO: Query execution time: 0.46799421310424805s
+2024-08-28 16:40:30,974 - 5f6480be-75d3-4b80-8688-7fc8ea07c3aa - INFO: Returning 5 rows out of 5 results | limit=None & offset=None
+2024-08-28 16:41:00,368 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=49944)
+2024-08-28 16:41:00,368 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 16:41:00,368 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 16:41:00,369 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: Building fetch_rows query
+2024-08-28 16:41:00,369 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: Building MATCH conditions
+2024-08-28 16:41:00,371 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: Building SELECT clause
+2024-08-28 16:41:00,814 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: Query execution time: 0.4293651580810547s
+2024-08-28 16:41:00,814 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: Returning 100 rows out of 56383 results | limit=100 & offset=0
+2024-08-28 16:41:00,817 - 3c0b45b2-0e41-4419-84ee-6c8165435774 - INFO: Success
+2024-08-28 16:42:38,091 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=49961)
+2024-08-28 16:42:38,091 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 16:42:38,091 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 16:42:38,091 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: Building fetch_rows query
+2024-08-28 16:42:38,091 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: Building MATCH conditions
+2024-08-28 16:42:38,092 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: Building SELECT clause
+2024-08-28 16:42:38,826 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: Query execution time: 0.7222950458526611s
+2024-08-28 16:42:38,827 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: Returning 100 rows out of 56383 results | limit=100 & offset=0
+2024-08-28 16:42:38,829 - f7868708-8b1e-4f12-b0cc-866d6bce7bba - INFO: Success

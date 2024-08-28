@@ -49,7 +49,8 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     query = query.filter(endpoint_id_alias.in_(filter_preselect_query))
 
     # Optimize Count query by only counting the id_alias column based on the preselect filter
-    count_query = db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query))
+    count_subquery = db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query)).subquery('rows_to_count')
+    count_query = db.query(func.count()).select_from(count_subquery)
 
     # Add joins to foreign table preselects
     if foreign_joins:
@@ -67,7 +68,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     # Get results from the database 
     start_time = time.time()
     result = query.offset(offset).limit(limit).all()
-    row_count = count_query.count()
+    row_count = count_query.scalar()
 
     # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     result = [row for row, in result]
@@ -101,7 +102,7 @@ def summary_query(db, endpoint_tablename, qnode, log):
         }
     """
 
-    log.info('Building paged query')
+    log.info('Building summary query')
     
     # Build filter conditionals
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode, log)
@@ -222,7 +223,7 @@ def columns_query(db):
     return ret
 
 
-def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offset):
+def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offset, log):
     """Generates json formatted frequency results based on query for specific column
 
     Args:
@@ -236,6 +237,8 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
             'query_sql': 'SQL statement used to generate result'
         }
     """
+    log.info('Building unique_values query')
+
     column = DB_MAP.get_meta_column(columnname)
 
     query, total_count_query = build_unique_value_query(db=db, 
@@ -243,9 +246,20 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
                                      system=system,
                                      countOpt=countOpt)
     
+    log.debug(f'Query:\n{"-"*60}\n{query_to_string(query, indented = True)}\n{"-"*60}')
+    log.debug(f'Total Count Query:\n{"-"*100}\n{query_to_string(total_count_query, indented = True)}\n{"-"*100}')
+
+    # Execute query
+    start_time = time.time()
     result = query.offset(offset).limit(limit).all()
     result = [row for row, in result]
+    
+    # Execute total_count query
     total_count = total_count_query.scalar()
+
+    query_time = time.time() - start_time
+    log.info(f'Query execution time: {query_time}s')
+    log.info(f'Returning {len(result)} rows out of {total_count} results | limit={limit} & offset={offset}')
 
     # Fake return for now
     ret = {
@@ -258,7 +272,7 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
 
 
 
-def release_metadata_query(db):
+def release_metadata_query(db, log):
     query = db.query(Base.metadata.tables['release_metadata'])
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
     # Fake return for now
