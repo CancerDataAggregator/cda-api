@@ -3,7 +3,7 @@ from cda_api import get_logger
 
 log = get_logger()
 
-def apply_filter_operator(filter_column, filter_value, filter_operator):
+def apply_filter_operator(filter_column, filter_value, filter_operator, log):
     match filter_operator.lower():
         case 'like':
             return case_insensitive_like(filter_column, filter_value)
@@ -32,8 +32,7 @@ def apply_filter_operator(filter_column, filter_value, filter_operator):
         case '>=':
             return filter_column >= filter_value
         case _:
-            log.exception(f'Unexpected operator: {filter_operator}')
-            raise ValueError
+            raise ValueError(f'Unexpected operator: {filter_operator}')
 
 # Returns a case insensitive like filter conditional object
 def case_insensitive_like(column, value):

@@ -6,12 +6,13 @@ from sqlalchemy import func
 from cda_api import get_logger
 from cda_api.db import get_db_map
 from cda_api.db.schema import Base
+import time
 
-log = get_logger()
+
 DB_MAP = get_db_map()
 
 
-def paged_query(db, endpoint_tablename, qnode, limit, offset):
+def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     """Generates json formatted row data based on input query
 
     Args:
@@ -30,28 +31,30 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
             'next_url': 'URL to acquire next paged result'
         }
     """
-
-    log.info('Building paged query')
+    log.info('Building fetch_rows query')
 
     # Build filter conditionals
-    match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
+    match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode, log)
 
     # Build the preselect query 
     filter_preselect_query, endpoint_id_alias = build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions)
 
     # Build the select columns and joins to foreign column array preselects
-    select_columns, foreign_array_preselects, foreign_joins = build_fetch_rows_select_clause(db, endpoint_tablename, qnode, filter_preselect_query)
+    select_columns, foreign_array_preselects, foreign_joins = build_fetch_rows_select_clause(db, endpoint_tablename, qnode, filter_preselect_query, log)
 
     # Add select columns
     query = db.query(*select_columns)
+
+    # Apply filterpreselect
+    query = query.filter(endpoint_id_alias.in_(filter_preselect_query))
+
+    # Optimize Count query by only counting the id_alias column based on the preselect filter
+    count_query = db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query))
 
     # Add joins to foreign table preselects
     if foreign_joins:
         for foreign_join in foreign_joins:
             query = query.join(**foreign_join, isouter=True)
-    
-    # Apply filterpreselect
-    query = query.filter(endpoint_id_alias.in_(filter_preselect_query))
     
     # Convert to json format
     subquery = query.subquery('json_result')
@@ -59,23 +62,30 @@ def paged_query(db, endpoint_tablename, qnode, limit, offset):
     
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
 
-    # Get results from the database
+    log.debug(f'Count Query:\n{"-"*100}\n{query_to_string(count_query, indented = True)}\n{"-"*100}')
+
+    # Get results from the database 
+    start_time = time.time()
     result = query.offset(offset).limit(limit).all()
-    
+    row_count = count_query.count()
+
     # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     result = [row for row, in result]
+    query_time = time.time() - start_time
+    log.info(f'Query execution time: {query_time}s')
+    log.info(f'Returning {len(result)} rows out of {row_count} results | limit={limit} & offset={offset}')
 
     ret = {
         'result': result,
         'query_sql': query_to_string(query),
-        'total_row_count': query.count(),
+        'total_row_count': row_count,
         'next_url': ''
     }
     return ret
 
 
 # TODO
-def summary_query(db, endpoint_tablename, qnode):
+def summary_query(db, endpoint_tablename, qnode, log):
     """Generates json formatted summary data based on input query
 
     Args:
@@ -94,7 +104,7 @@ def summary_query(db, endpoint_tablename, qnode):
     log.info('Building paged query')
     
     # Build filter conditionals
-    match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode)
+    match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode, log)
     
     # Build preselect query
     endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
@@ -159,8 +169,11 @@ def summary_query(db, endpoint_tablename, qnode):
 
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
 
+    start_time = time.time()
     result = query.all()
     result = [row for row, in result]
+    query_time = time.time() - start_time
+    log.info(f'Query execution time: {query_time}s')
 
     # Fake return for now
     ret = {

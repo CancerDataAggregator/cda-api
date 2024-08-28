@@ -1,816 +1,443 @@
-2024-06-04 09:41:24,895 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-04 09:41:24,895 - simple - INFO: Building paged query
-2024-06-04 09:41:24,895 - simple - INFO: Building MATCH conditions
-2024-06-04 09:41:24,896 - simple - INFO: Building SELECT clause
-2024-06-04 09:43:30,772 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["year_of_birt < 50"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-04 09:43:30,772 - simple - INFO: Building paged query
-2024-06-04 09:43:30,772 - simple - INFO: Building MATCH conditions
-2024-06-04 09:43:30,773 - simple - ERROR: Column Not Found: year_of_birt, did you mean: ['year_of_birth']
-NoneType: None
-2024-06-04 09:44:27,649 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["year_of_birth < 50", "crdc_id = 5"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-04 09:44:27,650 - simple - INFO: Building paged query
-2024-06-04 09:44:27,650 - simple - INFO: Building MATCH conditions
-2024-06-04 09:44:27,652 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['subject_crdc_id', 'file_crdc_id', 'project_crdc_id', 'specimen_crdc_id']
-NoneType: None
-2024-06-04 09:45:29,598 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["year_of_birth < 50", "subject_crdc_id = 5"], "ADD_COLUMNS": ["species"], "EXCLUDE_COLUMNS": ["vital_status"]}
-2024-06-04 09:45:29,598 - simple - INFO: Building paged query
-2024-06-04 09:45:29,598 - simple - INFO: Building MATCH conditions
-2024-06-04 09:45:29,599 - simple - INFO: Building SELECT clause
-2024-06-05 14:00:57,228 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:00:57,228 - simple - INFO: Building paged query
-2024-06-05 14:00:57,228 - simple - INFO: Building MATCH conditions
-2024-06-05 14:09:48,121 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:09:48,121 - simple - INFO: Building paged query
-2024-06-05 14:09:48,122 - simple - INFO: Building MATCH conditions
-2024-06-05 14:10:10,334 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:10:10,334 - simple - INFO: Building paged query
-2024-06-05 14:10:10,334 - simple - INFO: Building MATCH conditions
-2024-06-05 14:16:56,602 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:16:56,602 - simple - INFO: Building paged query
-2024-06-05 14:16:56,602 - simple - INFO: Building MATCH conditions
-2024-06-05 14:17:28,224 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:17:28,224 - simple - INFO: Building paged query
-2024-06-05 14:17:28,224 - simple - INFO: Building MATCH conditions
-2024-06-05 14:18:56,389 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:18:56,389 - simple - INFO: Building paged query
-2024-06-05 14:18:56,390 - simple - INFO: Building MATCH conditions
-2024-06-05 14:23:23,568 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-05 14:24:08,521 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-05 14:24:08,521 - simple - INFO: Building paged query
-2024-06-05 14:24:08,521 - simple - INFO: Building MATCH conditions
-2024-06-05 14:24:08,522 - simple - INFO: Building SELECT clause
-2024-06-05 14:31:29,649 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:31:29,649 - simple - INFO: Building paged query
-2024-06-05 14:31:29,650 - simple - INFO: Building MATCH conditions
-2024-06-05 14:31:41,137 - simple - INFO: QNode: {"MATCH_ALL": ["string"], "MATCH_SOME": ["string"], "ADD_COLUMNS": ["string"], "EXCLUDE_COLUMNS": ["string"]}
-2024-06-05 14:31:41,137 - simple - INFO: Building paged query
-2024-06-05 14:31:41,137 - simple - INFO: Building MATCH conditions
-2024-06-06 14:08:59,009 - simple - INFO: QNode: {"MATCH_ALL": ["sex = m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 14:08:59,010 - simple - INFO: Building paged query
-2024-06-06 14:08:59,010 - simple - INFO: Building MATCH conditions
-2024-06-06 14:08:59,012 - simple - INFO: Building SELECT clause
-2024-06-06 14:09:29,461 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 14:09:29,461 - simple - INFO: Building paged query
-2024-06-06 14:09:29,461 - simple - INFO: Building MATCH conditions
-2024-06-06 14:09:29,462 - simple - INFO: Building SELECT clause
-2024-06-06 14:11:00,587 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 14:11:00,588 - simple - INFO: Building paged query
-2024-06-06 14:11:00,588 - simple - INFO: Building MATCH conditions
-2024-06-06 14:11:00,589 - simple - INFO: Building SELECT clause
-2024-06-06 14:11:05,696 - simple - INFO: QNode: {"MATCH_ALL": ["sex = m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 14:11:05,696 - simple - INFO: Building paged query
-2024-06-06 14:11:05,696 - simple - INFO: Building MATCH conditions
-2024-06-06 14:11:05,697 - simple - INFO: Building SELECT clause
-2024-06-06 15:05:42,879 - simple - INFO: QNode: {"MATCH_ALL": ["sex notin ["m","f"]"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 15:05:42,880 - simple - INFO: Building paged query
-2024-06-06 15:05:42,880 - simple - INFO: Building MATCH conditions
-2024-06-06 15:05:42,882 - simple - INFO: Building SELECT clause
-2024-06-06 15:07:07,534 - simple - INFO: QNode: {"MATCH_ALL": ["sex in ["m","f"]"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 15:07:07,535 - simple - INFO: Building paged query
-2024-06-06 15:07:07,535 - simple - INFO: Building MATCH conditions
-2024-06-06 15:07:07,536 - simple - INFO: Building SELECT clause
-2024-06-06 15:07:18,005 - simple - INFO: QNode: {"MATCH_ALL": ["sex < 5"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 15:07:18,006 - simple - INFO: Building paged query
-2024-06-06 15:07:18,006 - simple - INFO: Building MATCH conditions
-2024-06-06 15:07:18,006 - simple - INFO: Building SELECT clause
-2024-06-06 15:11:10,030 - simple - INFO: QNode: {"MATCH_ALL": ["sex < 5"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 15:11:10,031 - simple - INFO: Building paged query
-2024-06-06 15:11:10,031 - simple - INFO: Building MATCH conditions
-2024-06-06 15:11:10,032 - simple - INFO: Building SELECT clause
-2024-06-06 15:11:19,926 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-06 15:11:19,926 - simple - INFO: Building paged query
-2024-06-06 15:11:19,926 - simple - INFO: Building MATCH conditions
-2024-06-06 15:11:19,927 - simple - INFO: Building SELECT clause
-2024-06-07 07:26:42,565 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-07 07:26:42,566 - simple - INFO: Building paged query
-2024-06-07 07:26:42,566 - simple - INFO: Building MATCH conditions
-2024-06-07 07:26:42,567 - simple - INFO: Building SELECT clause
-2024-06-07 11:51:37,956 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-07 11:51:37,956 - simple - INFO: Building paged query
-2024-06-07 11:51:37,956 - simple - INFO: Building MATCH conditions
-2024-06-07 11:51:37,958 - simple - INFO: Building SELECT clause
-2024-06-07 11:53:05,413 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-07 11:53:05,414 - simple - INFO: Building paged query
-2024-06-07 11:53:05,414 - simple - INFO: Building MATCH conditions
-2024-06-07 11:53:05,416 - simple - INFO: Building SELECT clause
-2024-06-07 12:00:45,982 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["species", "format", "project_crdc_id"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
-2024-06-07 12:00:45,982 - simple - INFO: Building paged query
-2024-06-07 12:00:45,982 - simple - INFO: Building MATCH conditions
-2024-06-07 12:00:45,984 - simple - INFO: Building SELECT clause
-2024-06-07 12:01:58,890 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["sex", "format", "project_crdc_id"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
-2024-06-07 12:01:58,890 - simple - INFO: Building paged query
-2024-06-07 12:01:58,890 - simple - INFO: Building MATCH conditions
-2024-06-07 12:01:58,891 - simple - INFO: Building SELECT clause
-2024-06-07 12:02:27,150 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["sex", "grade", "format", "project_crdc_id"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
-2024-06-07 12:02:27,151 - simple - INFO: Building paged query
-2024-06-07 12:02:27,151 - simple - INFO: Building MATCH conditions
-2024-06-07 12:02:27,153 - simple - INFO: Building SELECT clause
-2024-06-07 12:02:56,699 - simple - INFO: QNode: {"MATCH_ALL": ["sex < m", "species notlike homo%"], "MATCH_SOME": ["format in [1,2,3,4]", "project_crdc_id notin [6,7,8,9]"], "ADD_COLUMNS": ["sex", "format", "project_crdc_id", "grade"], "EXCLUDE_COLUMNS": ["subject_id", "subject_integer_id_alias"]}
-2024-06-07 12:02:56,699 - simple - INFO: Building paged query
-2024-06-07 12:02:56,699 - simple - INFO: Building MATCH conditions
-2024-06-07 12:02:56,701 - simple - INFO: Building SELECT clause
-2024-06-12 10:13:13,772 - simple - INFO: QNode: {"MATCH_ALL": ["species like %homo%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-12 10:13:13,773 - simple - INFO: Building paged query
-2024-06-12 10:13:13,773 - simple - INFO: Building MATCH conditions
-2024-06-12 10:13:13,773 - simple - INFO: Building SELECT clause
-2024-06-12 10:21:05,477 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-12 10:21:05,477 - simple - INFO: Building paged query
-2024-06-12 10:21:05,477 - simple - INFO: Building MATCH conditions
-2024-06-12 10:21:05,478 - simple - INFO: Building SELECT clause
-2024-06-12 10:21:31,685 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
-2024-06-12 10:21:31,685 - simple - INFO: Building paged query
-2024-06-12 10:21:31,685 - simple - INFO: Building MATCH conditions
-2024-06-12 10:21:31,686 - simple - INFO: Building SELECT clause
-2024-06-12 10:31:18,710 - simple - INFO: QNode: {"MATCH_ALL": ["se like 7"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
-2024-06-12 10:31:18,711 - simple - INFO: Building paged query
-2024-06-12 10:31:18,711 - simple - INFO: Building MATCH conditions
-2024-06-12 10:31:18,711 - simple - ERROR: Column Not Found: se, did you mean: ['sex']
-NoneType: None
-2024-06-12 10:33:01,762 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
-2024-06-12 10:33:01,762 - simple - INFO: Building paged query
-2024-06-12 10:33:01,762 - simple - INFO: Building MATCH conditions
-2024-06-12 10:33:01,762 - simple - INFO: Building SELECT clause
-2024-06-12 10:33:15,471 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
-2024-06-12 10:33:15,472 - simple - INFO: Building paged query
-2024-06-12 10:33:15,472 - simple - INFO: Building MATCH conditions
-2024-06-12 10:33:15,472 - simple - INFO: Building SELECT clause
-2024-06-12 10:46:46,195 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
-2024-06-12 10:46:46,195 - simple - INFO: Building paged query
-2024-06-12 10:46:46,195 - simple - INFO: Building MATCH conditions
-2024-06-12 10:46:46,195 - simple - INFO: Building SELECT clause
-2024-06-12 11:33:27,787 - simple - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
-2024-06-12 11:33:27,787 - simple - INFO: Building paged query
-2024-06-12 11:33:27,788 - simple - INFO: Building MATCH conditions
-2024-06-12 11:33:27,788 - simple - INFO: Building SELECT clause
-2024-06-12 12:10:13,320 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-12 12:10:13,321 - simple - INFO: Building paged query
-2024-06-12 12:10:13,321 - simple - INFO: Building MATCH conditions
-2024-06-12 12:10:13,322 - simple - INFO: Building SELECT clause
-2024-06-12 12:33:33,116 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
-2024-06-12 12:33:33,116 - simple - INFO: Building paged query
-2024-06-12 12:33:33,116 - simple - INFO: Building MATCH conditions
-2024-06-12 12:33:33,117 - simple - INFO: Building SELECT clause
-2024-06-12 12:36:34,090 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
-2024-06-12 12:36:34,090 - simple - INFO: Building paged query
-2024-06-12 12:36:34,091 - simple - INFO: Building MATCH conditions
-2024-06-12 12:36:34,092 - simple - INFO: Building SELECT clause
-2024-06-12 12:37:45,754 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
-2024-06-12 12:37:45,755 - simple - INFO: Building paged query
-2024-06-12 12:37:45,755 - simple - INFO: Building MATCH conditions
-2024-06-12 12:37:45,756 - simple - INFO: Building SELECT clause
-2024-06-12 12:53:54,627 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
-2024-06-12 12:53:54,628 - simple - INFO: Building paged query
-2024-06-12 12:53:54,628 - simple - INFO: Building MATCH conditions
-2024-06-12 12:53:54,630 - simple - INFO: Building SELECT clause
-2024-06-12 12:55:54,227 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%", "race like white"], "MATCH_SOME": ["subject_crdc_id < 50", "cause_of_death like plague"], "ADD_COLUMNS": ["sex", "race"], "EXCLUDE_COLUMNS": None}
-2024-06-12 12:55:54,227 - simple - INFO: Building paged query
-2024-06-12 12:55:54,227 - simple - INFO: Building MATCH conditions
-2024-06-12 12:55:54,228 - simple - INFO: Building SELECT clause
-2024-06-13 09:54:58,872 - simple - ERROR: Column Not Found: aoidfa
-NoneType: None
-2024-06-13 10:58:08,247 - simple - ERROR: No mapping found between project and project
-type object 'project' has no attribute 'project_project_alias_collection'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 32, in get_mapping_column
-    mapping_column = getattr(entity_table, mapping_columnname)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: type object 'project' has no attribute 'project_project_alias_collection'
-2024-06-13 11:01:08,806 - simple - ERROR: No mapping found between project and project
-type object 'project' has no attribute 'project_project_alias_collection'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 32, in get_mapping_column
-    mapping_column = getattr(entity_table, mapping_columnname)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: type object 'project' has no attribute 'project_project_alias_collection'
-2024-06-13 11:01:28,636 - simple - ERROR: No mapping found between project and project
-type object 'project' has no attribute 'project_project_alias_collection'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 32, in get_mapping_column
-    mapping_column = getattr(entity_table, mapping_columnname)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: type object 'project' has no attribute 'project_project_alias_collection'
-2024-06-13 11:16:17,365 - simple - ERROR: Unable to find relationship between subject and project
-'project'
-Traceback (most recent call last):
-  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/1070955301.py", line 127, in get_entity_relationship
-    return self.relationship_map[entity_tablename][foreign_tablename]
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
-KeyError: 'project'
-2024-06-13 11:16:25,607 - simple - ERROR: Unable to find relationship between subject and observation
-'observation'
-Traceback (most recent call last):
-  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/192829692.py", line 127, in get_entity_relationship
-    return self.relationship_map[entity_tablename][foreign_tablename]
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
-KeyError: 'observation'
-2024-06-13 13:34:23,498 - simple - ERROR: Unable to find table subject
-'FacadeDict' object has no attribute 'tables'
-Traceback (most recent call last):
-  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/1832146891.py", line 146, in get_metadata_table
-    return self.metadata_tables.tables[tablename]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'FacadeDict' object has no attribute 'tables'
-2024-06-13 13:34:58,567 - simple - ERROR: Unable to find table subject
-'FacadeDict' object has no attribute 'tables'
-Traceback (most recent call last):
-  File "/var/folders/2s/vn8mlnnd4g59fs1qzrl0by6w0000gn/T/ipykernel_11613/1832146891.py", line 146, in get_metadata_table
-    return self.metadata_tables.tables[tablename]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'FacadeDict' object has no attribute 'tables'
-2024-06-14 12:03:53,106 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:03:53,107 - simple - INFO: Building paged query
-2024-06-14 12:03:53,107 - simple - INFO: Building MATCH conditions
-2024-06-14 12:04:39,454 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:04:39,455 - simple - INFO: Building paged query
-2024-06-14 12:04:39,455 - simple - INFO: Building MATCH conditions
-2024-06-14 12:04:52,117 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:04:52,117 - simple - INFO: Building paged query
-2024-06-14 12:04:52,117 - simple - INFO: Building MATCH conditions
-2024-06-14 12:05:06,473 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:05:06,474 - simple - INFO: Building paged query
-2024-06-14 12:05:06,474 - simple - INFO: Building MATCH conditions
-2024-06-14 12:05:22,033 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:05:22,034 - simple - INFO: Building paged query
-2024-06-14 12:05:22,034 - simple - INFO: Building MATCH conditions
-2024-06-14 12:18:33,257 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
-'ColumnInfo' object has no attribute 'column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
-    return self.column_map[columnname].column
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'ColumnInfo' object has no attribute 'column'
-2024-06-14 12:18:55,202 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
-'ColumnInfo' object has no attribute 'column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
-    return self.column_map[columnname].column
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'ColumnInfo' object has no attribute 'column'
-2024-06-14 12:21:07,819 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
-'ColumnInfo' object has no attribute 'column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
-    return self.column_map[columnname].column
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'ColumnInfo' object has no attribute 'column'
-2024-06-14 12:21:56,022 - simple - ERROR: Column Not Found: therapeutic_agent, did you mean: ['therapeutic_agent', 'therapeutic_agent']
-'ColumnInfo' object has no attribute 'column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 76, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'ColumnInfo' object has no attribute 'column'
-2024-06-14 12:24:30,485 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:24:30,485 - simple - INFO: Building paged query
-2024-06-14 12:24:30,486 - simple - INFO: Building MATCH conditions
-2024-06-14 12:24:50,139 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:24:50,139 - simple - INFO: Building paged query
-2024-06-14 12:24:50,139 - simple - INFO: Building MATCH conditions
-2024-06-14 12:25:04,401 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:25:04,401 - simple - INFO: Building paged query
-2024-06-14 12:25:04,401 - simple - INFO: Building MATCH conditions
-2024-06-14 12:25:33,611 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:25:33,611 - simple - INFO: Building paged query
-2024-06-14 12:25:33,611 - simple - INFO: Building MATCH conditions
-2024-06-14 12:25:33,612 - simple - ERROR: error
-2024-06-14 12:25:33,612 - simple - INFO: Building SELECT clause
-2024-06-14 12:25:59,325 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:25:59,325 - simple - INFO: Building paged query
-2024-06-14 12:25:59,325 - simple - INFO: Building MATCH conditions
-2024-06-14 12:25:59,326 - simple - ERROR: any
-2024-06-14 12:26:34,459 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:26:34,460 - simple - INFO: Building paged query
-2024-06-14 12:26:34,460 - simple - INFO: Building MATCH conditions
-2024-06-14 12:26:34,460 - simple - ERROR: any
-2024-06-14 12:29:59,915 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:29:59,915 - simple - INFO: Building paged query
-2024-06-14 12:29:59,915 - simple - INFO: Building MATCH conditions
-2024-06-14 12:29:59,917 - simple - INFO: Building SELECT clause
-2024-06-14 12:30:41,193 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:30:41,194 - simple - INFO: Building paged query
-2024-06-14 12:30:41,194 - simple - INFO: Building MATCH conditions
-2024-06-14 12:30:41,195 - simple - INFO: Building SELECT clause
-2024-06-14 12:30:58,607 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:30:58,608 - simple - INFO: Building paged query
-2024-06-14 12:30:58,608 - simple - INFO: Building MATCH conditions
-2024-06-14 12:30:58,609 - simple - INFO: Building SELECT clause
-2024-06-14 12:31:41,972 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:31:41,972 - simple - INFO: Building paged query
-2024-06-14 12:31:41,972 - simple - INFO: Building MATCH conditions
-2024-06-14 12:31:41,973 - simple - INFO: Building SELECT clause
-2024-06-14 12:31:54,505 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:31:54,505 - simple - INFO: Building paged query
-2024-06-14 12:31:54,505 - simple - INFO: Building MATCH conditions
-2024-06-14 12:31:54,506 - simple - INFO: Building SELECT clause
-2024-06-14 12:33:29,472 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:33:29,472 - simple - INFO: Building paged query
-2024-06-14 12:33:29,472 - simple - INFO: Building MATCH conditions
-2024-06-14 12:33:29,473 - simple - INFO: Building SELECT clause
-2024-06-14 12:33:42,761 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:33:42,762 - simple - INFO: Building paged query
-2024-06-14 12:33:42,762 - simple - INFO: Building MATCH conditions
-2024-06-14 12:33:42,762 - simple - INFO: Building SELECT clause
-2024-06-14 12:33:58,303 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:33:58,304 - simple - INFO: Building paged query
-2024-06-14 12:33:58,304 - simple - INFO: Building MATCH conditions
-2024-06-14 12:33:58,306 - simple - INFO: Building SELECT clause
-2024-06-14 12:34:31,768 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:34:31,768 - simple - INFO: Building paged query
-2024-06-14 12:34:31,768 - simple - INFO: Building MATCH conditions
-2024-06-14 12:34:31,769 - simple - INFO: Building SELECT clause
-2024-06-14 12:35:08,540 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:35:08,540 - simple - INFO: Building paged query
-2024-06-14 12:35:08,541 - simple - INFO: Building MATCH conditions
-2024-06-14 12:35:08,542 - simple - INFO: Building SELECT clause
-2024-06-14 12:35:32,695 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:35:32,695 - simple - INFO: Building paged query
-2024-06-14 12:35:32,695 - simple - INFO: Building MATCH conditions
-2024-06-14 12:35:32,695 - simple - INFO: Building SELECT clause
-2024-06-14 12:35:40,812 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:35:40,812 - simple - INFO: Building paged query
-2024-06-14 12:35:40,812 - simple - INFO: Building MATCH conditions
-2024-06-14 12:35:40,814 - simple - INFO: Building SELECT clause
-2024-06-14 12:35:49,252 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:35:49,252 - simple - INFO: Building paged query
-2024-06-14 12:35:49,252 - simple - INFO: Building MATCH conditions
-2024-06-14 12:35:49,253 - simple - INFO: Building SELECT clause
-2024-06-14 12:36:18,012 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-06-14 12:36:18,012 - simple - INFO: Building paged query
-2024-06-14 12:36:18,012 - simple - INFO: Building MATCH conditions
-2024-06-14 12:36:18,013 - simple - INFO: Building SELECT clause
-2024-06-14 12:37:16,983 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": None}
-2024-06-14 12:37:16,983 - simple - INFO: Building paged query
-2024-06-14 12:37:16,983 - simple - INFO: Building MATCH conditions
-2024-06-14 12:37:16,985 - simple - INFO: Building SELECT clause
-2024-06-14 12:37:56,887 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:37:56,888 - simple - INFO: Building paged query
-2024-06-14 12:37:56,888 - simple - INFO: Building MATCH conditions
-2024-06-14 12:37:56,889 - simple - INFO: Building SELECT clause
-2024-06-14 12:38:22,460 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:38:22,460 - simple - INFO: Building paged query
-2024-06-14 12:38:22,460 - simple - INFO: Building MATCH conditions
-2024-06-14 12:38:22,461 - simple - INFO: Building SELECT clause
-2024-06-14 12:47:31,863 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:47:31,863 - simple - INFO: Building paged query
-2024-06-14 12:47:31,863 - simple - INFO: Building MATCH conditions
-2024-06-14 12:47:31,864 - simple - INFO: Building SELECT clause
-2024-06-14 12:48:35,874 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:48:35,874 - simple - INFO: Building paged query
-2024-06-14 12:48:35,874 - simple - INFO: Building MATCH conditions
-2024-06-14 12:48:35,875 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:49:37,765 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:49:37,765 - simple - INFO: Building paged query
-2024-06-14 12:49:37,765 - simple - INFO: Building MATCH conditions
-2024-06-14 12:49:37,767 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:50:52,443 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:50:52,444 - simple - INFO: Building paged query
-2024-06-14 12:50:52,444 - simple - INFO: Building MATCH conditions
-2024-06-14 12:50:52,446 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:51:22,782 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:51:22,783 - simple - INFO: Building paged query
-2024-06-14 12:51:22,783 - simple - INFO: Building MATCH conditions
-2024-06-14 12:51:22,784 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:51:42,946 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:51:42,947 - simple - INFO: Building paged query
-2024-06-14 12:51:42,947 - simple - INFO: Building MATCH conditions
-2024-06-14 12:51:42,948 - simple - ERROR: Column Info Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:53:18,392 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:53:18,392 - simple - INFO: Building paged query
-2024-06-14 12:53:18,392 - simple - INFO: Building MATCH conditions
-2024-06-14 12:53:18,394 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:54:57,084 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:54:57,084 - simple - INFO: Building paged query
-2024-06-14 12:54:57,085 - simple - INFO: Building MATCH conditions
-2024-06-14 12:54:57,087 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:55:12,184 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:55:12,185 - simple - INFO: Building paged query
-2024-06-14 12:55:12,185 - simple - INFO: Building MATCH conditions
-2024-06-14 12:55:12,187 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:55:21,839 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:55:21,840 - simple - INFO: Building paged query
-2024-06-14 12:55:21,840 - simple - INFO: Building MATCH conditions
-2024-06-14 12:55:21,842 - simple - INFO: Building SELECT clause
-2024-06-14 12:55:21,842 - simple - ERROR: Unable to find entity table subject
-'subject3'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 114, in get_metadata_table_columns
-    return self.metadata_tables[tablename+'3'].columns.values()
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-KeyError: 'subject3'
-2024-06-14 12:56:17,309 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:56:17,310 - simple - INFO: Building paged query
-2024-06-14 12:56:17,310 - simple - INFO: Building MATCH conditions
-2024-06-14 12:56:17,311 - simple - INFO: Building SELECT clause
-2024-06-14 12:56:17,312 - simple - ERROR: Unable to find entity table subject
-'subject3'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 114, in get_metadata_table_columns
-    return self.metadata_tables[tablename+'3'].columns.values()
-           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-KeyError: 'subject3'
-2024-06-14 12:56:35,372 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:56:35,373 - simple - INFO: Building paged query
-2024-06-14 12:56:35,373 - simple - INFO: Building MATCH conditions
-2024-06-14 12:56:35,375 - simple - INFO: Building SELECT clause
-2024-06-14 12:57:13,260 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:57:13,261 - simple - INFO: Building paged query
-2024-06-14 12:57:13,261 - simple - INFO: Building MATCH conditions
-2024-06-14 12:57:13,263 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:57:44,062 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:57:44,063 - simple - INFO: Building paged query
-2024-06-14 12:57:44,063 - simple - INFO: Building MATCH conditions
-2024-06-14 12:57:44,064 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 12:57:53,195 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 12:57:53,196 - simple - INFO: Building paged query
-2024-06-14 12:57:53,196 - simple - INFO: Building MATCH conditions
-2024-06-14 12:57:53,198 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 13:23:03,194 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 13:23:03,194 - simple - INFO: Building paged query
-2024-06-14 13:23:03,194 - simple - INFO: Building MATCH conditions
-2024-06-14 13:23:03,196 - simple - ERROR: Column Not Found: crdc_id, did you mean: ['file_crdc_id', 'specimen_crdc_id', 'subject_crdc_id', 'project_crdc_id']
-'crdc_id'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 64, in get_column_info
-    return self.column_map[columnname]
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'crdc_id'
-2024-06-14 13:23:09,754 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": ["species like %homo%", "subject_crdc_id > 50"], "ADD_COLUMNS": ["sex"], "EXCLUDE_COLUMNS": ["species"]}
-2024-06-14 13:23:09,754 - simple - INFO: Building paged query
-2024-06-14 13:23:09,754 - simple - INFO: Building MATCH conditions
-2024-06-14 13:23:09,755 - simple - INFO: Building SELECT clause
-2024-06-14 13:23:23,536 - simple - INFO: Building paged query
-2024-06-14 13:23:23,536 - simple - INFO: Building MATCH conditions
-2024-06-14 13:23:57,543 - simple - INFO: Building paged query
-2024-06-14 13:23:57,544 - simple - INFO: Building MATCH conditions
-2024-06-14 13:24:19,319 - simple - INFO: Building paged query
-2024-06-14 13:24:19,319 - simple - INFO: Building MATCH conditions
-2024-06-14 13:24:56,527 - simple - INFO: Building paged query
-2024-06-14 13:24:56,528 - simple - INFO: Building MATCH conditions
-2024-06-14 13:25:53,847 - simple - INFO: Building paged query
-2024-06-14 13:25:53,847 - simple - INFO: Building MATCH conditions
-2024-06-14 13:25:53,849 - simple - ERROR: total_count() missing 1 required positional argument: 'column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 53, in subject_summary_endpoint
-    result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 80, in summary_query
-    select_clause = build_summary_select_clause(db, 'subject', qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 78, in build_summary_select_clause
-    column_summary = total_count(get_cte_column(preselect_query, column_info.columnname)).label(alias)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: total_count() missing 1 required positional argument: 'column'
-2024-06-14 13:26:02,949 - simple - INFO: Building paged query
-2024-06-14 13:26:02,949 - simple - INFO: Building MATCH conditions
-2024-06-14 13:26:02,952 - simple - ERROR: grouped_count() missing 1 required positional argument: 'column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 53, in subject_summary_endpoint
-    result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 80, in summary_query
-    select_clause = build_summary_select_clause(db, 'subject', qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 93, in build_summary_select_clause
-    column_summary = grouped_count(get_cte_column(preselect_query, column_info.columnname)).label(alias)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: grouped_count() missing 1 required positional argument: 'column'
-2024-06-14 13:26:17,163 - simple - INFO: Building paged query
-2024-06-14 13:26:17,163 - simple - INFO: Building MATCH conditions
-2024-06-14 13:26:17,166 - simple - ERROR: data_source_counts() missing 1 required positional argument: 'data_source_columns'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 53, in subject_summary_endpoint
-    result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 80, in summary_query
-    select_clause = build_summary_select_clause(db, 'subject', qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 98, in build_summary_select_clause
-    data_count_select = data_source_counts(data_at_columns)
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: data_source_counts() missing 1 required positional argument: 'data_source_columns'
-2024-06-14 13:26:34,668 - simple - INFO: Building paged query
-2024-06-14 13:26:34,669 - simple - INFO: Building MATCH conditions
-2024-07-10 09:49:21,345 - simple - ERROR: Column Not Found: data_at_cds, did you mean: ['file_data_at_cds', 'specimen_data_at_cds', 'subject_data_at_cds', 'project_data_at_cds', 'observation_data_at_cds', 'somatic_mutation_data_at_cds', 'treatment_data_at_cds']
-'data_at_cds'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'data_at_cds'
-2024-07-10 09:56:16,816 - simple - ERROR: Column Not Found: file_format
-'file_format'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_format'
-2024-07-10 09:59:07,738 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-2024-07-10 10:01:47,074 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-2024-07-10 10:01:57,614 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-2024-07-10 10:02:57,461 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-2024-07-10 10:02:57,462 - simple - ERROR: doijaoisj system not found
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
+2024-08-28 10:30:05,407 - d4bfd86a-4df0-4a8b-90be-4ee3bb819de8 :  - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=61980)
+2024-08-28 10:30:05,407 - d4bfd86a-4df0-4a8b-90be-4ee3bb819de8 :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 10:30:05,407 - d4bfd86a-4df0-4a8b-90be-4ee3bb819de8 :  - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 10:30:05,407 - d4bfd86a-4df0-4a8b-90be-4ee3bb819de8 :  - INFO: Building paged query
+2024-08-28 10:30:05,407 - d4bfd86a-4df0-4a8b-90be-4ee3bb819de8 :  - INFO: Building MATCH conditions
+2024-08-28 10:30:05,410 - d4bfd86a-4df0-4a8b-90be-4ee3bb819de8 :  - INFO: Building SELECT clause
+2024-08-28 10:30:06,400 - d4bfd86a-4df0-4a8b-90be-4ee3bb819de8 :  - INFO: Success
+2024-08-28 10:31:29,022 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62002)
+2024-08-28 10:31:29,022 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 10:31:29,022 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 10:31:29,022 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: Building fetch_rows query
+2024-08-28 10:31:29,022 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: Building MATCH conditions
+2024-08-28 10:31:29,024 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: Building SELECT clause
+2024-08-28 10:31:30,219 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: Query Time: 1.1623339653015137s
+2024-08-28 10:31:30,319 - 3afdbea3-9c10-46bf-81e2-c8623776e5f5 :  - INFO: Success
+2024-08-28 10:32:11,196 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62008)
+2024-08-28 10:32:11,197 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 10:32:11,197 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=100
+2024-08-28 10:32:11,197 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: Building fetch_rows query
+2024-08-28 10:32:11,197 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: Building MATCH conditions
+2024-08-28 10:32:11,200 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: Building SELECT clause
+2024-08-28 10:32:12,925 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: Query Time: 1.6834721565246582s
+2024-08-28 10:32:13,024 - 5c6b89f6-0454-4c3a-be60-4f8f377b90da :  - INFO: Success
+2024-08-28 10:32:24,705 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62012)
+2024-08-28 10:32:24,705 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 10:32:24,705 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=200
+2024-08-28 10:32:24,705 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: Building fetch_rows query
+2024-08-28 10:32:24,705 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: Building MATCH conditions
+2024-08-28 10:32:24,706 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: Building SELECT clause
+2024-08-28 10:32:26,742 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: Query Time: 2.0023529529571533s
+2024-08-28 10:32:26,839 - eee5db46-1847-4d67-9dd5-90e68ca0a3fb :  - INFO: Success
+2024-08-28 10:32:29,015 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62012)
+2024-08-28 10:32:29,015 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 10:32:29,016 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=300
+2024-08-28 10:32:29,016 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: Building fetch_rows query
+2024-08-28 10:32:29,016 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: Building MATCH conditions
+2024-08-28 10:32:29,018 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: Building SELECT clause
+2024-08-28 10:32:31,685 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: Query Time: 2.6238348484039307s
+2024-08-28 10:32:31,779 - b15a72ee-381e-4fb3-b023-ff2764f92d1f :  - INFO: Success
+2024-08-28 10:32:33,374 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62012)
+2024-08-28 10:32:33,374 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 10:32:33,374 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=400
+2024-08-28 10:32:33,374 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: Building fetch_rows query
+2024-08-28 10:32:33,374 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: Building MATCH conditions
+2024-08-28 10:32:33,377 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: Building SELECT clause
+2024-08-28 10:32:36,434 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: Query Time: 3.0218517780303955s
+2024-08-28 10:32:36,527 - c1826bf2-751f-4937-80d9-b5d19da00562 :  - INFO: Success
+2024-08-28 10:32:38,903 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62012)
+2024-08-28 10:32:38,903 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 10:32:38,903 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=500
+2024-08-28 10:32:38,903 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: Building fetch_rows query
+2024-08-28 10:32:38,903 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: Building MATCH conditions
+2024-08-28 10:32:38,907 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: Building SELECT clause
+2024-08-28 10:32:42,101 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: Query Time: 3.1508829593658447s
+2024-08-28 10:32:42,193 - a8fad410-8a37-4e85-bcfa-c4cdbb5a4854 :  - INFO: Success
+2024-08-28 10:34:42,859 - f348501a-8fb3-429a-872e-50c4c0d2d499 :  - INFO: Building paged query
+2024-08-28 10:34:42,859 - f348501a-8fb3-429a-872e-50c4c0d2d499 :  - INFO: Building MATCH conditions
+2024-08-28 10:34:43,367 - f348501a-8fb3-429a-872e-50c4c0d2d499 :  - INFO: Query execution time: 0.4945640563964844s
+2024-08-28 10:36:00,310 - 87d67ee8-e3de-4241-9298-17b076cbea60 :  - INFO: summary/subject endpoint hit: Address(host='127.0.0.1', port=62078)
+2024-08-28 10:36:00,310 - 87d67ee8-e3de-4241-9298-17b076cbea60 :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 10:36:00,310 - 87d67ee8-e3de-4241-9298-17b076cbea60 :  - INFO: http://127.0.0.1:8000/summary/subject
+2024-08-28 10:36:00,311 - 87d67ee8-e3de-4241-9298-17b076cbea60 :  - INFO: Building paged query
+2024-08-28 10:36:00,311 - 87d67ee8-e3de-4241-9298-17b076cbea60 :  - INFO: Building MATCH conditions
+2024-08-28 10:36:00,809 - 87d67ee8-e3de-4241-9298-17b076cbea60 :  - INFO: Query execution time: 0.48662281036376953s
+2024-08-28 10:36:26,752 - 427c0b9d-19ab-4b25-a07f-3b9da1576080 :  - INFO: summary/subject endpoint hit: Address(host='127.0.0.1', port=62088)
+2024-08-28 10:36:26,753 - 427c0b9d-19ab-4b25-a07f-3b9da1576080 :  - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 10:36:26,753 - 427c0b9d-19ab-4b25-a07f-3b9da1576080 :  - INFO: http://127.0.0.1:8000/summary/subject
+2024-08-28 10:36:26,753 - 427c0b9d-19ab-4b25-a07f-3b9da1576080 :  - INFO: Building paged query
+2024-08-28 10:36:26,753 - 427c0b9d-19ab-4b25-a07f-3b9da1576080 :  - INFO: Building MATCH conditions
+2024-08-28 10:36:27,220 - 427c0b9d-19ab-4b25-a07f-3b9da1576080 :  - INFO: Query execution time: 0.4585909843444824s
+2024-08-28 10:36:27,234 - 427c0b9d-19ab-4b25-a07f-3b9da1576080 :  - INFO: Success
+2024-08-28 10:37:48,368 - aa5438fa-f013-478a-823e-70b4fc7323ce - INFO: summary/subject endpoint hit: Address(host='127.0.0.1', port=62110)
+2024-08-28 10:37:48,369 - aa5438fa-f013-478a-823e-70b4fc7323ce - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 10:37:48,369 - aa5438fa-f013-478a-823e-70b4fc7323ce - INFO: http://127.0.0.1:8000/summary/subject
+2024-08-28 10:37:48,369 - aa5438fa-f013-478a-823e-70b4fc7323ce - INFO: Building paged query
+2024-08-28 10:37:48,369 - aa5438fa-f013-478a-823e-70b4fc7323ce - INFO: Building MATCH conditions
+2024-08-28 10:37:48,861 - aa5438fa-f013-478a-823e-70b4fc7323ce - INFO: Query execution time: 0.4828352928161621s
+2024-08-28 10:37:48,874 - aa5438fa-f013-478a-823e-70b4fc7323ce - INFO: Success
+2024-08-28 11:39:50,788 - 183ec184-3dd3-4b2f-9eb6-df272674777f - INFO: summary/subject endpoint hit: Address(host='127.0.0.1', port=62748)
+2024-08-28 11:39:50,788 - 183ec184-3dd3-4b2f-9eb6-df272674777f - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 11:39:50,788 - 183ec184-3dd3-4b2f-9eb6-df272674777f - INFO: http://127.0.0.1:8000/summary/subject
+2024-08-28 11:39:50,788 - 183ec184-3dd3-4b2f-9eb6-df272674777f - INFO: Building paged query
+2024-08-28 11:39:50,789 - 183ec184-3dd3-4b2f-9eb6-df272674777f - INFO: Building MATCH conditions
+2024-08-28 11:39:51,292 - 183ec184-3dd3-4b2f-9eb6-df272674777f - INFO: Query execution time: 0.489365816116333s
+2024-08-28 11:39:51,306 - 183ec184-3dd3-4b2f-9eb6-df272674777f - INFO: Success
+2024-08-28 11:40:07,514 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62751)
+2024-08-28 11:40:07,514 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:40:07,515 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=500
+2024-08-28 11:40:07,515 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: Building fetch_rows query
+2024-08-28 11:40:07,515 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: Building MATCH conditions
+2024-08-28 11:40:07,517 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: Building SELECT clause
+2024-08-28 11:40:11,282 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: Returned 500 / 460
+2024-08-28 11:40:11,282 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: Query execution time: 3.710373878479004s
+2024-08-28 11:40:11,291 - dbd04889-54cd-4398-90d6-492dc0b2f1da - INFO: Success
+2024-08-28 11:41:11,841 - 160cbca0-135e-4bad-8872-6c8f35580ffc - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62769)
+2024-08-28 11:41:11,841 - 160cbca0-135e-4bad-8872-6c8f35580ffc - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:41:11,841 - 160cbca0-135e-4bad-8872-6c8f35580ffc - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=500
+2024-08-28 11:41:11,841 - 160cbca0-135e-4bad-8872-6c8f35580ffc - INFO: Building fetch_rows query
+2024-08-28 11:41:11,841 - 160cbca0-135e-4bad-8872-6c8f35580ffc - INFO: Building MATCH conditions
+2024-08-28 11:41:11,843 - 160cbca0-135e-4bad-8872-6c8f35580ffc - INFO: Building SELECT clause
+2024-08-28 11:41:15,384 - 160cbca0-135e-4bad-8872-6c8f35580ffc - ERROR: 'list' object has no attribute 'len'
+2024-08-28 11:41:30,386 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62777)
+2024-08-28 11:41:30,387 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:41:30,387 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=500
+2024-08-28 11:41:30,387 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: Building fetch_rows query
+2024-08-28 11:41:30,387 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: Building MATCH conditions
+2024-08-28 11:41:30,389 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: Building SELECT clause
+2024-08-28 11:41:33,929 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: Returning 0 rows out of 460 results. Current offset: 500
+2024-08-28 11:41:33,929 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: Query execution time: 3.5072672367095947s
+2024-08-28 11:41:33,932 - e71fde64-c739-43cc-b84d-2efd7c67aeaf - INFO: Success
+2024-08-28 11:41:45,381 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62782)
+2024-08-28 11:41:45,382 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:41:45,382 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 11:41:45,382 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: Building fetch_rows query
+2024-08-28 11:41:45,382 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: Building MATCH conditions
+2024-08-28 11:41:45,385 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: Building SELECT clause
+2024-08-28 11:41:46,398 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: Returning 100 rows out of 460 results. Current offset: 0
+2024-08-28 11:41:46,399 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: Query execution time: 0.9671039581298828s
+2024-08-28 11:41:46,406 - c71dae22-51de-4140-abce-d9e865ca24c9 - INFO: Success
+2024-08-28 11:42:23,767 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62790)
+2024-08-28 11:42:23,768 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:42:23,768 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=100
+2024-08-28 11:42:23,768 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: Building fetch_rows query
+2024-08-28 11:42:23,768 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: Building MATCH conditions
+2024-08-28 11:42:23,770 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: Building SELECT clause
+2024-08-28 11:42:25,372 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: Returning 100 rows out of 460 results. Current offset: 100
+2024-08-28 11:42:25,373 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: Query execution time: 1.5683631896972656s
+2024-08-28 11:42:25,383 - e41d6ba8-71b8-492c-8b59-99ac42fe0e7a - INFO: Success
+2024-08-28 11:42:41,732 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62791)
+2024-08-28 11:42:41,732 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:42:41,732 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=200
+2024-08-28 11:42:41,732 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: Building fetch_rows query
+2024-08-28 11:42:41,732 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: Building MATCH conditions
+2024-08-28 11:42:41,733 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: Building SELECT clause
+2024-08-28 11:42:43,863 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: Returning 100 rows out of 460 results. Current offset: 200
+2024-08-28 11:42:43,863 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: Query execution time: 2.0905039310455322s
+2024-08-28 11:42:43,866 - 4c9c897e-fe01-41d4-a2b5-9f356a29859f - INFO: Success
+2024-08-28 11:42:54,586 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62794)
+2024-08-28 11:42:54,586 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:42:54,586 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=300
+2024-08-28 11:42:54,587 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: Building fetch_rows query
+2024-08-28 11:42:54,587 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: Building MATCH conditions
+2024-08-28 11:42:54,590 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: Building SELECT clause
+2024-08-28 11:42:57,353 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: Returning 100 rows out of 460 results. Current offset: 300
+2024-08-28 11:42:57,353 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: Query execution time: 2.729828119277954s
+2024-08-28 11:42:57,363 - aea3cf75-b165-4265-a4e1-4447da50cd1b - INFO: Success
+2024-08-28 11:42:59,658 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62794)
+2024-08-28 11:42:59,658 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:42:59,658 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=400
+2024-08-28 11:42:59,658 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: Building fetch_rows query
+2024-08-28 11:42:59,658 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: Building MATCH conditions
+2024-08-28 11:42:59,661 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: Building SELECT clause
+2024-08-28 11:43:02,821 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: Returning 60 rows out of 460 results. Current offset: 400
+2024-08-28 11:43:02,822 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: Query execution time: 3.1138360500335693s
+2024-08-28 11:43:02,830 - 5b783842-4213-40d6-b813-3471eb2f749e - INFO: Success
+2024-08-28 11:43:37,504 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62804)
+2024-08-28 11:43:37,504 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:43:37,504 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=400
+2024-08-28 11:43:37,504 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: Building fetch_rows query
+2024-08-28 11:43:37,504 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: Building MATCH conditions
+2024-08-28 11:43:37,505 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: Building SELECT clause
+2024-08-28 11:43:40,934 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: Returning 60 rows out of 460 results. Current offset = 400
+2024-08-28 11:43:40,935 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: Query execution time: 3.397775173187256s
+2024-08-28 11:43:40,945 - 4df9e6b7-9392-4f1c-9a5b-cff757cf97a4 - INFO: Success
+2024-08-28 11:44:09,529 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62810)
+2024-08-28 11:44:09,530 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:44:09,530 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=400
+2024-08-28 11:44:09,530 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: Building fetch_rows query
+2024-08-28 11:44:09,530 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: Building MATCH conditions
+2024-08-28 11:44:09,532 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: Building SELECT clause
+2024-08-28 11:44:10,045 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: Returning 100 rows out of 774 results. Current offset = 400
+2024-08-28 11:44:10,046 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: Query execution time: 0.47798895835876465s
+2024-08-28 11:44:10,054 - 7b9e0bf5-93a9-4d5c-b575-beca74308a99 - INFO: Success
+2024-08-28 11:44:18,768 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62813)
+2024-08-28 11:44:18,768 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:44:18,768 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=700
+2024-08-28 11:44:18,768 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: Building fetch_rows query
+2024-08-28 11:44:18,768 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: Building MATCH conditions
+2024-08-28 11:44:18,770 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: Building SELECT clause
+2024-08-28 11:44:19,227 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: Returning 74 rows out of 774 results. Current offset = 700
+2024-08-28 11:44:19,227 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: Query execution time: 0.4188249111175537s
+2024-08-28 11:44:19,236 - a7ae1287-8e8c-4b8b-84ad-baca863e2247 - INFO: Success
+2024-08-28 11:44:46,277 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62821)
+2024-08-28 11:44:46,277 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:44:46,278 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=700
+2024-08-28 11:44:46,278 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: Building fetch_rows query
+2024-08-28 11:44:46,278 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: Building MATCH conditions
+2024-08-28 11:44:46,279 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: Building SELECT clause
+2024-08-28 11:44:47,059 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: Returning 74 rows out of 774 results | offset = 700
+2024-08-28 11:44:47,060 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: Query execution time: 0.7516560554504395s
+2024-08-28 11:44:47,068 - 89efc880-ba3b-44af-bd80-ba3e2bdeddc6 - INFO: Success
+2024-08-28 11:45:11,608 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62829)
+2024-08-28 11:45:11,608 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:45:11,608 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=700
+2024-08-28 11:45:11,608 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: Building fetch_rows query
+2024-08-28 11:45:11,609 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: Building MATCH conditions
+2024-08-28 11:45:11,610 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: Building SELECT clause
+2024-08-28 11:45:12,445 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: Returning 74 rows out of 774 results | limit = 100 & offset = 700
+2024-08-28 11:45:12,446 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: Query execution time: 0.8055920600891113s
+2024-08-28 11:45:12,454 - b75b2e89-94c0-441d-958c-0f12a6ed2238 - INFO: Success
+2024-08-28 11:45:36,358 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62840)
+2024-08-28 11:45:36,358 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:45:36,358 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=700
+2024-08-28 11:45:36,358 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: Building fetch_rows query
+2024-08-28 11:45:36,358 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: Building MATCH conditions
+2024-08-28 11:45:36,359 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: Building SELECT clause
+2024-08-28 11:45:37,257 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: Query execution time: 0.8652951717376709s
+2024-08-28 11:45:37,258 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: Returning 74 rows out of 774 results | limit = 100 & offset = 700
+2024-08-28 11:45:37,267 - d4cc7ca2-277d-4389-8e1e-1a03870f96f3 - INFO: Success
+2024-08-28 11:47:22,794 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62855)
+2024-08-28 11:47:22,795 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:47:22,795 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 11:47:22,795 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: Building fetch_rows query
+2024-08-28 11:47:22,796 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: Building MATCH conditions
+2024-08-28 11:47:22,798 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: Building SELECT clause
+2024-08-28 11:47:23,305 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: Query execution time: 0.471879243850708s
+2024-08-28 11:47:23,305 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: Returning 100 rows out of 774 results | limit = 100 & offset = 0
+2024-08-28 11:47:23,315 - 6f1744ae-194a-4919-8d1d-ae384280e705 - INFO: Success
+2024-08-28 11:47:48,959 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62864)
+2024-08-28 11:47:48,959 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:47:48,959 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 11:47:48,959 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: Building fetch_rows query
+2024-08-28 11:47:48,959 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: Building MATCH conditions
+2024-08-28 11:47:48,961 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: Building SELECT clause
+2024-08-28 11:47:49,912 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: Query execution time: 0.9133141040802002s
+2024-08-28 11:47:49,912 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: Returning 100 rows out of 774 results | limit=100 & offset=x0
+2024-08-28 11:47:49,921 - ad9481af-da67-4ec4-a693-67e5601a9523 - INFO: Success
+2024-08-28 11:48:40,864 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=62878)
+2024-08-28 11:48:40,864 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-28 11:48:40,864 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 11:48:40,864 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: Building fetch_rows query
+2024-08-28 11:48:40,865 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: Building MATCH conditions
+2024-08-28 11:48:40,867 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: Building SELECT clause
+2024-08-28 11:48:41,733 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: Query execution time: 0.8283700942993164s
+2024-08-28 11:48:41,734 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: Returning 100 rows out of 774 results | limit=100 & offset=0
+2024-08-28 11:48:41,743 - efb37a5f-238a-44de-a6a4-4cc131cbcfce - INFO: Success
+2024-08-28 13:23:52,752 - ca609950-dde8-4784-8251-49ee5718b3b3 - INFO: summary/subject endpoint hit: Address(host='127.0.0.1', port=63766)
+2024-08-28 13:23:52,753 - ca609950-dde8-4784-8251-49ee5718b3b3 - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 13:23:52,753 - ca609950-dde8-4784-8251-49ee5718b3b3 - INFO: http://127.0.0.1:8000/summary/subject
+2024-08-28 13:23:52,753 - ca609950-dde8-4784-8251-49ee5718b3b3 - INFO: Building paged query
+2024-08-28 13:23:52,753 - ca609950-dde8-4784-8251-49ee5718b3b3 - INFO: Building MATCH conditions
+2024-08-28 13:23:52,778 - ca609950-dde8-4784-8251-49ee5718b3b3 - ERROR: (psycopg2.OperationalError) terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
 
-During handling of the above exception, another exception occurred:
+[SQL: WITH filter_preselect AS 
+(SELECT subject.id AS subject_id, subject.id_alias AS subject_id_alias, subject.crdc_id AS subject_crdc_id, subject.species AS species, subject.year_of_birth AS year_of_birth, subject.year_of_death AS year_of_death, subject.cause_of_death AS cause_of_death, subject.race AS race, subject.ethnicity AS ethnicity, subject.data_at_cds AS subject_data_at_cds, subject.data_at_gdc AS subject_data_at_gdc, subject.data_at_icdc AS subject_data_at_icdc, subject.data_at_idc AS subject_data_at_idc, subject.data_at_pdc AS subject_data_at_pdc, subject.data_source_count AS subject_data_source_count 
+FROM subject 
+WHERE (EXISTS (SELECT 1 
+FROM observation 
+WHERE subject.id_alias = observation.subject_alias AND coalesce(upper(observation.sex), %(coalesce_1)s) LIKE upper(%(upper_1)s))) AND (EXISTS (SELECT 1 
+FROM treatment 
+WHERE subject.id_alias = treatment.subject_alias AND coalesce(upper(treatment.therapeutic_agent), %(coalesce_2)s) LIKE upper(%(upper_2)s))) AND ((EXISTS (SELECT 1 
+FROM treatment 
+WHERE subject.id_alias = treatment.subject_alias AND coalesce(upper(treatment.therapeutic_agent), %(coalesce_3)s) = upper(%(upper_3)s))) OR (EXISTS (SELECT 1 
+FROM file, file_describes_subject 
+WHERE subject.id_alias = file_describes_subject.subject_alias AND file.id_alias = file_describes_subject.file_alias AND coalesce(upper(file.format), %(coalesce_4)s) = upper(%(upper_4)s))))), 
+json_species AS 
+(SELECT row_to_json(subquery) AS species_categories 
+FROM (SELECT filter_preselect.species AS species, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.species) AS subquery), 
+json_year_of_birth AS 
+(SELECT row_to_json(subquery) AS year_of_birth_stats 
+FROM (SELECT min(filter_preselect.year_of_birth) AS min, max(filter_preselect.year_of_birth) AS max, avg(filter_preselect.year_of_birth) AS mean, percentile_disc(%(percentile_disc_1)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_birth) AS median, percentile_disc(%(percentile_disc_2)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_birth) AS lower_quartile, percentile_disc(%(percentile_disc_3)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_birth) AS upper_quartile 
+FROM filter_preselect) AS subquery), 
+json_year_of_death AS 
+(SELECT row_to_json(subquery) AS year_of_death_stats 
+FROM (SELECT min(filter_preselect.year_of_death) AS min, max(filter_preselect.year_of_death) AS max, avg(filter_preselect.year_of_death) AS mean, percentile_disc(%(percentile_disc_4)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_death) AS median, percentile_disc(%(percentile_disc_5)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_death) AS lower_quartile, percentile_disc(%(percentile_disc_6)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_death) AS upper_quartile 
+FROM filter_preselect) AS subquery), 
+json_cause_of_death AS 
+(SELECT row_to_json(subquery) AS cause_of_death_categories 
+FROM (SELECT filter_preselect.cause_of_death AS cause_of_death, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.cause_of_death) AS subquery), 
+json_race AS 
+(SELECT row_to_json(subquery) AS race_categories 
+FROM (SELECT filter_preselect.race AS race, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.race) AS subquery), 
+json_ethnicity AS 
+(SELECT row_to_json(subquery) AS ethnicity_categories 
+FROM (SELECT filter_preselect.ethnicity AS ethnicity, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.ethnicity) AS subquery), 
+json_subject_data_source_count AS 
+(SELECT row_to_json(subquery) AS subject_data_source_count_stats 
+FROM (SELECT min(filter_preselect.subject_data_source_count) AS min, max(filter_preselect.subject_data_source_count) AS max, avg(filter_preselect.subject_data_source_count) AS mean, percentile_disc(%(percentile_disc_7)s) WITHIN GROUP (ORDER BY filter_preselect.subject_data_source_count) AS median, percentile_disc(%(percentile_disc_8)s) WITHIN GROUP (ORDER BY filter_preselect.subject_data_source_count) AS lower_quartile, percentile_disc(%(percentile_disc_9)s) WITHIN GROUP (ORDER BY filter_preselect.subject_data_source_count) AS upper_quartile 
+FROM filter_preselect) AS subquery)
+ SELECT row_to_json(json_result) AS results 
+FROM (SELECT (SELECT count(DISTINCT filter_preselect.subject_id_alias) AS count_result 
+FROM filter_preselect) AS total_count, (SELECT count(DISTINCT file_describes_subject.file_alias) AS count_result 
+FROM file_describes_subject 
+WHERE file_describes_subject.subject_alias IN (SELECT filter_preselect.subject_id_alias AS subject_id_alias 
+FROM filter_preselect)) AS file_count, (SELECT array_agg(json_species.species_categories) AS array_agg_1 
+FROM json_species) AS species_summary, (SELECT array_agg(json_year_of_birth.year_of_birth_stats) AS array_agg_2 
+FROM json_year_of_birth) AS year_of_birth_summary, (SELECT array_agg(json_year_of_death.year_of_death_stats) AS array_agg_3 
+FROM json_year_of_death) AS year_of_death_summary, (SELECT array_agg(json_cause_of_death.cause_of_death_categories) AS array_agg_4 
+FROM json_cause_of_death) AS cause_of_death_summary, (SELECT array_agg(json_race.race_categories) AS array_agg_5 
+FROM json_race) AS race_summary, (SELECT array_agg(json_ethnicity.ethnicity_categories) AS array_agg_6 
+FROM json_ethnicity) AS ethnicity_summary, (SELECT array_agg(json_subject_data_source_count.subject_data_source_count_stats) AS array_agg_7 
+FROM json_subject_data_source_count) AS subject_data_source_count_summary, (SELECT row_to_json(subquery) AS row_to_json_1 
+FROM (SELECT sum(CAST(filter_preselect.subject_data_at_cds AS INTEGER)) AS cds, sum(CAST(filter_preselect.subject_data_at_gdc AS INTEGER)) AS gdc, sum(CAST(filter_preselect.subject_data_at_icdc AS INTEGER)) AS icdc, sum(CAST(filter_preselect.subject_data_at_idc AS INTEGER)) AS idc, sum(CAST(filter_preselect.subject_data_at_pdc AS INTEGER)) AS pdc 
+FROM filter_preselect) AS subquery) AS data_source) AS json_result]
+[parameters: {'coalesce_1': '', 'upper_1': 'm%', 'coalesce_2': '', 'upper_2': 'b%', 'coalesce_3': '', 'upper_3': 'Pomalidomide', 'coalesce_4': '', 'upper_4': 'bam', 'percentile_disc_1': 0.5, 'percentile_disc_2': 0.25, 'percentile_disc_3': 0.75, 'percentile_disc_4': 0.5, 'percentile_disc_5': 0.25, 'percentile_disc_6': 0.75, 'percentile_disc_7': 0.5, 'percentile_disc_8': 0.25, 'percentile_disc_9': 0.75}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.OperationalError: terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
 
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 94, in build_unique_value_query
-    data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 86, in get_meta_column
-    raise ColumnNotFound(log_message)
-cda_api.classes.exceptions.ColumnNotFound: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-2024-07-10 10:03:49,058 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-2024-07-10 10:03:49,060 - simple - ERROR: system: doijaoisj - not found
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 94, in build_unique_value_query
-    data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 86, in get_meta_column
-    raise ColumnNotFound(log_message)
-cda_api.classes.exceptions.ColumnNotFound: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-2024-07-10 10:04:02,735 - simple - ERROR: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-2024-07-10 10:04:02,736 - simple - ERROR: system: doijaoisj - not found
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 77, in get_meta_column
-    return self.column_map[columnname].metadata_column
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
-KeyError: 'file_data_at_doijaoisj'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 94, in build_unique_value_query
-    data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/classes/DatabaseMap.py", line 86, in get_meta_column
-    raise ColumnNotFound(log_message)
-cda_api.classes.exceptions.ColumnNotFound: Column Not Found: file_data_at_doijaoisj
-'file_data_at_doijaoisj'
-2024-08-22 10:05:34,323 - simple - INFO: Building paged query
-2024-08-22 10:05:34,323 - simple - INFO: Building MATCH conditions
-2024-08-22 10:16:20,373 - simple - INFO: Building paged query
-2024-08-22 10:16:20,373 - simple - INFO: Building MATCH conditions
-2024-08-22 10:17:23,648 - simple - INFO: Building paged query
-2024-08-22 10:17:23,648 - simple - INFO: Building MATCH conditions
-2024-08-22 10:20:17,466 - simple - INFO: Building paged query
-2024-08-22 10:20:17,467 - simple - INFO: Building MATCH conditions
-2024-08-22 10:20:17,468 - simple - ERROR: 'ColumnInfo' object has no attribute 'column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
-    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
-    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in build_summary_select_clause
-    select_columns = [column_info.column for column_info in endpoint_column_infos if column_info.summary_display]
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in <listcomp>
-    select_columns = [column_info.column for column_info in endpoint_column_infos if column_info.summary_display]
-                      ^^^^^^^^^^^^^^^^^^
-AttributeError: 'ColumnInfo' object has no attribute 'column'
-2024-08-22 10:20:34,583 - simple - INFO: Building paged query
-2024-08-22 10:20:34,584 - simple - INFO: Building MATCH conditions
-2024-08-22 10:20:34,586 - simple - ERROR: 'ColumnInfo' object has no attribute 'meta_column'
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
-    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
-    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in build_summary_select_clause
-    select_columns = [column_info.meta_column for column_info in endpoint_column_infos if column_info.summary_display]
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 70, in <listcomp>
-    select_columns = [column_info.meta_column for column_info in endpoint_column_infos if column_info.summary_display]
-                      ^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'ColumnInfo' object has no attribute 'meta_column'
-2024-08-22 10:21:00,811 - simple - INFO: Building paged query
-2024-08-22 10:21:00,811 - simple - INFO: Building MATCH conditions
-2024-08-22 10:21:00,812 - simple - ERROR: id_alias
-Traceback (most recent call last):
-  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1617, in __getattr__
-    return self._index[key][1]
-           ~~~~~~~~~~~^^^^^
-KeyError: 'id_alias'
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
-    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
-    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 78, in build_summary_select_clause
-    summary_select_clause = [total_column_count_subquery(db, get_cte_column(preselect_query, 'id_alias')).label('total_count')]
-                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 26, in get_cte_column
-    return getattr(cte.c, columnname)
+  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 36, in subject_summary_endpoint
+    result = summary_query(db, endpoint_tablename='subject', qnode=qnode, log=log)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 173, in summary_query
+    result = query.all()
+             ^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2236, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1619, in __getattr__
-    raise AttributeError(key) from err
-AttributeError: id_alias
-2024-08-22 10:21:37,095 - simple - INFO: Building paged query
-2024-08-22 10:21:37,095 - simple - INFO: Building MATCH conditions
-2024-08-22 10:21:37,097 - simple - ERROR: id
-Traceback (most recent call last):
-  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1617, in __getattr__
-    return self._index[key][1]
-           ~~~~~~~~~~~^^^^^
-KeyError: 'id'
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
 
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
-    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
-    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 94, in build_summary_select_clause
-    preselect_column = get_cte_column(preselect_query, column_info.columnname)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 26, in get_cte_column
-    return getattr(cte.c, columnname)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1619, in __getattr__
-    raise AttributeError(key) from err
-AttributeError: id
-2024-08-22 10:22:00,300 - simple - INFO: Building paged query
-2024-08-22 10:22:00,300 - simple - INFO: Building MATCH conditions
-2024-08-22 10:22:00,302 - simple - ERROR: crdc_id
-Traceback (most recent call last):
-  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1617, in __getattr__
-    return self._index[key][1]
-           ~~~~~~~~~~~^^^^^
-KeyError: 'crdc_id'
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/Users/tanner.coon/cda/cda-api/cda_api/routers/summary.py", line 55, in file_summary_endpoint
-    result = summary_query(db, endpoint_tablename='file', qnode=qnode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_builders.py", line 88, in summary_query
-    select_clause = build_summary_select_clause(db, endpoint_tablename, qnode)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/select_builder.py", line 94, in build_summary_select_clause
-    preselect_column = get_cte_column(preselect_query, column_info.columnname)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/cda/cda-api/cda_api/db/query_utilities.py", line 26, in get_cte_column
-    return getattr(cte.c, columnname)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/tanner.coon/.pyenv/versions/3.11.7/lib/python3.11/site-packages/sqlalchemy/sql/base.py", line 1619, in __getattr__
-    raise AttributeError(key) from err
-AttributeError: crdc_id
-2024-08-22 10:22:20,047 - simple - INFO: Building paged query
-2024-08-22 10:22:20,047 - simple - INFO: Building MATCH conditions
-2024-08-22 10:23:48,004 - simple - INFO: Building paged query
-2024-08-22 10:23:48,004 - simple - INFO: Building MATCH conditions
-2024-08-22 10:31:01,269 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-08-22 10:31:01,269 - simple - INFO: Building paged query
-2024-08-22 10:31:01,269 - simple - INFO: Building MATCH conditions
-2024-08-22 10:31:01,271 - simple - INFO: Building SELECT clause
-2024-08-22 10:31:51,669 - simple - INFO: QNode: {"MATCH_ALL": ["sex like m%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
-2024-08-22 10:31:51,669 - simple - INFO: Building paged query
-2024-08-22 10:31:51,669 - simple - INFO: Building MATCH conditions
-2024-08-22 10:31:51,670 - simple - INFO: Building SELECT clause
-2024-08-22 10:32:47,077 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
-2024-08-22 10:32:47,077 - simple - INFO: Building paged query
-2024-08-22 10:32:47,077 - simple - INFO: Building MATCH conditions
-2024-08-22 10:32:47,079 - simple - INFO: Building SELECT clause
-2024-08-22 10:33:11,394 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
-2024-08-22 10:33:11,394 - simple - INFO: Building paged query
-2024-08-22 10:33:11,394 - simple - INFO: Building MATCH conditions
-2024-08-22 10:33:11,397 - simple - INFO: Building SELECT clause
-2024-08-22 10:59:11,106 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
-2024-08-22 10:59:11,106 - simple - INFO: Building paged query
-2024-08-22 10:59:11,106 - simple - INFO: Building MATCH conditions
-2024-08-22 10:59:11,108 - simple - INFO: Building SELECT clause
-2024-08-22 17:10:37,702 - simple - INFO: Building paged query
-2024-08-22 17:10:37,702 - simple - INFO: Building MATCH conditions
-2024-08-22 17:10:59,889 - simple - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Pomalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["sex", "vital_status", "therapeutic_agent", "format"], "EXCLUDE_COLUMNS": None}
-2024-08-22 17:10:59,890 - simple - INFO: Building paged query
-2024-08-22 17:10:59,890 - simple - INFO: Building MATCH conditions
-2024-08-22 17:10:59,891 - simple - INFO: Building SELECT clause
+[SQL: WITH filter_preselect AS 
+(SELECT subject.id AS subject_id, subject.id_alias AS subject_id_alias, subject.crdc_id AS subject_crdc_id, subject.species AS species, subject.year_of_birth AS year_of_birth, subject.year_of_death AS year_of_death, subject.cause_of_death AS cause_of_death, subject.race AS race, subject.ethnicity AS ethnicity, subject.data_at_cds AS subject_data_at_cds, subject.data_at_gdc AS subject_data_at_gdc, subject.data_at_icdc AS subject_data_at_icdc, subject.data_at_idc AS subject_data_at_idc, subject.data_at_pdc AS subject_data_at_pdc, subject.data_source_count AS subject_data_source_count 
+FROM subject 
+WHERE (EXISTS (SELECT 1 
+FROM observation 
+WHERE subject.id_alias = observation.subject_alias AND coalesce(upper(observation.sex), %(coalesce_1)s) LIKE upper(%(upper_1)s))) AND (EXISTS (SELECT 1 
+FROM treatment 
+WHERE subject.id_alias = treatment.subject_alias AND coalesce(upper(treatment.therapeutic_agent), %(coalesce_2)s) LIKE upper(%(upper_2)s))) AND ((EXISTS (SELECT 1 
+FROM treatment 
+WHERE subject.id_alias = treatment.subject_alias AND coalesce(upper(treatment.therapeutic_agent), %(coalesce_3)s) = upper(%(upper_3)s))) OR (EXISTS (SELECT 1 
+FROM file, file_describes_subject 
+WHERE subject.id_alias = file_describes_subject.subject_alias AND file.id_alias = file_describes_subject.file_alias AND coalesce(upper(file.format), %(coalesce_4)s) = upper(%(upper_4)s))))), 
+json_species AS 
+(SELECT row_to_json(subquery) AS species_categories 
+FROM (SELECT filter_preselect.species AS species, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.species) AS subquery), 
+json_year_of_birth AS 
+(SELECT row_to_json(subquery) AS year_of_birth_stats 
+FROM (SELECT min(filter_preselect.year_of_birth) AS min, max(filter_preselect.year_of_birth) AS max, avg(filter_preselect.year_of_birth) AS mean, percentile_disc(%(percentile_disc_1)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_birth) AS median, percentile_disc(%(percentile_disc_2)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_birth) AS lower_quartile, percentile_disc(%(percentile_disc_3)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_birth) AS upper_quartile 
+FROM filter_preselect) AS subquery), 
+json_year_of_death AS 
+(SELECT row_to_json(subquery) AS year_of_death_stats 
+FROM (SELECT min(filter_preselect.year_of_death) AS min, max(filter_preselect.year_of_death) AS max, avg(filter_preselect.year_of_death) AS mean, percentile_disc(%(percentile_disc_4)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_death) AS median, percentile_disc(%(percentile_disc_5)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_death) AS lower_quartile, percentile_disc(%(percentile_disc_6)s) WITHIN GROUP (ORDER BY filter_preselect.year_of_death) AS upper_quartile 
+FROM filter_preselect) AS subquery), 
+json_cause_of_death AS 
+(SELECT row_to_json(subquery) AS cause_of_death_categories 
+FROM (SELECT filter_preselect.cause_of_death AS cause_of_death, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.cause_of_death) AS subquery), 
+json_race AS 
+(SELECT row_to_json(subquery) AS race_categories 
+FROM (SELECT filter_preselect.race AS race, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.race) AS subquery), 
+json_ethnicity AS 
+(SELECT row_to_json(subquery) AS ethnicity_categories 
+FROM (SELECT filter_preselect.ethnicity AS ethnicity, count(*) AS count_result 
+FROM filter_preselect GROUP BY filter_preselect.ethnicity) AS subquery), 
+json_subject_data_source_count AS 
+(SELECT row_to_json(subquery) AS subject_data_source_count_stats 
+FROM (SELECT min(filter_preselect.subject_data_source_count) AS min, max(filter_preselect.subject_data_source_count) AS max, avg(filter_preselect.subject_data_source_count) AS mean, percentile_disc(%(percentile_disc_7)s) WITHIN GROUP (ORDER BY filter_preselect.subject_data_source_count) AS median, percentile_disc(%(percentile_disc_8)s) WITHIN GROUP (ORDER BY filter_preselect.subject_data_source_count) AS lower_quartile, percentile_disc(%(percentile_disc_9)s) WITHIN GROUP (ORDER BY filter_preselect.subject_data_source_count) AS upper_quartile 
+FROM filter_preselect) AS subquery)
+ SELECT row_to_json(json_result) AS results 
+FROM (SELECT (SELECT count(DISTINCT filter_preselect.subject_id_alias) AS count_result 
+FROM filter_preselect) AS total_count, (SELECT count(DISTINCT file_describes_subject.file_alias) AS count_result 
+FROM file_describes_subject 
+WHERE file_describes_subject.subject_alias IN (SELECT filter_preselect.subject_id_alias AS subject_id_alias 
+FROM filter_preselect)) AS file_count, (SELECT array_agg(json_species.species_categories) AS array_agg_1 
+FROM json_species) AS species_summary, (SELECT array_agg(json_year_of_birth.year_of_birth_stats) AS array_agg_2 
+FROM json_year_of_birth) AS year_of_birth_summary, (SELECT array_agg(json_year_of_death.year_of_death_stats) AS array_agg_3 
+FROM json_year_of_death) AS year_of_death_summary, (SELECT array_agg(json_cause_of_death.cause_of_death_categories) AS array_agg_4 
+FROM json_cause_of_death) AS cause_of_death_summary, (SELECT array_agg(json_race.race_categories) AS array_agg_5 
+FROM json_race) AS race_summary, (SELECT array_agg(json_ethnicity.ethnicity_categories) AS array_agg_6 
+FROM json_ethnicity) AS ethnicity_summary, (SELECT array_agg(json_subject_data_source_count.subject_data_source_count_stats) AS array_agg_7 
+FROM json_subject_data_source_count) AS subject_data_source_count_summary, (SELECT row_to_json(subquery) AS row_to_json_1 
+FROM (SELECT sum(CAST(filter_preselect.subject_data_at_cds AS INTEGER)) AS cds, sum(CAST(filter_preselect.subject_data_at_gdc AS INTEGER)) AS gdc, sum(CAST(filter_preselect.subject_data_at_icdc AS INTEGER)) AS icdc, sum(CAST(filter_preselect.subject_data_at_idc AS INTEGER)) AS idc, sum(CAST(filter_preselect.subject_data_at_pdc AS INTEGER)) AS pdc 
+FROM filter_preselect) AS subquery) AS data_source) AS json_result]
+[parameters: {'coalesce_1': '', 'upper_1': 'm%', 'coalesce_2': '', 'upper_2': 'b%', 'coalesce_3': '', 'upper_3': 'Pomalidomide', 'coalesce_4': '', 'upper_4': 'bam', 'percentile_disc_1': 0.5, 'percentile_disc_2': 0.25, 'percentile_disc_3': 0.75, 'percentile_disc_4': 0.5, 'percentile_disc_5': 0.25, 'percentile_disc_6': 0.75, 'percentile_disc_7': 0.5, 'percentile_disc_8': 0.25, 'percentile_disc_9': 0.75}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-28 13:24:05,355 - 5a50c8be-6596-4d9c-906f-8cd02d211d3b - INFO: summary/subject endpoint hit: Address(host='127.0.0.1', port=63773)
+2024-08-28 13:24:05,355 - 5a50c8be-6596-4d9c-906f-8cd02d211d3b - INFO: QNode: {"MATCH_ALL": ["sex like m%", "therapeutic_agent like b%"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 13:24:05,355 - 5a50c8be-6596-4d9c-906f-8cd02d211d3b - INFO: http://127.0.0.1:8000/summary/subject
+2024-08-28 13:24:05,355 - 5a50c8be-6596-4d9c-906f-8cd02d211d3b - INFO: Building paged query
+2024-08-28 13:24:05,355 - 5a50c8be-6596-4d9c-906f-8cd02d211d3b - INFO: Building MATCH conditions
+2024-08-28 13:24:05,832 - 5a50c8be-6596-4d9c-906f-8cd02d211d3b - INFO: Query execution time: 0.4647696018218994s
+2024-08-28 13:24:05,845 - 5a50c8be-6596-4d9c-906f-8cd02d211d3b - INFO: Success
+2024-08-28 13:24:16,154 - 546113f1-d7cb-4c9c-93d5-1b1e48e6da55 - INFO: summary/subject endpoint hit: Address(host='127.0.0.1', port=63778)
+2024-08-28 13:24:16,154 - 546113f1-d7cb-4c9c-93d5-1b1e48e6da55 - INFO: QNode: {"MATCH_ALL": None, "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-28 13:24:16,154 - 546113f1-d7cb-4c9c-93d5-1b1e48e6da55 - INFO: http://127.0.0.1:8000/summary/subject
+2024-08-28 13:24:16,155 - 546113f1-d7cb-4c9c-93d5-1b1e48e6da55 - INFO: Building paged query
+2024-08-28 13:24:16,155 - 546113f1-d7cb-4c9c-93d5-1b1e48e6da55 - INFO: Building MATCH conditions
+2024-08-28 13:24:19,264 - 546113f1-d7cb-4c9c-93d5-1b1e48e6da55 - INFO: Query execution time: 3.0963950157165527s
+2024-08-28 13:24:19,278 - 546113f1-d7cb-4c9c-93d5-1b1e48e6da55 - INFO: Success
+2024-08-28 13:36:25,944 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: subject paged endpoint hit: Address(host='127.0.0.1', port=63917)
+2024-08-28 13:36:25,945 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: QNode: {"MATCH_ALL": ["sex = male", "therapeutic_agent = Lenalidomide"], "MATCH_SOME": None, "ADD_COLUMNS": ["therapeutic_agent"], "EXCLUDE_COLUMNS": None}
+2024-08-28 13:36:25,945 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-28 13:36:25,945 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Building fetch_rows query
+2024-08-28 13:36:25,945 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Building MATCH conditions
+2024-08-28 13:36:25,948 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Building SELECT clause
+2024-08-28 13:36:26,214 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Query execution time: 0.2494199275970459s
+2024-08-28 13:36:26,214 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Returning 100 rows out of 479 results | limit=100 & offset=0
+2024-08-28 13:36:26,220 - 16aa2d5d-a686-493f-98f4-723470536fae - INFO: Success

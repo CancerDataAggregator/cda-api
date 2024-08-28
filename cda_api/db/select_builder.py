@@ -2,10 +2,10 @@ from cda_api.db import get_db_map
 from cda_api import get_logger
 from .query_utilities import build_foreign_array_preselect
 from sqlalchemy import Label
-log = get_logger()
+
 DB_MAP = get_db_map()
 
-def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query):
+def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
     log.info('Building SELECT clause')
     add_columns = qnode.ADD_COLUMNS
     exclude_columns = qnode.EXCLUDE_COLUMNS
@@ -51,11 +51,12 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
         foreign_joins.append(foreign_join)
 
         # Need to remove previous columns that were added to select_columns and replace them with the new preselect_columns
+        to_remove = []
         for column in columns:
-            to_remove = []
             for select_column in select_columns:
                 if select_column.name == column.name:
                     to_remove.append(select_column)
+        
         select_columns = [col for col in select_columns if col not in to_remove]
 
         # Add preselect columns

@@ -1,11 +1,12 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db
-from cda_api.db.query_builders import paged_query
+from cda_api.db.query_builders import fetch_rows
 from cda_api.models import QNode, PagedResponseObj
 from cda_api import get_logger
 from sqlalchemy.orm import Session
+import uuid
 
-log = get_logger()
+
 
 # API router object. Defines /data endpoint options
 router = APIRouter(
@@ -16,7 +17,7 @@ router = APIRouter(
 
 
 @router.post('/subject')
-def subject_paged_endpoint(request: Request, 
+def subject_fetch_rows_endpoint(request: Request, 
                            qnode: QNode, 
                            limit: int = 100,
                            offset: int = 0,
@@ -39,21 +40,23 @@ def subject_paged_endpoint(request: Request,
             'next_url': 'URL to acquire next paged result'
         }
     """
-
-    log.debug(f'subject paged endpoint hit: {request.client}')
-    log.info(f'QNode: {qnode.as_string()}') 
-    log.debug(f'{request.url}')
     
-    # log.debug(f'{next_url}')
+    qid = str(uuid.uuid4())
+    log = get_logger(qid)
+    log.info(f'subject paged endpoint hit: {request.client}')
+    log.info(f'QNode: {qnode.as_string()}') 
+    log.info(f'{request.url}')
+   
     try:
         # Get paged query result
-        result = paged_query(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset)
+        result = fetch_rows(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset, log=log)
         if (offset != None) and (limit != None):
             if result['total_row_count'] > offset+limit:
                 next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
                 result['next_url'] = next_url
         else:
             result['next_url'] = None
+        log.info('Success')
     except Exception as e:
         # TODO - possibly a better exception to throw
         log.error(e)
@@ -63,7 +66,7 @@ def subject_paged_endpoint(request: Request,
 
 
 @router.post('/file')
-def file_paged_endpoint(request: Request, 
+def file_fetch_rows_endpoint(request: Request, 
                            qnode: QNode, 
                            limit: int = 100,
                            offset: int = 0, 
@@ -86,19 +89,22 @@ def file_paged_endpoint(request: Request,
             'next_url': 'URL to acquire next paged result'
         }
     """
-
-    log.debug(f'file paged endpoint hit: {request.client}')
+    qid = str(uuid.uuid4())
+    log = get_logger(qid)
+    log.info(f'data/file endpoint hit: {request.client}')
     log.info(f'QNode: {qnode.as_string()}') 
+    log.info(f'{request.url}')
 
     try:
         # Get paged query result
-        result = paged_query(db, endpoint_tablename='file', qnode=qnode, limit=limit, offset=offset)
+        result = fetch_rows(db, endpoint_tablename='file', qnode=qnode, limit=limit, offset=offset)
         if (offset != None) and (limit != None):
             if result['total_row_count'] > offset+limit:
                 next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')
                 result['next_url'] = next_url
         else:
             result['next_url'] = None
+        log.info('Success')
     except Exception as e:
         # TODO - possibly a better exception to throw
         log.error(e)

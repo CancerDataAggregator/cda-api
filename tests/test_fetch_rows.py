@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from cda_api.db.query_builders import paged_query
+from cda_api.db.query_builders import fetch_rows
 from cda_api import app, ColumnNotFound
 
 client = TestClient(app)
