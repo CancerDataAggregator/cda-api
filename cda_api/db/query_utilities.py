@@ -2,10 +2,9 @@ from sqlalchemy import func, Integer, distinct, and_, or_
 from sqlalchemy.dialects import postgresql
 import sqlparse
 from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
-from cda_api.db import get_db_map
+from cda_api.db import DB_MAP
 
 log = get_logger()
-DB_MAP = get_db_map()
 
 # Generates compiled SQL string from query object
 def query_to_string(q, indented=False) -> str:
@@ -159,27 +158,3 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
             query = query.join(mapping_column)
 
     return query
-
-
-def build_unique_value_query(db, column, system = None, countOpt = False):
-    log.debug('Building unique_values query')
-    if countOpt:
-        unique_values_query = db.query(column, func.count().label('value_count')).group_by(column).order_by(column)
-    else:
-        unique_values_query = db.query(distinct(column).label(column.name)).order_by(column)
-
-    if system:
-        try:
-            data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
-            unique_values_query = unique_values_query.filter(data_system_column.is_(True))
-        except Exception as e:
-            error = SystemNotFound(f'system: {system} - not found')
-            log.exception(error)
-            raise error
-    
-    unique_values_query = unique_values_query.subquery('column_json')
-    
-
-    query = db.query(func.row_to_json(unique_values_query.table_valued()))
-    total_count_query = db.query(func.count()).select_from(unique_values_query)
-    return query, total_count_query

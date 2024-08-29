@@ -1,8 +1,7 @@
 from .query_operators import apply_filter_operator
 from cda_api import get_logger, ParsingError
-from cda_api.db import get_db_map
+from cda_api.db import DB_MAP
 
-DB_MAP = get_db_map()
 
 import re
 import ast
@@ -56,6 +55,11 @@ def parse_filter_string(filter_string, log):
     except Exception:
         # If there is an error, just handle as a string
         value = value_string
+
+    # Check if value is null
+    if isinstance(value, str):
+        if value.lower() == 'null':
+            value = None
 
     # Need to ensure lists and the operators "in"/"not in" are only ever used together
     if isinstance(value, list) and (operator not in ['in', 'not in']):

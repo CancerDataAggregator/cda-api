@@ -59,6 +59,6 @@ def unique_values_endpoint(request: Request,
 
     except Exception as e:
         # TODO - possibly a better exception to throw
-        log.error(e)
+        log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
     return result

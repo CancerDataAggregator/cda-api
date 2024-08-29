@@ -1,15 +1,12 @@
 from .filter_builder import build_match_conditons
 from .select_builder import build_fetch_rows_select_clause
-from .query_utilities import query_to_string, build_match_query, build_unique_value_query, build_filter_preselect, total_column_count_subquery
+from .query_utilities import query_to_string, build_match_query, build_filter_preselect, total_column_count_subquery
 from .query_utilities import entity_count, get_cte_column, numeric_summary, categorical_summary, data_source_counts
-from sqlalchemy import func
-from cda_api import get_logger
-from cda_api.db import get_db_map
+from sqlalchemy import func, distinct
+from cda_api import get_logger, SystemNotFound
+from cda_api.db import DB_MAP
 from cda_api.db.schema import Base
 import time
-
-
-DB_MAP = get_db_map()
 
 
 def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
@@ -241,10 +238,24 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
 
     column = DB_MAP.get_meta_column(columnname)
 
-    query, total_count_query = build_unique_value_query(db=db, 
-                                     column=column, 
-                                     system=system,
-                                     countOpt=countOpt)
+    if countOpt:
+        unique_values_query = db.query(column, func.count().label('value_count')).group_by(column).order_by(column)
+    else:
+        unique_values_query = db.query(distinct(column).label(column.name)).order_by(column)
+
+    if system:
+        try:
+            data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
+            unique_values_query = unique_values_query.filter(data_system_column.is_(True))
+        except Exception as e:
+            error = SystemNotFound(f'system: {system} - not found')
+            log.exception(error)
+            raise error
+    
+    unique_values_query = unique_values_query.subquery('column_json')
+    
+    query = db.query(func.row_to_json(unique_values_query.table_valued()))
+    total_count_query = db.query(func.count()).select_from(unique_values_query)
     
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query, indented = True)}\n{"-"*60}')
     log.debug(f'Total Count Query:\n{"-"*100}\n{query_to_string(total_count_query, indented = True)}\n{"-"*100}')

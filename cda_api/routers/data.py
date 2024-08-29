@@ -59,7 +59,7 @@ def subject_fetch_rows_endpoint(request: Request,
         log.info('Success')
     except Exception as e:
         # TODO - possibly a better exception to throw
-        log.error(e)
+        log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
     
     return result
@@ -107,7 +107,7 @@ def file_fetch_rows_endpoint(request: Request,
         log.info('Success')
     except Exception as e:
         # TODO - possibly a better exception to throw
-        log.error(e)
+        log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
     
     return result

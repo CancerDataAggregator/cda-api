@@ -2,10 +2,11 @@ from sqlalchemy.ext.automap import automap_base
 from cda_api.db.connection import engine
 from sqlalchemy import inspect
 from sqlalchemy.orm import relationship
+from cda_api import get_logger
 
 from cda_api import RelationshipError
 
-
+log = get_logger('Setup: schema.py')
 
 # Ran into issue with self referential table relationship collection
 # The following resolves the naming issue
@@ -13,12 +14,12 @@ def name_for_collection_relationship(base, local_cls, referred_cls, constraint):
     disc = '_'.join(col.name for col in constraint.columns)
     return referred_cls.__name__.lower() + '_' + disc + "_collection"
 
-
+log.info('Building SQLAlchemy automap')
 Base = automap_base()
 Base.prepare(autoload_with=engine,
              name_for_collection_relationship=name_for_collection_relationship)
 TABLE_LIST = Base.classes.values()
-
+log.info('Successfully built SQLAlchemy automap')
 
 # # HACK to add all collection attributes to the table classes consistently.
 # for table in TABLE_LIST:
@@ -27,6 +28,8 @@ TABLE_LIST = Base.classes.values()
 
 
 # Map entitity tables with subject_alias and from file
+log.info('Adding relationships to file table')
+
 file_describes_subject = Base.metadata.tables['file_describes_subject']
 
 Base.classes.file.observation = relationship(
@@ -73,6 +76,8 @@ Base.classes.treatment.file = relationship(
 
 
 # Map entitity tables with subject_alias and from project
+log.info('Adding relationships to project table')
+
 subject_in_project = Base.metadata.tables['subject_in_project']
 
 Base.classes.project.observation = relationship(
@@ -116,6 +121,8 @@ Base.classes.treatment.project = relationship(
     primaryjoin = Base.classes.treatment.subject_alias == subject_in_project.columns['subject_alias'],
     secondaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
     viewonly = True)
+
+log.info('Successfully added relationships to file and project tables')
 
 # for tablename, table in Base.classes.items():
 #     print(tablename, [r.target.name for r in inspect(table).relationships])

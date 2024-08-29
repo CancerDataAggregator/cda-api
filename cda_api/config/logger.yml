@@ -3,7 +3,7 @@ formatters:
   simple:
     format: '%(levelname)s: %(message)s'
   detailed:
-    format: '%(asctime)s - %(qid)s - %(levelname)s: %(message)s'
+    format: '%(asctime)s - %(id)s - %(levelname)s: %(message)s'
 handlers:
   console:
     class: logging.StreamHandler

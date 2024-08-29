@@ -1,9 +1,8 @@
-from cda_api.db import get_db_map
+from cda_api.db import DB_MAP
 from cda_api import get_logger
 from .query_utilities import build_foreign_array_preselect
 from sqlalchemy import Label
 
-DB_MAP = get_db_map()
 
 def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
     log.info('Building SELECT clause')

@@ -1,9 +1,7 @@
 from sqlalchemy import func, Column
-from cda_api import get_logger
-
-log = get_logger()
 
 def apply_filter_operator(filter_column, filter_value, filter_operator, log):
+    log.debug(f'Applying filter {filter_column} {filter_operator} {filter_value}')
     match filter_operator.lower():
         case 'like':
             return case_insensitive_like(filter_column, filter_value)
@@ -31,6 +29,14 @@ def apply_filter_operator(filter_column, filter_value, filter_operator, log):
             return filter_column > filter_value
         case '>=':
             return filter_column >= filter_value
+        case 'is':
+            if filter_value not in [None, True, False]:
+                raise ValueError(f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'False' for this operator.")
+            return filter_column.is_(filter_value)
+        case 'is not':
+            if filter_value not in [None, True, False]:
+                raise ValueError(f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'False' for this operator.")
+            return filter_column.is_not(filter_value)
         case _:
             raise ValueError(f'Unexpected operator: {filter_operator}')
 
@@ -49,6 +55,10 @@ def case_insensitive_not_like(column, value):
 # Returns a case insensitive equals filter conditional object
 def case_insensitive_not_equals(column, value):
     return func.coalesce(func.upper(column), '') == func.upper(value)
+
+# Returns a case insensitive 'is not' filter conditional object
+def case_insensitive_is_not(column, value):
+    return func.coalesce(func.upper(column), '').is_not(func.upper(value))
 
 def in_array(column, value):
     return column.in_(value)

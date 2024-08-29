@@ -31,10 +31,10 @@ def release_metadata_endpoint(request: Request,
     log.info(f'{request.url}')
     
     try:
-        result = get_release_metadata(db)
+        result = get_release_metadata(db, log)
         log.info('Success')
     except Exception as e:
         # TODO - possibly a better exception to throw
-        log.error(e)
+        log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
     return result
