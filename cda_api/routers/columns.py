@@ -28,6 +28,6 @@ def columns_endpoint(request: Request,
     try:
         result = columns_query(db)
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        raise HTTPException(status_code=404, detail=e)
+        log.exception(e)
+        raise HTTPException(status_code=404, detail=str(e))
     return result 

@@ -3,9 +3,8 @@ from cda_api.db import get_db
 from cda_api.db.query_builders import summary_query
 from cda_api.models import QNode, SummaryResponseObj
 from sqlalchemy.orm import Session
-from cda_api import get_logger
-
-log = get_logger()
+from cda_api import get_logger, EmptyQueryError
+import uuid
 
 
 router = APIRouter(
@@ -28,8 +27,19 @@ def subject_summary_endpoint(request: Request,
         SummaryResponseObj: _description_
     """
     
+    qid = str(uuid.uuid4())
+    log = get_logger(qid)
+    log.info(f'summary/subject endpoint hit: {request.client}')
+    log.info(f'QNode: {qnode.as_string()}') 
+    log.info(f'{request.url}')
+    if qnode.is_empty():
+        e =  EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        log.exception(e)
+        raise HTTPException(status_code=404, detail=str(e))
+    
     try:
-        result = summary_query(db, endpoint_tablename='subject', qnode=qnode)
+        result = summary_query(db, endpoint_tablename='subject', qnode=qnode, log=log)
+        log.info('Success')
     except Exception as e:
         # TODO - possibly a better exception to throw
         log.exception(str(e))
@@ -50,9 +60,20 @@ def file_summary_endpoint(request: Request,
     Returns:
         SummaryResponseObj: _description_
     """
+
+    qid = str(uuid.uuid4())
+    log = get_logger(qid)
+    log.info(f'summary/file endpoint hit: {request.client}')
+    log.info(f'QNode: {qnode.as_string()}') 
+    log.info(f'{request.url}')
+    if qnode.is_empty():
+        e =  EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        log.exception(e)
+        raise HTTPException(status_code=404, detail=str(e))
     
     try:
         result = summary_query(db, endpoint_tablename='file', qnode=qnode)
+        log.info('Success')
     except Exception as e:
         # TODO - possibly a better exception to throw
         log.exception(str(e))

@@ -2,6 +2,9 @@ from dotenv import load_dotenv, find_dotenv
 from os import getenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from cda_api import get_logger
+
+log = get_logger('Setup: connection.py')
 
 # Function to determine if the database is being accessed from an interactive python scriot or not 
 # (Changes the pathing for the .env file)
@@ -17,6 +20,7 @@ else:
 load_dotenv(env_file)
 
 # Use environment variables to establish database connection url
+log.info('Creating database connection url from environment variables found in config/.env')
 DB_USERNAME = getenv('DB_USERNAME')
 DB_PASSWORD = getenv('DB_PASSWORD')
 DB_HOSTNAME = getenv('DB_HOSTNAME')
@@ -25,6 +29,7 @@ DB_DATABASE = getenv('DB_DATABASE')
 SQLALCHEMY_DATABASE_URL = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOSTNAME}:{DB_PORT}/{DB_DATABASE}'
 
 # Create sqlalchemy database engine object and Session
+log.info('Creating database engine and session objects')
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # TODO determine if there is a better (more secure) way to set up sessions
 session = sessionmaker(bind=engine)

@@ -1,11 +1,10 @@
-from sqlalchemy import func, Integer, distinct
+from sqlalchemy import func, Integer, distinct, and_, or_
 from sqlalchemy.dialects import postgresql
 import sqlparse
 from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
-from cda_api.db import get_db_map
+from cda_api.db import DB_MAP
 
 log = get_logger()
-DB_MAP = get_db_map()
 
 # Generates compiled SQL string from query object
 def query_to_string(q, indented=False) -> str:
@@ -67,16 +66,76 @@ def data_source_counts(db, data_source_columns):
 # Gets the total count of an entity's related files and subjects by only counting from the mapping table (ie. observation_of_subject)
 def entity_count(db, endpoint_tablename, preselect_query, entity_to_count):
     entity_relationship = DB_MAP.get_relationship(endpoint_tablename, entity_to_count)
+    entity_local_column = entity_relationship.entity_column
+    entity_local_column_uniquename = DB_MAP.get_column_uniquename(entity_local_column.name, entity_local_column.table.name)
     if entity_relationship.has_mapping_table:
-        entity_local_column = entity_relationship.entity_column
         entity_mapping_column = entity_relationship.entity_mapping_column
-        subquery = db.query(get_cte_column(preselect_query, entity_local_column.name).label(entity_mapping_column.name))
+        subquery = db.query(get_cte_column(preselect_query, entity_local_column_uniquename).label(entity_local_column_uniquename))
         entity_count_select = db.query(func.count(distinct(entity_relationship.foreign_mapping_column)).label('count_result')).filter(entity_mapping_column.in_(subquery)).scalar_subquery()
     else:
-        entity_local_column = entity_relationship.entity_column
-        subquery = db.query(get_cte_column(preselect_query, entity_local_column.name).label(entity_local_column.name))
+        subquery = db.query(get_cte_column(preselect_query, entity_local_column_uniquename).label(entity_local_column_uniquename))
         entity_count_select = db.query(func.count(distinct(entity_local_column)).label('count_result')).filter(entity_local_column.in_(subquery)).scalar_subquery()
     return entity_count_select
+
+
+def unique_column_array_agg(column):
+    return func.array_remove(func.array_agg(distinct(column)), None).label(column.name)
+
+def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query):
+    relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
+    if relation.has_mapping_table:
+        select_cols = [unique_column_array_agg(column) for column in columns] + [relation.entity_mapping_column]
+        foreign_array_preselect = db.query(
+                                    *select_cols
+                                ).filter(
+                                    relation.entity_mapping_column.in_(preselect_query)
+                                ).group_by(
+                                    relation.entity_mapping_column
+                                ).join(
+                                    relation.mapping_table, relation.foreign_column == relation.foreign_mapping_column
+                                ).cte(
+                                    f'{foreign_tablename}_columns'
+                                )
+        target = foreign_array_preselect
+        onclause = getattr(foreign_array_preselect.c, relation.entity_mapping_column.name) == relation.entity_column
+        preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.entity_mapping_column.name]
+        foreign_join = {'target': target, 'onclause': onclause}
+    else:
+        select_cols = [unique_column_array_agg(column) for column in columns] + [relation.foreign_column]
+        foreign_array_preselect = db.query(
+                                    *select_cols
+                                ).filter(
+                                    relation.foreign_column.in_(preselect_query)
+                                ).group_by(
+                                    relation.foreign_column
+                                ).cte(
+                                    f'{foreign_tablename}_columns'
+                                )
+        target = foreign_array_preselect
+        onclause = getattr(foreign_array_preselect.c, relation.foreign_column.name) == relation.entity_column
+        preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.foreign_column.name]
+        foreign_join = {'target': target, 'onclause': onclause}
+    return foreign_array_preselect, foreign_join, preselect_columns
+
+def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
+    # Get the id_alias column
+    endpoint_id_alias = DB_MAP.get_meta_column(f"{endpoint_tablename}_id_alias")
+
+    # Set up the CTE preselect by selecting the id_alias column from it
+    preselect_cte = db.query(endpoint_id_alias.label('id_alias'))
+
+    # Apply filter conditionals
+    if match_all_conditions and match_some_conditions:
+        preselect_cte = preselect_cte.filter(and_(*match_all_conditions)).filter(or_(*match_some_conditions))
+    elif match_all_conditions:
+        preselect_cte = preselect_cte.filter(and_(*match_all_conditions))
+    elif match_some_conditions:
+        preselect_cte = preselect_cte.filter(or_(*match_some_conditions))
+    
+
+    preselect_cte = preselect_cte.cte(f'{endpoint_tablename}_preselect')
+    preselect_query = db.query(preselect_cte.c.id_alias)
+    return preselect_query, endpoint_id_alias
 
 
 # Combines select columns, match conditions, and mapping columns into cohesive query
@@ -86,11 +145,11 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
 
     #Add filters
     if match_all_conditions and match_some_conditions:
-        query = query.filter(*match_all_conditions).filter(*match_some_conditions)
+        query = query.filter(and_(*match_all_conditions)).filter(or_(*match_some_conditions))
     elif match_all_conditions:
-        query = query.filter(*match_all_conditions)
+        query = query.filter(and_(*match_all_conditions))
     elif match_some_conditions:
-        query = query.filter(*match_some_conditions)
+        query = query.filter(or_(*match_some_conditions))
 
     # Add joins
     if mapping_columns:
@@ -99,29 +158,3 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
             query = query.join(mapping_column)
 
     return query
-
-
-def build_unique_value_query(db, column, system = None, countOpt = False):
-    log.debug('Building unique_values query')
-    if countOpt:
-        unique_values_query = db.query(column, func.count().label('value_count')).group_by(column).order_by(column)
-    else:
-        unique_values_query = db.query(distinct(column).label(column.name)).order_by(column)
-
-    total_count_query = db.query(distinct_count(column))
-
-    if system:
-        try:
-            data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
-            unique_values_query = unique_values_query.filter(data_system_column.is_(True))
-            total_count_query = total_count_query.filter(data_system_column.is_(True))
-        except Exception as e:
-            error = SystemNotFound(f'system: {system} - not found')
-            log.exception(error)
-            raise error
-    
-    unique_values_query = unique_values_query.subquery('column_json')
-
-
-    query = db.query(func.row_to_json(unique_values_query.table_valued()))
-    return query, total_count_query

@@ -1,22 +1,20 @@
 from .query_operators import apply_filter_operator
 from cda_api import get_logger, ParsingError
-from cda_api.db import get_db_map
+from cda_api.db import DB_MAP
 
-log = get_logger()
-DB_MAP = get_db_map()
 
 import re
 import ast
 
 # Parse out the key components from the filter string
-def parse_filter_string(filter_string):
+def parse_filter_string(filter_string, log):
     # Clean up the filter
-    filter_string = filter_string.strip().lower()
+    filter_string = filter_string.strip()
 
     # Parse out the operator (Note: Order matters, you can't put = before <=)
     operator_pattern = r"(?:\snot\s|\s)(?:!=|<>|<=|>=|=|<|>|is|in|like|between|not)+(?:\snot\s|\s)"
     operator_rexp = re.compile(operator_pattern)
-    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string)]
+    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string.lower())]
     if len(parsed_operators) != 1:
         raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
 
@@ -30,7 +28,7 @@ def parse_filter_string(filter_string):
         raise ParsingError(f'Parsed operator: "{operator}" not valid')
     
     # Ensure the operator isn't at the beginning or the end of the filter string
-    operator_location = re.search(operator, filter_string)
+    operator_location = re.search(operator, filter_string.lower())
     if operator_location.start() == 0:
         raise ParsingError(f'Missing column in filter before operator "{filter_string}"')
 
@@ -58,6 +56,11 @@ def parse_filter_string(filter_string):
         # If there is an error, just handle as a string
         value = value_string
 
+    # Check if value is null
+    if isinstance(value, str):
+        if value.lower() == 'null':
+            value = None
+
     # Need to ensure lists and the operators "in"/"not in" are only ever used together
     if isinstance(value, list) and (operator not in ['in', 'not in']):
         raise ParsingError(f'Operator must be "in" or "not in" when using a list value -> filter: {filter_string}')
@@ -71,16 +74,16 @@ def parse_filter_string(filter_string):
 
 
 # Generate preselect filter conditional
-def get_preselect_filter(endpoint_tablename, filter_string):
+def get_preselect_filter(endpoint_tablename, filter_string, log):
     log.debug(f'Constructing filter "{filter_string}"')
     # get the components of the filter string
-    filter_columnname, filter_operator, filter_value = parse_filter_string(filter_string)
+    filter_columnname, filter_operator, filter_value = parse_filter_string(filter_string, log)
 
     # ensure the unique column name exists in mapping and assign variables
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
     # build the sqlalachemy orm filter with the components
-    filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator)
+    filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)
     
     # if the filter applies to a foreign table, preselect on the mapping column
     if filter_column_info.tablename.lower() != endpoint_tablename.lower():
@@ -91,14 +94,16 @@ def get_preselect_filter(endpoint_tablename, filter_string):
     return filter_clause
 
 # Build match_all and match_some filter conditional lists
-def build_match_conditons(endpoint_tablename, qnode):
+def build_match_conditons(endpoint_tablename, qnode, log):
     log.info('Building MATCH conditions')
     match_all_conditions = []
     match_some_conditions = []
+    # match_all_conditions will be all AND'd together
     if qnode.MATCH_ALL:
-        match_all_conditions = [get_preselect_filter(endpoint_tablename, filter_string)
+        match_all_conditions = [get_preselect_filter(endpoint_tablename, filter_string, log)
                                     for filter_string in qnode.MATCH_ALL]
+    # match_some_conditions will be all OR'd together 
     if qnode.MATCH_SOME:
-        match_some_conditions = [get_preselect_filter(endpoint_tablename, filter_string)
+        match_some_conditions = [get_preselect_filter(endpoint_tablename, filter_string, log)
                                     for filter_string in qnode.MATCH_SOME]
     return match_all_conditions, match_some_conditions

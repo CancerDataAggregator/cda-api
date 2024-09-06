@@ -1,12 +1,10 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db
 from cda_api.db.query_builders import unique_value_query
-from cda_api.models import QNode, UniqueValueResponseObj
+from cda_api.models import UniqueValueResponseObj
 from sqlalchemy.orm import Session
 from cda_api import get_logger
-from typing import Optional
-log = get_logger()
-
+import uuid
 
 router = APIRouter(
     prefix="/unique_values",
@@ -33,6 +31,11 @@ def unique_values_endpoint(request: Request,
     Returns:
         FrequencyResponseObj: _description_
     """
+    qid = str(uuid.uuid4())
+    log = get_logger(qid)
+    log.info(f'unique_values endpoint hit: {request.client}')
+    log.info(f'{request.url}')
+
     try:
         # Get paged query result
         result = unique_value_query(db, 
@@ -41,7 +44,9 @@ def unique_values_endpoint(request: Request,
                                 countOpt=count,
                                 totalCount=totalCount,
                                 limit=limit,
-                                offset=offset)
+                                offset=offset,
+                                log=log)
+        
         # TODO need to figure out better way to handle limit and offset
         result['next_url'] = None
         if (offset != None) and (limit != None):
@@ -54,5 +59,6 @@ def unique_values_endpoint(request: Request,
 
     except Exception as e:
         # TODO - possibly a better exception to throw
+        log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
     return result
