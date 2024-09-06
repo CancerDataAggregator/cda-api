@@ -8,16 +8,16 @@ log = get_logger('Setup: connection.py')
 
 # Function to determine if the database is being accessed from an interactive python scriot or not 
 # (Changes the pathing for the .env file)
-def is_interactive():
-    import __main__ as main
-    return not hasattr(main, '__file__')
+# def is_interactive():
+#     import __main__ as main
+#     return not hasattr(main, '__file__')
 
-# Load environment variables
-if is_interactive():
-    env_file = find_dotenv('cda_api/config/.env')
-else:
-    env_file = find_dotenv('../config/.env')
-load_dotenv(env_file)
+# # Load environment variables
+# if is_interactive():
+#     env_file = find_dotenv('cda_api/config/.env')
+# else:
+#     env_file = find_dotenv('../config/.env')
+# load_dotenv(env_file)
 
 # Use environment variables to establish database connection url
 log.info('Creating database connection url from environment variables found in config/.env')

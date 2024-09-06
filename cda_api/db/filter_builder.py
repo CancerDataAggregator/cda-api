@@ -43,7 +43,7 @@ def parse_filter_string(filter_string, log):
         raise ParsingError(f'Missing column in filter before operator "{filter_string}"')
 
     # Ensure there is no whitespace in the parsed columnname
-    if re.search('\s', columnname):
+    if re.search(r"\s", columnname):
         raise ParsingError(f'Invalid column "{columnname}" in filter: "{filter_string}"')
 
     # Set columnname value to the stripped string after the operator
