@@ -31,11 +31,11 @@ def apply_filter_operator(filter_column, filter_value, filter_operator, log):
             return filter_column >= filter_value
         case 'is':
             if filter_value not in [None, True, False]:
-                raise ValueError(f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'False' for this operator.")
+                raise ValueError(f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator.")
             return filter_column.is_(filter_value)
         case 'is not':
             if filter_value not in [None, True, False]:
-                raise ValueError(f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'False' for this operator.")
+                raise ValueError(f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator.")
             return filter_column.is_not(filter_value)
         case _:
             raise ValueError(f'Unexpected operator: {filter_operator}')

@@ -180,7 +180,7 @@ def summary_query(db, endpoint_tablename, qnode, log):
     }
     return ret
 
-# TODO
+
 def columns_query(db):
     """Generates list of column info for entity tables.
 
