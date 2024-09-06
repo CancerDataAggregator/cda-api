@@ -14,6 +14,16 @@ class QNode(BaseModel):
                 "EXCLUDE_COLUMNS": self.EXCLUDE_COLUMNS}
     def as_string(self):
         return str(self.as_dict()).replace("'", '"')
+    
+    def is_empty(self):
+        print("CHECKING")
+        if ((self.MATCH_ALL is None) and (self.MATCH_SOME is None)):
+            print("TRUE")
+            return True
+        else:
+            print("FALSE")
+            return False
+
 
 class PagedResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")

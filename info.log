@@ -1,26 +1,318 @@
-2024-08-29 10:48:26,643 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
-2024-08-29 10:48:26,643 - Setup: connection.py - INFO: Creating database engine and session objects
-2024-08-29 10:48:26,677 - Setup: schema.py - INFO: Building SQLAlchemy automap
-2024-08-29 10:48:28,400 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
-2024-08-29 10:48:28,400 - Setup: schema.py - INFO: Adding relationships to file table
-2024-08-29 10:48:28,401 - Setup: schema.py - INFO: Adding relationships to project table
-2024-08-29 10:48:28,401 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
-2024-08-29 10:48:28,419 - Setup: DatabaseMap.py - INFO: Building column_metadata map
-2024-08-29 10:48:28,529 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
-2024-08-29 10:48:28,529 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
-2024-08-29 10:48:28,529 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
-2024-08-29 10:48:28,529 - Setup: DatabaseMap.py - INFO: Building column map
-2024-08-29 10:48:28,530 - Setup: DatabaseMap.py - INFO: Building relationship map
-2024-08-29 10:48:29,196 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
-2024-08-29 10:48:29,196 - Setup: connection.py - INFO: Creating database engine and session objects
-2024-08-29 10:48:29,245 - Setup: schema.py - INFO: Building SQLAlchemy automap
-2024-08-29 10:48:30,938 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
-2024-08-29 10:48:30,939 - Setup: schema.py - INFO: Adding relationships to file table
-2024-08-29 10:48:30,939 - Setup: schema.py - INFO: Adding relationships to project table
-2024-08-29 10:48:30,940 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
-2024-08-29 10:48:30,963 - Setup: DatabaseMap.py - INFO: Building column_metadata map
-2024-08-29 10:48:31,074 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
-2024-08-29 10:48:31,075 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
-2024-08-29 10:48:31,075 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
-2024-08-29 10:48:31,075 - Setup: DatabaseMap.py - INFO: Building column map
-2024-08-29 10:48:31,075 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-08-30 13:42:36,448 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-08-30 13:42:36,448 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-08-30 13:42:36,481 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-08-30 13:42:38,199 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-08-30 13:42:38,199 - Setup: schema.py - INFO: Adding relationships to file table
+2024-08-30 13:42:38,200 - Setup: schema.py - INFO: Adding relationships to project table
+2024-08-30 13:42:38,200 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-08-30 13:42:38,222 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-08-30 13:42:38,332 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-08-30 13:42:38,333 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-08-30 13:42:38,333 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-08-30 13:42:38,333 - Setup: DatabaseMap.py - INFO: Building column map
+2024-08-30 13:42:38,334 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-08-30 13:42:38,991 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-08-30 13:42:38,991 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-08-30 13:42:39,046 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-08-30 13:42:40,704 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-08-30 13:42:40,704 - Setup: schema.py - INFO: Adding relationships to file table
+2024-08-30 13:42:40,705 - Setup: schema.py - INFO: Adding relationships to project table
+2024-08-30 13:42:40,706 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-08-30 13:42:40,722 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-08-30 13:42:40,831 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-08-30 13:42:40,831 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-08-30 13:42:40,832 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-08-30 13:42:40,832 - Setup: DatabaseMap.py - INFO: Building column map
+2024-08-30 13:42:40,833 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-08-30 13:42:51,390 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=64212)
+2024-08-30 13:42:51,390 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent is not null"], "MATCH_SOME": None, "ADD_COLUMNS": ["therapeutic_agent"], "EXCLUDE_COLUMNS": None}
+2024-08-30 13:42:51,390 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-30 13:42:51,390 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: Building fetch_rows query
+2024-08-30 13:42:51,390 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: Building MATCH conditions
+2024-08-30 13:42:51,391 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: Building SELECT clause
+2024-08-30 13:42:51,936 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: Query execution time: 0.5327117443084717s
+2024-08-30 13:42:51,937 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: Returning 100 rows out of 2417 results | limit=100 & offset=0
+2024-08-30 13:42:51,941 - 05f26ad8-cc1a-4adf-b73b-f94bdb5df144 - INFO: Success
+2024-08-30 13:44:30,104 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=64224)
+2024-08-30 13:44:30,104 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: QNode: {"MATCH_ALL": ["therapeutic_agent like b%", "sex like f*"], "MATCH_SOME": ["therapeutic_agent = Pomalidomide", "format = bam"], "ADD_COLUMNS": ["hotspot", "morphology", "therapeutic_agent", "format", "sex"], "EXCLUDE_COLUMNS": ["subject_id", "year_of_death"]}
+2024-08-30 13:44:30,104 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-08-30 13:44:30,104 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: Building fetch_rows query
+2024-08-30 13:44:30,104 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: Building MATCH conditions
+2024-08-30 13:44:30,107 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: Building SELECT clause
+2024-08-30 13:44:30,377 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: Query execution time: 0.23173022270202637s
+2024-08-30 13:44:30,377 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: Returning 0 rows out of 0 results | limit=100 & offset=0
+2024-08-30 13:44:30,382 - 15197c38-ed22-44b1-bf1b-3e566573e0c7 - INFO: Success
+2024-08-30 13:47:24,434 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-08-30 13:47:24,434 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-08-30 13:47:24,480 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-08-30 13:47:26,098 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-08-30 13:47:26,098 - Setup: schema.py - INFO: Adding relationships to file table
+2024-08-30 13:47:26,099 - Setup: schema.py - INFO: Adding relationships to project table
+2024-08-30 13:47:26,099 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-08-30 13:47:26,110 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-08-30 13:47:26,219 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-08-30 13:47:26,219 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-08-30 13:47:26,219 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-08-30 13:47:26,219 - Setup: DatabaseMap.py - INFO: Building column map
+2024-08-30 13:47:26,219 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-08-30 13:47:26,884 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-08-30 13:47:26,884 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-08-30 13:47:26,974 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-08-30 13:47:28,813 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-08-30 13:47:28,814 - Setup: schema.py - INFO: Adding relationships to file table
+2024-08-30 13:47:28,815 - Setup: schema.py - INFO: Adding relationships to project table
+2024-08-30 13:47:28,816 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-08-30 13:47:28,854 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-08-30 13:47:28,967 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-08-30 13:47:28,967 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-08-30 13:47:28,967 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-08-30 13:47:28,967 - Setup: DatabaseMap.py - INFO: Building column map
+2024-08-30 13:47:28,969 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-08-30 13:47:29,156 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: data/subject endpoint hit: Address(host='testclient', port=50000)
+2024-08-30 13:47:29,156 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: QNode: {"MATCH_ALL": ["subject_id_alias < 0"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-08-30 13:47:29,157 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: http://testserver/data/subject
+2024-08-30 13:47:29,157 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: Building fetch_rows query
+2024-08-30 13:47:29,157 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: Building MATCH conditions
+2024-08-30 13:47:29,158 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: Building SELECT clause
+2024-08-30 13:47:29,672 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: Query execution time: 0.48662400245666504s
+2024-08-30 13:47:29,673 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: Returning 0 rows out of 0 results | limit=100 & offset=0
+2024-08-30 13:47:29,680 - 58bd7b37-d3b2-4702-81e5-cda0e46b8b50 - INFO: Success
+2024-09-04 12:28:08,750 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-04 12:28:08,750 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-04 12:28:09,043 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-04 12:28:10,755 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-04 12:28:10,756 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-04 12:28:10,756 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-04 12:28:10,757 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-04 12:28:10,797 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-04 12:28:10,907 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-04 12:28:10,907 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-04 12:28:10,908 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-04 12:28:10,908 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-04 12:28:10,909 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-04 12:28:12,057 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-04 12:28:12,057 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-04 12:28:12,105 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-04 12:28:13,802 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-04 12:28:13,802 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-04 12:28:13,803 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-04 12:28:13,803 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-04 12:28:13,830 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-04 12:28:13,943 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-04 12:28:13,943 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-04 12:28:13,944 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-04 12:28:13,944 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-04 12:28:13,945 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:26:34,250 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:26:34,250 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:26:34,754 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:26:36,470 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:26:36,470 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:26:36,471 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:26:36,472 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:26:36,526 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:26:36,639 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:26:36,639 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:26:36,639 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:26:36,639 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:26:36,641 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:26:40,413 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:26:40,413 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:26:40,571 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:26:42,263 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:26:42,263 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:26:42,263 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:26:42,263 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:26:42,292 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:26:42,402 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:26:42,402 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:26:42,402 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:26:42,403 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:26:42,403 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:27:27,320 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:27:27,320 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:27:27,353 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:27:28,662 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:27:28,663 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:27:28,713 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:27:29,045 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:27:29,045 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:27:29,046 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:27:29,046 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:27:29,064 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:27:29,172 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:27:29,172 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:27:29,172 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:27:29,172 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:27:29,173 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:27:30,419 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:27:30,419 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:27:30,420 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:27:30,420 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:27:30,428 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:27:30,537 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:27:30,537 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:27:30,537 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:27:30,537 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:27:30,538 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:28:12,310 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50885)
+2024-09-05 08:28:12,311 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: QNode: {"MATCH_ALL": ["sex like f%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-09-05 08:28:12,311 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-09-05 08:28:12,311 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: Building fetch_rows query
+2024-09-05 08:28:12,311 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: Building MATCH conditions
+2024-09-05 08:28:12,312 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: Building SELECT clause
+2024-09-05 08:28:13,111 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: Query execution time: 0.7828059196472168s
+2024-09-05 08:28:13,112 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: Returning 100 rows out of 34388 results | limit=100 & offset=0
+2024-09-05 08:28:13,115 - c63788a8-f0b5-4cee-b3d7-29eba6e21077 - INFO: Success
+2024-09-05 08:28:54,447 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:28:54,447 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:28:54,447 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:28:54,447 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:28:54,573 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:28:54,573 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:28:56,111 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:28:56,111 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:28:56,111 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:28:56,112 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:28:56,151 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:28:56,238 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:28:56,239 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:28:56,239 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:28:56,239 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:28:56,247 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:28:56,247 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:28:56,248 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:28:56,248 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:28:56,248 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:28:56,257 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:28:56,368 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:28:56,368 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:28:56,368 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:28:56,368 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:28:56,369 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:34:02,209 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:34:02,209 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:34:02,242 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:34:02,242 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:34:02,260 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:34:02,299 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:34:03,812 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:34:03,812 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:34:03,813 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:34:03,813 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:34:03,835 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:34:03,932 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:34:03,933 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:34:03,933 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:34:03,933 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:34:03,933 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:34:03,933 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:34:03,934 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:34:03,934 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:34:03,935 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:34:03,948 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:34:04,054 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:34:04,054 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:34:04,054 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:34:04,054 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:34:04,055 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:35:02,408 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:35:02,408 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:35:02,439 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:35:02,439 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:35:02,440 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:35:02,488 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:35:03,938 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:35:03,938 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:35:03,939 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:35:03,939 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:35:03,958 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:35:04,054 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:35:04,055 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:35:04,055 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:35:04,055 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:35:04,055 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:35:04,157 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:35:04,157 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:35:04,157 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:35:04,157 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:35:04,170 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:35:04,278 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:35:04,279 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:35:04,279 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:35:04,279 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:35:04,279 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:35:25,698 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:35:25,699 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:35:25,732 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:35:25,732 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:35:25,733 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:35:25,779 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:35:27,279 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:35:27,279 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:35:27,279 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:35:27,280 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:35:27,291 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:35:27,383 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:35:27,383 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:35:27,384 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:35:27,384 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:35:27,388 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:35:27,388 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:35:27,388 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:35:27,388 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:35:27,389 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:35:27,402 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:35:27,508 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:35:27,508 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:35:27,508 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:35:27,508 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:35:27,508 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:38:59,353 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:38:59,354 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:38:59,577 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:39:01,256 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:39:01,256 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:39:01,257 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:39:01,258 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:39:01,281 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:39:01,389 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:39:01,390 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:39:01,390 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:39:01,390 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:39:01,391 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:39:02,286 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 08:39:02,286 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 08:39:02,338 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 08:39:03,984 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 08:39:03,984 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 08:39:03,985 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 08:39:03,985 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 08:39:03,999 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 08:39:04,107 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 08:39:04,107 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 08:39:04,107 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 08:39:04,107 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 08:39:04,108 - Setup: DatabaseMap.py - INFO: Building relationship map
+2024-09-05 08:39:06,848 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51119)
+2024-09-05 08:39:06,848 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: QNode: {"MATCH_ALL": ["sex like f%"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2024-09-05 08:39:06,848 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2024-09-05 08:39:06,848 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: Building fetch_rows query
+2024-09-05 08:39:06,848 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: Building MATCH conditions
+2024-09-05 08:39:06,849 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: Building SELECT clause
+2024-09-05 08:39:07,628 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: Query execution time: 0.7666566371917725s
+2024-09-05 08:39:07,629 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: Returning 100 rows out of 34388 results | limit=100 & offset=0
+2024-09-05 08:39:07,632 - d85529b7-6b2d-4923-b2e2-dfa19e6365bf - INFO: Success
+2024-09-05 13:10:13,091 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2024-09-05 13:10:13,091 - Setup: connection.py - INFO: Creating database engine and session objects
+2024-09-05 13:10:13,557 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2024-09-05 13:10:15,259 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2024-09-05 13:10:15,260 - Setup: schema.py - INFO: Adding relationships to file table
+2024-09-05 13:10:15,260 - Setup: schema.py - INFO: Adding relationships to project table
+2024-09-05 13:10:15,261 - Setup: schema.py - INFO: Successfully added relationships to file and project tables
+2024-09-05 13:10:15,305 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2024-09-05 13:10:15,414 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2024-09-05 13:10:15,415 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2024-09-05 13:10:15,415 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2024-09-05 13:10:15,415 - Setup: DatabaseMap.py - INFO: Building column map
+2024-09-05 13:10:15,416 - Setup: DatabaseMap.py - INFO: Building relationship map

@@ -3,7 +3,7 @@ from cda_api.db import get_db
 from cda_api.db.query_builders import summary_query
 from cda_api.models import QNode, SummaryResponseObj
 from sqlalchemy.orm import Session
-from cda_api import get_logger
+from cda_api import get_logger, EmptyQueryError
 import uuid
 
 
@@ -32,6 +32,11 @@ def subject_summary_endpoint(request: Request,
     log.info(f'summary/subject endpoint hit: {request.client}')
     log.info(f'QNode: {qnode.as_string()}') 
     log.info(f'{request.url}')
+    if qnode.is_empty():
+        e =  EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        log.exception(e)
+        raise HTTPException(status_code=404, detail=str(e))
+    
     try:
         result = summary_query(db, endpoint_tablename='subject', qnode=qnode, log=log)
         log.info('Success')
@@ -61,6 +66,11 @@ def file_summary_endpoint(request: Request,
     log.info(f'summary/file endpoint hit: {request.client}')
     log.info(f'QNode: {qnode.as_string()}') 
     log.info(f'{request.url}')
+    if qnode.is_empty():
+        e =  EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        log.exception(e)
+        raise HTTPException(status_code=404, detail=str(e))
+    
     try:
         result = summary_query(db, endpoint_tablename='file', qnode=qnode)
         log.info('Success')

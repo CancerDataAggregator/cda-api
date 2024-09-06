@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db
 from cda_api.db.query_builders import fetch_rows
 from cda_api.models import QNode, PagedResponseObj
-from cda_api import get_logger
+from cda_api import get_logger, EmptyQueryError
 from sqlalchemy.orm import Session
 import uuid
 
@@ -40,12 +40,16 @@ def subject_fetch_rows_endpoint(request: Request,
             'next_url': 'URL to acquire next paged result'
         }
     """
-    
+
     qid = str(uuid.uuid4())
     log = get_logger(qid)
     log.info(f'data/subject endpoint hit: {request.client}')
     log.info(f'QNode: {qnode.as_string()}') 
     log.info(f'{request.url}')
+    if qnode.is_empty():
+        e =  EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        log.exception(e)
+        raise HTTPException(status_code=404, detail=str(e))
    
     try:
         # Get paged query result
@@ -91,9 +95,14 @@ def file_fetch_rows_endpoint(request: Request,
     """
     qid = str(uuid.uuid4())
     log = get_logger(qid)
+
     log.info(f'data/file endpoint hit: {request.client}')
     log.info(f'QNode: {qnode.as_string()}') 
     log.info(f'{request.url}')
+    if qnode.is_empty():
+        e =  EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        log.exception(e)
+        raise HTTPException(status_code=404, detail=str(e))
 
     try:
         # Get paged query result

@@ -25,3 +25,7 @@ class SystemNotFound(Exception):
 class ParsingError(Exception):
     """Custom exception for when there is an issue with parsing a filter"""
     pass
+
+class EmptyQueryError(Exception):
+    """Custom exception for when the QNode is empty"""
+    pass

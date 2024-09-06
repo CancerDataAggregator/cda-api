@@ -13,117 +13,117 @@ log = get_logger('Setup: schema.py')
 def name_for_collection_relationship(base, local_cls, referred_cls, constraint):
     disc = '_'.join(col.name for col in constraint.columns)
     return referred_cls.__name__.lower() + '_' + disc + "_collection"
+try:
+    log.info('Building SQLAlchemy automap')
+    Base = automap_base()
+    Base.prepare(autoload_with=engine,
+                name_for_collection_relationship=name_for_collection_relationship)
+    TABLE_LIST = Base.classes.values()
+    log.info('Successfully built SQLAlchemy automap')
+except Exception as e:
+    log.exception(e)
+    raise e
 
-log.info('Building SQLAlchemy automap')
-Base = automap_base()
-Base.prepare(autoload_with=engine,
-             name_for_collection_relationship=name_for_collection_relationship)
-TABLE_LIST = Base.classes.values()
-log.info('Successfully built SQLAlchemy automap')
+try:
+    # Map entitity tables with subject_alias and from file
+    log.info('Adding relationships to file table')
 
-# # HACK to add all collection attributes to the table classes consistently.
-# for table in TABLE_LIST:
-#     i = inspect(table)
-#     i.relationships
+    file_describes_subject = Base.metadata.tables['file_describes_subject']
 
+    Base.classes.file.observation = relationship(
+        'observation',
+        secondary = file_describes_subject,
+        primaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
+        secondaryjoin = Base.classes.observation.subject_alias == file_describes_subject.columns['subject_alias'],
+        viewonly = True)
 
-# Map entitity tables with subject_alias and from file
-log.info('Adding relationships to file table')
+    Base.classes.file.mutation = relationship(
+        'mutation',
+        secondary = file_describes_subject,
+        primaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
+        secondaryjoin = Base.classes.mutation.subject_alias == file_describes_subject.columns['subject_alias'],
+        viewonly = True)
 
-file_describes_subject = Base.metadata.tables['file_describes_subject']
+    Base.classes.file.treatment = relationship(
+        'treatment',
+        secondary = file_describes_subject,
+        primaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
+        secondaryjoin = Base.classes.treatment.subject_alias == file_describes_subject.columns['subject_alias'],
+        viewonly = True)
 
-Base.classes.file.observation = relationship(
-    'observation',
-    secondary = file_describes_subject,
-    primaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
-    secondaryjoin = Base.classes.observation.subject_alias == file_describes_subject.columns['subject_alias'],
-    viewonly = True)
+    Base.classes.observation.file = relationship(
+        'file',
+        secondary = file_describes_subject,
+        primaryjoin = Base.classes.observation.subject_alias == file_describes_subject.columns['subject_alias'],
+        secondaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
+        viewonly = True)
 
-Base.classes.file.mutation = relationship(
-    'mutation',
-    secondary = file_describes_subject,
-    primaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
-    secondaryjoin = Base.classes.mutation.subject_alias == file_describes_subject.columns['subject_alias'],
-    viewonly = True)
+    Base.classes.mutation.file = relationship(
+        'file',
+        secondary = file_describes_subject,
+        primaryjoin = Base.classes.mutation.subject_alias == file_describes_subject.columns['subject_alias'],
+        secondaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
+        viewonly = True)
 
-Base.classes.file.treatment = relationship(
-    'treatment',
-    secondary = file_describes_subject,
-    primaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
-    secondaryjoin = Base.classes.treatment.subject_alias == file_describes_subject.columns['subject_alias'],
-    viewonly = True)
-
-Base.classes.observation.file = relationship(
-    'file',
-    secondary = file_describes_subject,
-    primaryjoin = Base.classes.observation.subject_alias == file_describes_subject.columns['subject_alias'],
-    secondaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
-    viewonly = True)
-
-Base.classes.mutation.file = relationship(
-    'file',
-    secondary = file_describes_subject,
-    primaryjoin = Base.classes.mutation.subject_alias == file_describes_subject.columns['subject_alias'],
-    secondaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
-    viewonly = True)
-
-Base.classes.treatment.file = relationship(
-    'file',
-    secondary = file_describes_subject,
-    primaryjoin = Base.classes.treatment.subject_alias == file_describes_subject.columns['subject_alias'],
-    secondaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
-    viewonly = True)
+    Base.classes.treatment.file = relationship(
+        'file',
+        secondary = file_describes_subject,
+        primaryjoin = Base.classes.treatment.subject_alias == file_describes_subject.columns['subject_alias'],
+        secondaryjoin = Base.classes.file.id_alias == file_describes_subject.columns['file_alias'],
+        viewonly = True)
 
 
-# Map entitity tables with subject_alias and from project
-log.info('Adding relationships to project table')
+    # Map entitity tables with subject_alias and from project
+    log.info('Adding relationships to project table')
 
-subject_in_project = Base.metadata.tables['subject_in_project']
+    subject_in_project = Base.metadata.tables['subject_in_project']
 
-Base.classes.project.observation = relationship(
-    'observation',
-    secondary = subject_in_project,
-    primaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
-    secondaryjoin = Base.classes.observation.subject_alias == subject_in_project.columns['subject_alias'],
-    viewonly = True)
+    Base.classes.project.observation = relationship(
+        'observation',
+        secondary = subject_in_project,
+        primaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
+        secondaryjoin = Base.classes.observation.subject_alias == subject_in_project.columns['subject_alias'],
+        viewonly = True)
 
-Base.classes.project.mutation = relationship(
-    'mutation',
-    secondary = subject_in_project,
-    primaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
-    secondaryjoin = Base.classes.mutation.subject_alias == subject_in_project.columns['subject_alias'],
-    viewonly = True)
+    Base.classes.project.mutation = relationship(
+        'mutation',
+        secondary = subject_in_project,
+        primaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
+        secondaryjoin = Base.classes.mutation.subject_alias == subject_in_project.columns['subject_alias'],
+        viewonly = True)
 
-Base.classes.project.treatment = relationship(
-    'treatment',
-    secondary = subject_in_project,
-    primaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
-    secondaryjoin = Base.classes.treatment.subject_alias == subject_in_project.columns['subject_alias'],
-    viewonly = True)
+    Base.classes.project.treatment = relationship(
+        'treatment',
+        secondary = subject_in_project,
+        primaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
+        secondaryjoin = Base.classes.treatment.subject_alias == subject_in_project.columns['subject_alias'],
+        viewonly = True)
 
-Base.classes.observation.project = relationship(
-    'project',
-    secondary = subject_in_project,
-    primaryjoin = Base.classes.observation.subject_alias == subject_in_project.columns['subject_alias'],
-    secondaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
-    viewonly = True)
+    Base.classes.observation.project = relationship(
+        'project',
+        secondary = subject_in_project,
+        primaryjoin = Base.classes.observation.subject_alias == subject_in_project.columns['subject_alias'],
+        secondaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
+        viewonly = True)
 
-Base.classes.mutation.project = relationship(
-    'project',
-    secondary = subject_in_project,
-    primaryjoin = Base.classes.mutation.subject_alias == subject_in_project.columns['subject_alias'],
-    secondaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
-    viewonly = True)
+    Base.classes.mutation.project = relationship(
+        'project',
+        secondary = subject_in_project,
+        primaryjoin = Base.classes.mutation.subject_alias == subject_in_project.columns['subject_alias'],
+        secondaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
+        viewonly = True)
 
-Base.classes.treatment.project = relationship(
-    'project',
-    secondary = subject_in_project,
-    primaryjoin = Base.classes.treatment.subject_alias == subject_in_project.columns['subject_alias'],
-    secondaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
-    viewonly = True)
+    Base.classes.treatment.project = relationship(
+        'project',
+        secondary = subject_in_project,
+        primaryjoin = Base.classes.treatment.subject_alias == subject_in_project.columns['subject_alias'],
+        secondaryjoin = Base.classes.project.id_alias == subject_in_project.columns['project_alias'],
+        viewonly = True)
 
-log.info('Successfully added relationships to file and project tables')
-
+    log.info('Successfully added relationships to file and project tables')
+except Exception as e:
+    log.exception(e)
+    raise e
 # for tablename, table in Base.classes.items():
 #     print(tablename, [r.target.name for r in inspect(table).relationships])
 #     current_table_relationships = [r.target.name for r in inspect(table).relationships] + [tablename]
