@@ -63,10 +63,5 @@ COPY . .
 EXPOSE 8000
 EXPOSE 5432
 
-ENV DB_USERNAME='postgres'
-ENV DB_HOSTNAME='host.docker.internal'
-ENV DB_PORT='5432'
-ENV DB_DATABASE='postgres'
-
 # Run the application.
-CMD fastapi run cda_api/main.py
+CMD ["fastapi", "run", "cda_api/main.py", "--port", "8000"]

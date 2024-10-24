@@ -121,6 +121,12 @@ try:
         viewonly = True)
 
     log.info('Successfully added relationships to file and project tables')
+
+    # Map entitity tables with subject_alias and from project
+    
+
+    log.info('Successfully added relationships for dicom_series to its secondary tables')
+    
 except Exception as e:
     log.exception(e)
     raise e

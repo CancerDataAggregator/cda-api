@@ -12,13 +12,13 @@ def test_data_subject_endpoint_query_generation():
         json={"MATCH_ALL": ["subject_id_alias < 0"]},
     )
     assert response.status_code == 200
-    assert response.json()['query_sql'].startswith('SELECT')
+    assert response.json()['query_sql'].startswith('WITH subject_preselect')
 
 
 def test_data_subject_endpoint_limit():
     response = client.post(
         "/data/subject",
-        json={},
+        json={"MATCH_ALL": ["subject_id_alias >= 0"]},
         params={'limit':10}
     )
     assert response.status_code == 200
@@ -27,7 +27,7 @@ def test_data_subject_endpoint_limit():
 def test_data_subject_endpoint_offset_and_limit():
     response = client.post(
         "/data/subject",
-        json={},
+        json={"MATCH_ALL": ["subject_id_alias >= 0"]},
         params={'offset': 10, 'limit':10}
     )
     assert response.status_code == 200
@@ -61,13 +61,13 @@ def test_data_file_endpoint_query_generation():
         json={"MATCH_ALL": ["file_id_alias < 0"]},
     )
     assert response.status_code == 200
-    assert response.json()['query_sql'].startswith('SELECT')
+    assert response.json()['query_sql'].startswith('WITH file_preselect')
 
 
 def test_data_file_endpoint_limit():
     response = client.post(
         "/data/file",
-        json={},
+        json={"MATCH_ALL": ["file_id_alias >= 0"]},
         params={'limit':10}
     )
     assert response.status_code == 200
@@ -76,7 +76,7 @@ def test_data_file_endpoint_limit():
 def test_data_file_endpoint_offset_and_limit():
     response = client.post(
         "/data/file",
-        json={},
+        json={"MATCH_ALL": ["file_id_alias >= 0"]},
         params={'offset': 10, 'limit':10}
     )
     assert response.status_code == 200

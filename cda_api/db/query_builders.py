@@ -1,6 +1,6 @@
 from .filter_builder import build_match_conditons
 from .select_builder import build_fetch_rows_select_clause
-from .query_utilities import query_to_string, build_match_query, build_filter_preselect, total_column_count_subquery
+from .query_utilities import query_to_string, build_match_query, build_filter_preselect, total_column_count_subquery, build_foreign_array_summary_preselect
 from .query_utilities import entity_count, get_cte_column, numeric_summary, categorical_summary, data_source_counts
 from sqlalchemy import func, distinct
 from cda_api import get_logger, SystemNotFound
@@ -157,8 +157,25 @@ def summary_query(db, endpoint_tablename, qnode, log):
     ## Get preselect columns of the 'data_source' columns
     data_source_columns = [column for column in preselect_query.c if column.name in data_source_columnnames]
     ## Get the data source select query
-    data_source_count_select = data_source_counts(db, data_source_columns)
+    data_source_count_select = data_source_counts(db, data_source_columnnames, data_source_columns)
     summary_select_clause.append(data_source_count_select.label('data_source'))
+
+    foreign_array_map = {}
+    if qnode.ADD_COLUMNS:
+        for columnname in qnode.ADD_COLUMNS:
+            column_info = DB_MAP.get_column_info(columnname)
+            if column_info.tablename != endpoint_tablename:
+                if column_info.tablename not in foreign_array_map.keys():
+                    foreign_array_map[column_info.tablename] = [column_info.metadata_column.label(column_info.uniquename)]
+                else:
+                    foreign_array_map[column_info.tablename].append(column_info.metadata_column.label(column_info.uniquename))
+        log.debug(foreign_array_map)
+
+        for foreign_tablename, columns in foreign_array_map.items():
+            foreign_array_preselect, preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+            for column in preselect_columns:
+                summary_select_clause.append(db.query(column).label(column.name))
+        
     
     # Wrap everything in a subquery
     subquery = db.query(*summary_select_clause).subquery('json_result')

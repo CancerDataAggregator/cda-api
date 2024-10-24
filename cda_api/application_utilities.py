@@ -1,6 +1,7 @@
 import logging
 import logging.config
 import yaml
+import uuid
 
 # Function to generate logger from config file
 def get_logger(id = '') -> logging.Logger:
@@ -11,3 +12,7 @@ def get_logger(id = '') -> logging.Logger:
     extra = {'id': id}
     logger = logging.LoggerAdapter(logger, extra)
     return logger
+
+def get_query_id():
+    return f'Query: {str(uuid.uuid4())}'
+    

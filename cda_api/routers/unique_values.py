@@ -3,7 +3,7 @@ from cda_api.db import get_db
 from cda_api.db.query_builders import unique_value_query
 from cda_api.models import UniqueValueResponseObj
 from sqlalchemy.orm import Session
-from cda_api import get_logger
+from cda_api import get_logger, get_query_id
 import uuid
 
 router = APIRouter(
@@ -31,7 +31,7 @@ def unique_values_endpoint(request: Request,
     Returns:
         FrequencyResponseObj: _description_
     """
-    qid = str(uuid.uuid4())
+    qid = get_query_id()
     log = get_logger(qid)
     log.info(f'unique_values endpoint hit: {request.client}')
     log.info(f'{request.url}')

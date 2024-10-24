@@ -3,6 +3,7 @@ from sqlalchemy.dialects import postgresql
 import sqlparse
 from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
 from cda_api.db import DB_MAP
+import itertools
 
 log = get_logger()
 
@@ -53,11 +54,32 @@ def categorical_summary(db, column):
     return db.query(func.array_agg(get_cte_column(column_json, f'{column.name}_categories'))).scalar_subquery()
 
 
+# Gets all combinations of data_source columns
+def get_data_source_combinations(data_source_columnnames):
+    data_source_combinations = {}
+    subsets = itertools.chain(*map(lambda x: itertools.combinations(data_source_columnnames, x), range(0, len(data_source_columnnames)+1)))
+    for subset in subsets:
+        if len(subset) > 0:
+            combo_boolean = {}
+            name = ''
+            for columnname in data_source_columnnames:
+                boolean = bool(columnname in subset)
+                combo_boolean[columnname] = boolean
+            name = '_'.join([name.split('_')[-1] for name, b in combo_boolean.items() if b])
+            if len(subset) < len(data_source_columnnames):
+                name += '_exclusive'
+            data_source_combinations[name] = combo_boolean
+    return data_source_combinations
 
 # Combines the counts of data source columns into a single json for use in summary endpoint
-def data_source_counts(db, data_source_columns):
-    data_source_counts = [func.sum(func.cast(column, Integer)).label(column.name.split('_')[-1]) 
-                          for column in data_source_columns]
+def data_source_counts(db, data_source_columnnames, data_source_columns):
+    data_source_counts = []
+
+    data_source_combinations = get_data_source_combinations(data_source_columnnames)
+    for name, data_source_boolean_map in data_source_combinations.items():
+        filters = [data_source_column == data_source_boolean_map[data_source_column.name] for data_source_column in data_source_columns]
+        data_source_counts.append(db.query(func.count()).filter(*filters).label(name))
+
     data_source_preselect = db.query(*data_source_counts).subquery('subquery')
     data_source_json = db.query(func.row_to_json(data_source_preselect.table_valued()))
     return data_source_json
@@ -116,6 +138,39 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
         preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.foreign_column.name]
         foreign_join = {'target': target, 'onclause': onclause}
     return foreign_array_preselect, foreign_join, preselect_columns
+
+def build_foreign_array_summary_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query):
+    relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
+    if relation.has_mapping_table:
+        select_cols = [unique_column_array_agg(column) for column in columns]
+        log.debug('*'*60)
+        log.debug(select_cols)
+        log.debug(preselect_query.c)
+        foreign_array_preselect = db.query(
+                                    *select_cols
+                                ).filter(
+                                    relation.entity_mapping_column.in_(db.query(get_cte_column(preselect_query, f'{relation.entity_tablename}_{relation.entity_column.name}')))
+                                ).join(
+                                    relation.mapping_table, relation.foreign_column == relation.foreign_mapping_column
+                                ).cte(
+                                    f'{foreign_tablename}_columns'
+                                )
+        preselect_columns = [col for col in foreign_array_preselect.c]
+
+    else:
+        select_cols = [unique_column_array_agg(column) for column in columns]
+        log.debug('*'*60)
+        log.debug(select_cols)
+        foreign_array_preselect = db.query(
+                                    *select_cols
+                                ).filter(
+                                    relation.foreign_column.in_(db.query(get_cte_column(preselect_query, f'{relation.entity_tablename}_{relation.entity_column.name}')))
+                                ).cte(
+                                    f'{foreign_tablename}_columns'
+                                )
+        preselect_columns = [col for col in foreign_array_preselect.c]
+        
+    return foreign_array_preselect, preselect_columns
 
 def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
     # Get the id_alias column

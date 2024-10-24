@@ -8,12 +8,19 @@ handlers:
   console:
     class: logging.StreamHandler
     level: DEBUG
-    formatter: detailed
+    formatter: simple
     stream: ext://sys.stdout
+  file:
+    class: logging.FileHandler
+    level: INFO
+    formatter: detailed
+    filename: info.log
+    encoding: utf8
+    mode: a
 loggers:
   simple:
     level: DEBUG
-    handlers: [console]
+    handlers: [console, file]
     propagate: no
 root:
   level: DEBUG

@@ -2,9 +2,9 @@ from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db import get_db
 from cda_api.db.query_builders import fetch_rows
 from cda_api.models import QNode, PagedResponseObj
-from cda_api import get_logger, EmptyQueryError
+from cda_api import get_logger, get_query_id, EmptyQueryError
 from sqlalchemy.orm import Session
-import uuid
+
 
 
 
@@ -41,7 +41,7 @@ def subject_fetch_rows_endpoint(request: Request,
         }
     """
 
-    qid = str(uuid.uuid4())
+    qid = get_query_id()
     log = get_logger(qid)
     log.info(f'data/subject endpoint hit: {request.client}')
     log.info(f'QNode: {qnode.as_string()}') 
@@ -93,7 +93,7 @@ def file_fetch_rows_endpoint(request: Request,
             'next_url': 'URL to acquire next paged result'
         }
     """
-    qid = str(uuid.uuid4())
+    qid = get_query_id()
     log = get_logger(qid)
 
     log.info(f'data/file endpoint hit: {request.client}')
@@ -106,7 +106,7 @@ def file_fetch_rows_endpoint(request: Request,
 
     try:
         # Get paged query result
-        result = fetch_rows(db, endpoint_tablename='file', qnode=qnode, limit=limit, offset=offset)
+        result = fetch_rows(db, endpoint_tablename='file', qnode=qnode, limit=limit, offset=offset, log=log)
         if (offset != None) and (limit != None):
             if result['total_row_count'] > offset+limit:
                 next_url = request.url.components.geturl().replace(f'offset={offset}', f'offset={offset+limit}')

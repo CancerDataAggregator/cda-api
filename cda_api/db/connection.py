@@ -8,9 +8,9 @@ log = get_logger('Setup: connection.py')
 
 # Function to determine if the database is being accessed from an interactive python scriot or not 
 # (Changes the pathing for the .env file)
-# def is_interactive():
-#     import __main__ as main
-#     return not hasattr(main, '__file__')
+def is_interactive():
+    import __main__ as main
+    return not hasattr(main, '__file__')
 
 # # Load environment variables
 # if is_interactive():
@@ -18,6 +18,15 @@ log = get_logger('Setup: connection.py')
 # else:
 #     env_file = find_dotenv('../config/.env')
 # load_dotenv(env_file)
+if not getenv('DB_USERNAME'):
+    log.info('Reading environment variables from .env')
+    if is_interactive():
+        env_file = find_dotenv('cda_api/config/.env')
+    else:
+        env_file = find_dotenv('../config/.env')
+    load_dotenv(env_file)
+
+
 
 # Use environment variables to establish database connection url
 log.info('Creating database connection url from environment variables found in config/.env')
@@ -27,6 +36,7 @@ DB_HOSTNAME = getenv('DB_HOSTNAME')
 DB_PORT = getenv('DB_PORT')
 DB_DATABASE = getenv('DB_DATABASE')
 SQLALCHEMY_DATABASE_URL = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOSTNAME}:{DB_PORT}/{DB_DATABASE}'
+
 
 # Create sqlalchemy database engine object and Session
 log.info('Creating database engine and session objects')

@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter, HTTPException, Request
 from cda_api.db.metadata import get_release_metadata
 from cda_api.db import get_db
-from cda_api import get_logger
+from cda_api import get_logger, get_query_id
 from cda_api.models import QNode, ReleaseMetadataObj
 from sqlalchemy.orm import Session
 import uuid
@@ -25,7 +25,7 @@ def release_metadata_endpoint(request: Request,
     Returns:
         FrequencyResponseObj: _description_
     """
-    qid = str(uuid.uuid4())
+    qid = get_query_id()
     log = get_logger(qid)
     log.info(f'release_metadata endpoint hit: {request.client}')
     log.info(f'{request.url}')

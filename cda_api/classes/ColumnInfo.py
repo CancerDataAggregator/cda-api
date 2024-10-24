@@ -25,6 +25,14 @@ class ColumnInfo():
         self.columnname = self.metadata_column.name
         self.tablename = self.metadata_table.name
         self.table_columnname = f'{self.tablename}.{self.columnname}'
+
+        # Set metadata
+        self.column_type = None
+        self.summary_display = None
+        self.fetch_rows_returns = None
+        self.process_before_display = None
+        self.virtual_table = None
+
         if self.entity_table:
             self.entity_column = getattr(self.entity_table, self.columnname)
             if self.tablename in self.column_metadata_map.keys():
@@ -35,6 +43,7 @@ class ColumnInfo():
                     self.fetch_rows_returns = column_metadata['fetch_rows_returns']
                     self.process_before_display = column_metadata['process_before_display']
                     self.virtual_table = column_metadata['virtual_table']
+
         else:
             self.entity_column = None
 
