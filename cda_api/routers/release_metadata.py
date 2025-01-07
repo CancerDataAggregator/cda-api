@@ -3,6 +3,7 @@ from cda_api.db.metadata import get_release_metadata
 from cda_api.db import get_db
 from cda_api import get_logger, get_query_id
 from cda_api.models import QNode, ReleaseMetadataObj
+from cda_api.application_utilities import handle_router_errors
 from sqlalchemy.orm import Session
 import uuid
 
@@ -34,7 +35,5 @@ def release_metadata_endpoint(request: Request,
         result = get_release_metadata(db, log)
         log.info('Success')
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
+        handle_router_errors(e, log)
     return result

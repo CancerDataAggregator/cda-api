@@ -1,11 +1,10 @@
-
 cda_api/config/.env
 *.ipynb
 /.vscode
 /.pytest_cache
 *__pycache__*
 *.log
-*.log
+info.log
 poetry.lock
 
 

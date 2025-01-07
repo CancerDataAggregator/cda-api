@@ -4,6 +4,7 @@ from cda_api.db.query_builders import unique_value_query
 from cda_api.models import UniqueValueResponseObj
 from sqlalchemy.orm import Session
 from cda_api import get_logger, get_query_id
+from cda_api.application_utilities import handle_router_errors
 import uuid
 
 router = APIRouter(
@@ -58,7 +59,5 @@ def unique_values_endpoint(request: Request,
             result['total_row_count'] = None
 
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
+        handle_router_errors(e, log)
     return result

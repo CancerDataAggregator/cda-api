@@ -3,6 +3,7 @@ from cda_api.db import get_db
 from cda_api.db.query_builders import fetch_rows
 from cda_api.models import QNode, PagedResponseObj
 from cda_api import get_logger, get_query_id, EmptyQueryError
+from cda_api.application_utilities import handle_router_errors
 from sqlalchemy.orm import Session
 
 
@@ -62,9 +63,7 @@ def subject_fetch_rows_endpoint(request: Request,
             result['next_url'] = None
         log.info('Success')
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
+        handle_router_errors(e, log)
     
     return result
 
@@ -115,8 +114,6 @@ def file_fetch_rows_endpoint(request: Request,
             result['next_url'] = None
         log.info('Success')
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
+        handle_router_errors(e, log)
     
     return result

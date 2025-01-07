@@ -4,6 +4,7 @@ from cda_api.db.query_builders import summary_query
 from cda_api.models import QNode, SummaryResponseObj
 from sqlalchemy.orm import Session
 from cda_api import get_logger, get_query_id, EmptyQueryError
+from cda_api.application_utilities import handle_router_errors
 import uuid
 
 
@@ -41,9 +42,7 @@ def subject_summary_endpoint(request: Request,
         result = summary_query(db, endpoint_tablename='subject', qnode=qnode, log=log)
         log.info('Success')
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        log.exception(str(e))
-        raise HTTPException(status_code=404, detail=str(e))
+        handle_router_errors(e, log)
     return result
 
 @router.post('/file')
@@ -75,7 +74,5 @@ def file_summary_endpoint(request: Request,
         result = summary_query(db, endpoint_tablename='file', qnode=qnode, log=log)
         log.info('Success')
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        log.exception(str(e))
-        raise HTTPException(status_code=404, detail=str(e))
+        handle_router_errors(e, log)
     return result
