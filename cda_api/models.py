@@ -23,6 +23,15 @@ class QNode(BaseModel):
         else:
             print("FALSE")
             return False
+    
+    def replace(self, attribute: str, values: list):
+        if attribute not in ['MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS']:
+            raise ValueError(f"{attribute} not in list: ['MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS']")
+        setattr(self, attribute, values)
+        
+    def __eq__(self, value: object) -> bool:
+        return super().__eq__(value)
+
 
 
 class PagedResponseObj(BaseModel):

@@ -1,6 +1,7 @@
 from .query_operators import apply_filter_operator
-from cda_api import get_logger, ParsingError
+from cda_api import get_logger, ParsingError, RelationshipNotFound
 from cda_api.db import DB_MAP
+from sqlalchemy.sql import select, exists
 
 
 import re
@@ -82,14 +83,32 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
     # ensure the unique column name exists in mapping and assign variables
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
+    # relate filter to dicom_series if filter column is from file
+    if endpoint_tablename == 'dicom_series' and filter_column_info.uniquename in DB_MAP.file_dicom_column_map.keys():
+        filter_column_info = DB_MAP.file_dicom_column_map[filter_column_info.uniquename]
+
+
     # build the sqlalachemy orm filter with the components
     filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)
     
     # if the filter applies to a foreign table, preselect on the mapping column
     if filter_column_info.tablename.lower() != endpoint_tablename.lower():
-        relationship = DB_MAP.get_relationship(entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename)
-        mapping_column = relationship.entity_collection
-        filter_clause = mapping_column.any(filter_clause)
+        try: 
+            relationship = DB_MAP.get_relationship(entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename)
+            mapping_column = relationship.entity_collection
+            filter_clause = mapping_column.any(filter_clause)
+            print(mapping_column)
+            file = DB_MAP.get_metadata_table('file')
+        except RelationshipNotFound:
+            hanging_table_join = DB_MAP.get_hanging_table_join(hanging_tablename=filter_column_info.tablename, entity_tablename=endpoint_tablename)
+            if 'entity_mapping_join' in hanging_table_join.keys():
+                filter_clause = exists(select(1).select_from(hanging_table_join['join_table']).where(hanging_table_join['statement']).where(hanging_table_join['entity_mapping_join']).where(filter_clause))
+                pass
+            else:
+                filter_clause = exists(select(1).select_from(hanging_table_join['join_table']).where(hanging_table_join['statement']).where(filter_clause))
+
+        except Exception as e:
+            raise e
     
     return filter_clause
 

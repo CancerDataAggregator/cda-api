@@ -35,6 +35,8 @@ class DatabaseMap():
         self._build_entity_table_variables()
         self._build_column_map()
         self._build_relationship_map()
+        self._build_file_dicom_column_map()
+        self._build_hanging_table_relationship_map()
 
     def _build_metadata_variables(self):
         setup_log.info('Building metadata variables from automapped Base')
@@ -78,6 +80,7 @@ class DatabaseMap():
                 
     def _build_relationship_map(self):
         setup_log.info('Building relationship map')
+        self.relationship_tablenames = set()
         self.relationship_map = {}
         for tablename, table in self.entity_tables.items():
             self.relationship_map[tablename] = {}
@@ -85,7 +88,76 @@ class DatabaseMap():
             for relationship in i.relationships:
                 if tablename != relationship.target.name:
                     self.relationship_map[tablename][relationship.target.name] = EntityRelationship(tablename, relationship)
+                    try: # No Boolean clause defined for recognizing if relationship.secondary is None, hence passing on the AttributeError
+                        self.relationship_tablenames.add(str(relationship.secondary.name))
+                    except AttributeError as e:
+                        pass
+                    except Exception as e:
+                        raise e
+                    
+    def _build_file_dicom_column_map(self):
+        self.file_dicom_column_map = {
+            'file_id'                               : self.get_column_info('dicom_series_instance_id'),
+            'file_id_alias'                         : self.get_column_info('dicom_series_id_alias'),
+            'file_crdc_id'                          : self.get_column_info('dicom_series_instance_crdc_id'),
+            'file_name'                             : self.get_column_info('dicom_series_instance_name'),
+            'file_description'                      : self.get_column_info('dicom_series_description'),
+            'file_drs_uri'                          : self.get_column_info('dicom_series_instance_drs_uri'),
+            'file_access'                           : self.get_column_info('dicom_series_access'),
+            'file_size'                             : self.get_column_info('dicom_series_instance_size'),
+            'file_checksum_type'                    : self.get_column_info('dicom_series_checksum_type'),
+            'file_checksum_value'                   : self.get_column_info('dicom_series_instance_checksum_value'),
+            'file_format'                           : self.get_column_info('dicom_series_format'),
+            'file_type'                             : self.get_column_info('dicom_series_instance_type'),
+            'file_category'                         : self.get_column_info('dicom_series_category'),
+            'file_data_at_cds'                      : self.get_column_info('dicom_series_data_at_cds'),
+            'file_data_at_gdc'                      : self.get_column_info('dicom_series_data_at_gdc'),
+            'file_data_at_icdc'                     : self.get_column_info('dicom_series_data_at_icdc'),
+            'file_data_at_idc'                      : self.get_column_info('dicom_series_data_at_idc'),
+            'file_data_at_pdc'                      : self.get_column_info('dicom_series_data_at_pdc'),
+            'file_data_source_count'                : self.get_column_info('dicom_series_data_source_count'),
+            'file_anatomic_site_anatomic_site'      : self.get_column_info('dicom_series_anatomic_site_anatomic_site'),
+            'file_tumor_vs_normal_tumor_vs_normal'  : self.get_column_info('dicom_series_tumor_vs_normal_tumor_vs_normal')
+        }
 
+    
+    def _build_hanging_table_relationship_map(self):
+        excluded_tables = ['project_in_project', 'release_metadata', 'column_metadata', 'upstream_identifiers']
+        hanging_table_dict = { tablename: table for tablename, table in  Base.metadata.tables.items() 
+                            if (tablename not in self.entity_tablenames) and 
+                                (tablename not in self.relationship_tablenames) and 
+                                (tablename not in excluded_tables) }
+
+        self.hanging_table_relationship_map = {tablename: {} for tablename in hanging_table_dict.keys()}
+
+        for hanging_tablename, hanging_table in hanging_table_dict.items():
+            fk = list(hanging_table.foreign_keys)[0]
+            hanging_table_alias = fk.parent
+            connecting_table_alias = fk.column
+            connecting_table = fk.column.table
+            connecting_tablename = connecting_table.name
+            
+            for entity_tablename in ['subject', 'file']:
+                if connecting_tablename == entity_tablename:
+                    self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = {'join_table': hanging_table, 
+                                                                                                'statement': hanging_table_alias == connecting_table_alias}
+
+                elif connecting_tablename == 'dicom_series' and entity_tablename == 'file':
+                        pass
+                else:
+                    entity_connecting_relationship = self.get_relationship(entity_tablename=entity_tablename, foreign_tablename=connecting_tablename)
+                    mapping_table_to_hanging_table_join = {'join_table': entity_connecting_relationship.mapping_table, 
+                                                           'statement': entity_connecting_relationship.foreign_mapping_column == hanging_table_alias, 
+                                                           'hanging_fk_parent': hanging_table_alias,
+                                                           'entity_mapping_columnname': entity_connecting_relationship.entity_mapping_column.name,
+                                                           'entity_mapping_column': entity_connecting_relationship.entity_mapping_column,
+                                                           'entity_column': entity_connecting_relationship.entity_column, 
+                                                           'entity_mapping_join': entity_connecting_relationship.entity_column == entity_connecting_relationship.entity_mapping_column}
+                    self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = mapping_table_to_hanging_table_join
+
+            if connecting_tablename == 'dicom_series':
+                self.hanging_table_relationship_map[hanging_tablename]['dicom_series'] = {'join_table': hanging_table, 
+                                                                                          'statement': hanging_table_alias == connecting_table_alias}
         
 
     def get_column_info(self, columnname) -> ColumnInfo:
@@ -117,6 +189,13 @@ class DatabaseMap():
             return self.relationship_map[entity_tablename][foreign_tablename]
         except Exception as e:
             error_message = f'Unable to find relationship between {entity_tablename} and {foreign_tablename}\n{e}'
+            raise RelationshipNotFound(error_message)
+    
+    def get_hanging_table_join(self, hanging_tablename, entity_tablename):
+        try:
+            return self.hanging_table_relationship_map[hanging_tablename][entity_tablename]
+        except Exception as e:
+            error_message = f'Unable to find relationship between hanging table {hanging_tablename} and {entity_tablename}\n{e}'
             raise RelationshipNotFound(error_message)
         
     def get_entity_table(self, entity_tablename):

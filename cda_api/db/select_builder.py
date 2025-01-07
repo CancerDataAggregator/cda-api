@@ -4,7 +4,7 @@ from .query_utilities import build_foreign_array_preselect
 from sqlalchemy import Label
 
 
-def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
+def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log, dicom_flag = False):
     log.info('Building SELECT clause')
     add_columns = qnode.ADD_COLUMNS
     exclude_columns = qnode.EXCLUDE_COLUMNS
@@ -18,6 +18,8 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
     if add_columns:
         for add_columnname in add_columns:
             add_column = DB_MAP.get_meta_column(add_columnname)
+            if dicom_flag and add_columnname in DB_MAP.file_dicom_column_map.keys():
+                add_column = DB_MAP.file_dicom_column_map[add_columnname].metadata_column
             if add_column not in select_columns:
                 log.debug(f'Adding {add_columnname} to SELECT clause')
                 select_columns.append(add_column.label(add_columnname))
@@ -34,8 +36,8 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
 
     # Build foreign_array_map to build a single preselect the columns in each foreign table
     for column in select_columns:
+        unique_name = column.name
         if isinstance(column, Label):
-            unique_name = column.name
             column = column.element
         if column.table.name != entity_tablename:
             if column.table.name not in foreign_array_map.keys():
@@ -45,7 +47,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
 
     # Build foreign array column preselects
     for foreign_tablename, columns in foreign_array_map.items():
-        foreign_array_preselect, foreign_join, preselect_columns = build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, filter_preselect_query)
+        foreign_array_preselect, foreign_join, preselect_columns = build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, filter_preselect_query, dicom_flag)
         foreign_array_preselects.append(foreign_array_preselect)
         foreign_joins.append(foreign_join)
 
@@ -58,7 +60,11 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
         
         select_columns = [col for col in select_columns if col not in to_remove]
 
-        # Add preselect columns
-        select_columns += preselect_columns
+
+        for col in preselect_columns:
+            select_columns.append(col.label(col.name))
+
+        # # Add preselect columns
+        # select_columns += preselect_columns
 
     return select_columns, foreign_array_preselects, foreign_joins

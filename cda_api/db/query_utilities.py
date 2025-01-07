@@ -1,9 +1,11 @@
-from sqlalchemy import func, Integer, distinct, and_, or_
+from sqlalchemy import func, Integer, distinct, and_, or_, Label, CTE
 from sqlalchemy.dialects import postgresql
 import sqlparse
-from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound
+from cda_api import get_logger, MappingError, ColumnNotFound, TableNotFound, SystemNotFound, RelationshipNotFound
 from cda_api.db import DB_MAP
 import itertools
+
+
 
 log = get_logger()
 
@@ -103,41 +105,86 @@ def entity_count(db, endpoint_tablename, preselect_query, entity_to_count):
 def unique_column_array_agg(column):
     return func.array_remove(func.array_agg(distinct(column)), None).label(column.name)
 
-def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query):
-    relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
-    if relation.has_mapping_table:
-        select_cols = [unique_column_array_agg(column) for column in columns] + [relation.entity_mapping_column]
-        foreign_array_preselect = db.query(
-                                    *select_cols
-                                ).filter(
-                                    relation.entity_mapping_column.in_(preselect_query)
-                                ).group_by(
-                                    relation.entity_mapping_column
-                                ).join(
-                                    relation.mapping_table, relation.foreign_column == relation.foreign_mapping_column
-                                ).cte(
-                                    f'{foreign_tablename}_columns'
-                                )
-        target = foreign_array_preselect
-        onclause = getattr(foreign_array_preselect.c, relation.entity_mapping_column.name) == relation.entity_column
-        preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.entity_mapping_column.name]
-        foreign_join = {'target': target, 'onclause': onclause}
+def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query, dicom_flag = False):
+    if dicom_flag and 'dicom' not in foreign_tablename and 'dicom' not in entity_tablename:
+            cte_name =  f'{foreign_tablename}_{entity_tablename}_dicom_columns'
     else:
-        select_cols = [unique_column_array_agg(column) for column in columns] + [relation.foreign_column]
-        foreign_array_preselect = db.query(
-                                    *select_cols
-                                ).filter(
-                                    relation.foreign_column.in_(preselect_query)
-                                ).group_by(
-                                    relation.foreign_column
-                                ).cte(
-                                    f'{foreign_tablename}_columns'
-                                )
-        target = foreign_array_preselect
-        onclause = getattr(foreign_array_preselect.c, relation.foreign_column.name) == relation.entity_column
-        preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.foreign_column.name]
-        foreign_join = {'target': target, 'onclause': onclause}
-    return foreign_array_preselect, foreign_join, preselect_columns
+        cte_name =  f'{foreign_tablename}_{entity_tablename}_columns'
+    try:
+        relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
+        
+        if relation.has_mapping_table:
+            select_cols = [unique_column_array_agg(column) for column in columns] + [relation.entity_mapping_column]
+            foreign_array_preselect = db.query(
+                                        *select_cols
+                                    ).filter(
+                                        relation.entity_mapping_column.in_(preselect_query)
+                                    ).group_by(
+                                        relation.entity_mapping_column
+                                    ).join(
+                                        relation.mapping_table, relation.foreign_column == relation.foreign_mapping_column
+                                    ).cte(
+                                        cte_name
+                                    )
+            target = foreign_array_preselect
+            onclause = getattr(foreign_array_preselect.c, relation.entity_mapping_column.name) == relation.entity_column
+            preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.entity_mapping_column.name]
+            foreign_join = {'target': target, 'onclause': onclause}
+        else:
+            select_cols = [unique_column_array_agg(column) for column in columns] + [relation.foreign_column]
+            foreign_array_preselect = db.query(
+                                        *select_cols
+                                    ).filter(
+                                        relation.foreign_column.in_(preselect_query)
+                                    ).group_by(
+                                        relation.foreign_column
+                                    ).cte(
+                                        cte_name
+                                    )
+            target = foreign_array_preselect
+            onclause = getattr(foreign_array_preselect.c, relation.foreign_column.name) == relation.entity_column
+            preselect_columns = [col for col in foreign_array_preselect.c if col.name != relation.foreign_column.name]
+            foreign_join = {'target': target, 'onclause': onclause}
+        print_query(db.query(*preselect_columns))
+        return foreign_array_preselect, foreign_join, preselect_columns
+    except RelationshipNotFound:
+        hanging_table_join = DB_MAP.get_hanging_table_join(hanging_tablename=foreign_tablename, entity_tablename=entity_tablename)
+        if 'entity_mapping_column' in hanging_table_join.keys():
+            select_cols = [unique_column_array_agg(column) for column in columns] + [hanging_table_join['entity_mapping_column']]
+            foreign_array_preselect = db.query(
+                                        *select_cols
+                                    ).filter(
+                                        hanging_table_join['entity_mapping_column'].in_(preselect_query)
+                                    ).group_by(
+                                        hanging_table_join['entity_mapping_column']
+                                    )
+            foreign_array_preselect = foreign_array_preselect.join(hanging_table_join['join_table'], hanging_table_join['statement'])
+            foreign_array_preselect = foreign_array_preselect.cte(cte_name)
+            preselect_columns = [col for col in foreign_array_preselect.c if col.name != hanging_table_join['entity_mapping_column'].name]
+            onclause = getattr(foreign_array_preselect.c, hanging_table_join['entity_mapping_column'].name) == hanging_table_join['entity_column']
+            foreign_join = {'target': foreign_array_preselect, 'onclause': onclause}
+        else:
+            select_cols = [unique_column_array_agg(column) for column in columns] + [hanging_table_join['hanging_fk_parent']]
+            foreign_array_preselect = db.query(
+                                        *select_cols
+                                    ).filter(
+                                        hanging_table_join['hanging_fk_parent'].in_(preselect_query)
+                                    ).group_by(
+                                        hanging_table_join['hanging_fk_parent']
+                                    ).cte(
+                                        cte_name
+                                    )
+            entity_id_column = list(hanging_table_join['join_table'].foreign_keys)[0].column
+            preselect_columns = [col for col in foreign_array_preselect.c if col.name != hanging_table_join['hanging_fk_parent'].name]
+            onclause = getattr(foreign_array_preselect.c, hanging_table_join['hanging_fk_parent'].name) == entity_id_column
+            foreign_join = {'target': foreign_array_preselect, 'onclause': onclause}
+
+        return foreign_array_preselect, foreign_join, preselect_columns
+
+        
+    except Exception as e:
+        raise e
+
 
 def build_foreign_array_summary_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query):
     relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
@@ -172,7 +219,7 @@ def build_foreign_array_summary_preselect(db, entity_tablename, foreign_tablenam
         
     return foreign_array_preselect, preselect_columns
 
-def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
+def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions, dicom_flag = False):
     # Get the id_alias column
     endpoint_id_alias = DB_MAP.get_meta_column(f"{endpoint_tablename}_id_alias")
 
@@ -187,8 +234,10 @@ def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_s
     elif match_some_conditions:
         preselect_cte = preselect_cte.filter(or_(*match_some_conditions))
     
-
-    preselect_cte = preselect_cte.cte(f'{endpoint_tablename}_preselect')
+    if dicom_flag:
+        preselect_cte = preselect_cte.cte(f'{endpoint_tablename}_dicom_preselect')
+    else:
+        preselect_cte = preselect_cte.cte(f'{endpoint_tablename}_preselect')
     preselect_query = db.query(preselect_cte.c.id_alias)
     return preselect_query, endpoint_id_alias
 
@@ -212,4 +261,23 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
         for mapping_column in mapping_columns:
             query = query.join(mapping_column)
 
+    return query
+
+
+def add_hanging_table_joins(endpoint_tablename, select_columns, query):
+    hanging_tablenames = []
+    for column in select_columns:
+        if isinstance(column, Label):
+            column_table = column.element.table
+            if not isinstance(column_table, CTE):
+                column_tablename = column_table.name
+                if column_tablename in DB_MAP.hanging_table_relationship_map.keys() and column_tablename not in hanging_tablenames:
+                    hanging_tablenames.append(column_table.name)
+
+    for hanging_tablename in hanging_tablenames:
+        if endpoint_tablename in DB_MAP.hanging_table_relationship_map[hanging_tablename].keys():
+            hanging_table_join =  DB_MAP.get_hanging_table_join(hanging_tablename=hanging_tablename, entity_tablename=endpoint_tablename)
+            query = query.join(hanging_table_join['join_table'], hanging_table_join['statement'])
+        else:
+            log.warning(f'Unable to map {hanging_tablename} and {endpoint_tablename}')
     return query

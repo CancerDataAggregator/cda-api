@@ -1,11 +1,12 @@
 from .filter_builder import build_match_conditons
 from .select_builder import build_fetch_rows_select_clause
-from .query_utilities import query_to_string, build_match_query, build_filter_preselect, total_column_count_subquery, build_foreign_array_summary_preselect
+from .query_utilities import add_hanging_table_joins, query_to_string, build_match_query, build_filter_preselect, total_column_count_subquery, build_foreign_array_summary_preselect
 from .query_utilities import entity_count, get_cte_column, numeric_summary, categorical_summary, data_source_counts
-from sqlalchemy import func, distinct
+from sqlalchemy import func, distinct, union_all
 from cda_api import get_logger, SystemNotFound
 from cda_api.db import DB_MAP
 from cda_api.db.schema import Base
+from cda_api.db.dicom_series_utilities import get_dicom_series_fetch_rows_query
 import time
 
 
@@ -30,7 +31,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     """
     log.info('Building fetch_rows query')
 
-    # Build filter conditionals
+    # Get match_all and match_some filters
     match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode, log)
 
     # Build the preselect query 
@@ -39,24 +40,28 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     # Build the select columns and joins to foreign column array preselects
     select_columns, foreign_array_preselects, foreign_joins = build_fetch_rows_select_clause(db, endpoint_tablename, qnode, filter_preselect_query, log)
 
-    # Add select columns
     query = db.query(*select_columns)
-
-    # Apply filterpreselect
     query = query.filter(endpoint_id_alias.in_(filter_preselect_query))
+    # Add joins to foreign table preselects
+    if foreign_joins:
+        for foreign_join in foreign_joins:
+            query = query.join(**foreign_join, isouter=True)
+    query = add_hanging_table_joins(endpoint_tablename, select_columns, query)
 
     # Optimize Count query by only counting the id_alias column based on the preselect filter
     count_subquery = db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query)).subquery('rows_to_count')
     count_query = db.query(func.count()).select_from(count_subquery)
 
-    # Add joins to foreign table preselects
-    if foreign_joins:
-        for foreign_join in foreign_joins:
-            query = query.join(**foreign_join, isouter=True)
-    
-    # Convert to json format
+    # Get dicom_series half of the query if file table or columns are every used and create a union statement
+    dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log)
+    if dicom_query:
+        query = union_all(query, dicom_query)
+        dicom_count_query = db.query(func.count()).select_from(dicom_count_subquery)
+        
+
     subquery = query.subquery('json_result')
     query = db.query(func.row_to_json(subquery.table_valued()))
+
     
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
 
@@ -66,6 +71,9 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     start_time = time.time()
     result = query.offset(offset).limit(limit).all()
     row_count = count_query.scalar()
+    if dicom_count_query:
+        log.debug(f'Dicom Count Query:\n{"-"*100}\n{query_to_string(dicom_count_query, indented = True)}\n{"-"*100}')
+        row_count += dicom_count_query.scalar()
 
     # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     result = [row for row, in result]
