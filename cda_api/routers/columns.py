@@ -1,21 +1,20 @@
-from fastapi import Depends, APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy.orm import Session
+
+from cda_api import get_logger
+from cda_api.application_utilities import handle_router_errors
 from cda_api.db import get_db
 from cda_api.db.query_builders import columns_query
-from cda_api.models import QNode, ColumnResponseObj
-from cda_api.application_utilities import handle_router_errors
-from sqlalchemy.orm import Session
-from cda_api import get_logger
+from cda_api.models import ColumnResponseObj
+
 log = get_logger()
 
 
-router = APIRouter(
-    prefix="/columns",
-    tags=["columns"]
-)
+router = APIRouter(prefix="/columns", tags=["columns"])
 
-@router.get('/')
-def columns_endpoint(request: Request, 
-                     db: Session = Depends(get_db)) -> ColumnResponseObj:
+
+@router.get("/")
+def columns_endpoint(request: Request, db: Session = Depends(get_db)) -> ColumnResponseObj:
     """_summary_
 
     Args:
@@ -30,4 +29,4 @@ def columns_endpoint(request: Request,
         result = columns_query(db)
     except Exception as e:
         handle_router_errors(e, log)
-    return result 
+    return result

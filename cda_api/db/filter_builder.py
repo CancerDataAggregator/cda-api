@@ -1,11 +1,13 @@
-from .query_operators import apply_filter_operator
-from cda_api import get_logger, ParsingError, RelationshipNotFound
-from cda_api.db import DB_MAP
-from sqlalchemy.sql import select, exists
-
-
-import re
 import ast
+import re
+
+from sqlalchemy.sql import exists, select
+
+from cda_api import ParsingError, RelationshipNotFound
+from cda_api.db import DB_MAP
+
+from .query_operators import apply_filter_operator
+
 
 # Parse out the key components from the filter string
 def parse_filter_string(filter_string, log):
@@ -19,15 +21,31 @@ def parse_filter_string(filter_string, log):
     if len(parsed_operators) != 1:
         raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
 
-    # Get the operator from the list of matches 
+    # Get the operator from the list of matches
     operator = parsed_operators[0]
 
     # Verify the matched operator is valid
-    valid_operators = ['!=','<>','<=','>=','=','<','>','is','in','like','between',
-                    'not','is not','not in','not like','not between']
+    valid_operators = [
+        "!=",
+        "<>",
+        "<=",
+        ">=",
+        "=",
+        "<",
+        ">",
+        "is",
+        "in",
+        "like",
+        "between",
+        "not",
+        "is not",
+        "not in",
+        "not like",
+        "not between",
+    ]
     if operator not in valid_operators:
         raise ParsingError(f'Parsed operator: "{operator}" not valid')
-    
+
     # Ensure the operator isn't at the beginning or the end of the filter string
     operator_location = re.search(operator, filter_string.lower())
     if operator_location.start() == 0:
@@ -37,7 +55,7 @@ def parse_filter_string(filter_string, log):
         raise ParsingError(f'Missing value after operator "{filter_string}"')
 
     # Set columnname value to the stripped string before the operator
-    columnname = filter_string[:operator_location.start()].strip()
+    columnname = filter_string[: operator_location.start()].strip()
 
     # Check if the string before the operator wasn't just whitespace
     if len(columnname) < 1:
@@ -48,7 +66,7 @@ def parse_filter_string(filter_string, log):
         raise ParsingError(f'Invalid column "{columnname}" in filter: "{filter_string}"')
 
     # Set columnname value to the stripped string after the operator
-    value_string = filter_string[operator_location.end():].strip()
+    value_string = filter_string[operator_location.end() :].strip()
 
     # Use ast.literal_eval() to safely evaluate the value
     try:
@@ -59,18 +77,20 @@ def parse_filter_string(filter_string, log):
 
     # Check if value is null
     if isinstance(value, str):
-        if value.lower() == 'null':
+        if value.lower() == "null":
             value = None
 
     # Need to ensure lists and the operators "in"/"not in" are only ever used together
-    if isinstance(value, list) and (operator not in ['in', 'not in']):
+    if isinstance(value, list) and (operator not in ["in", "not in"]):
         raise ParsingError(f'Operator must be "in" or "not in" when using a list value -> filter: {filter_string}')
 
-    elif (not isinstance(value, list)) and (operator in ['in', 'not in']):
-        raise ParsingError(f'Value: {value_string} must be a list (ex. [1,2,3] or ["a","b","c"]) when using "in" or "not in" operators -> filter: "{filter_string}"')
-    
-    log.debug(f'columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}')
-    
+    elif (not isinstance(value, list)) and (operator in ["in", "not in"]):
+        raise ParsingError(
+            f'Value: {value_string} must be a list (ex. [1,2,3] or ["a","b","c"]) when using "in" or "not in" operators -> filter: "{filter_string}"'
+        )
+
+    log.debug(f"columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}")
+
     return columnname, operator, value
 
 
@@ -84,45 +104,62 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
     # relate filter to dicom_series if filter column is from file
-    if endpoint_tablename == 'dicom_series' and filter_column_info.uniquename in DB_MAP.file_dicom_column_map.keys():
+    if endpoint_tablename == "dicom_series" and filter_column_info.uniquename in DB_MAP.file_dicom_column_map.keys():
         filter_column_info = DB_MAP.file_dicom_column_map[filter_column_info.uniquename]
-
 
     # build the sqlalachemy orm filter with the components
     filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)
-    
+
     # if the filter applies to a foreign table, preselect on the mapping column
     if filter_column_info.tablename.lower() != endpoint_tablename.lower():
-        try: 
-            relationship = DB_MAP.get_relationship(entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename)
+        try:
+            relationship = DB_MAP.get_relationship(
+                entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename
+            )
             mapping_column = relationship.entity_collection
             filter_clause = mapping_column.any(filter_clause)
             print(mapping_column)
-            file = DB_MAP.get_metadata_table('file')
+            file = DB_MAP.get_metadata_table("file")
         except RelationshipNotFound:
-            hanging_table_join = DB_MAP.get_hanging_table_join(hanging_tablename=filter_column_info.tablename, entity_tablename=endpoint_tablename)
-            if 'entity_mapping_join' in hanging_table_join.keys():
-                filter_clause = exists(select(1).select_from(hanging_table_join['join_table']).where(hanging_table_join['statement']).where(hanging_table_join['entity_mapping_join']).where(filter_clause))
+            hanging_table_join = DB_MAP.get_hanging_table_join(
+                hanging_tablename=filter_column_info.tablename, entity_tablename=endpoint_tablename
+            )
+            if "entity_mapping_join" in hanging_table_join.keys():
+                filter_clause = exists(
+                    select(1)
+                    .select_from(hanging_table_join["join_table"])
+                    .where(hanging_table_join["statement"])
+                    .where(hanging_table_join["entity_mapping_join"])
+                    .where(filter_clause)
+                )
                 pass
             else:
-                filter_clause = exists(select(1).select_from(hanging_table_join['join_table']).where(hanging_table_join['statement']).where(filter_clause))
+                filter_clause = exists(
+                    select(1)
+                    .select_from(hanging_table_join["join_table"])
+                    .where(hanging_table_join["statement"])
+                    .where(filter_clause)
+                )
 
         except Exception as e:
             raise e
-    
+
     return filter_clause
+
 
 # Build match_all and match_some filter conditional lists
 def build_match_conditons(endpoint_tablename, qnode, log):
-    log.info('Building MATCH conditions')
+    log.info("Building MATCH conditions")
     match_all_conditions = []
     match_some_conditions = []
     # match_all_conditions will be all AND'd together
     if qnode.MATCH_ALL:
-        match_all_conditions = [get_preselect_filter(endpoint_tablename, filter_string, log)
-                                    for filter_string in qnode.MATCH_ALL]
-    # match_some_conditions will be all OR'd together 
+        match_all_conditions = [
+            get_preselect_filter(endpoint_tablename, filter_string, log) for filter_string in qnode.MATCH_ALL
+        ]
+    # match_some_conditions will be all OR'd together
     if qnode.MATCH_SOME:
-        match_some_conditions = [get_preselect_filter(endpoint_tablename, filter_string, log)
-                                    for filter_string in qnode.MATCH_SOME]
+        match_some_conditions = [
+            get_preselect_filter(endpoint_tablename, filter_string, log) for filter_string in qnode.MATCH_SOME
+        ]
     return match_all_conditions, match_some_conditions

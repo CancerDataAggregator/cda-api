@@ -63,5 +63,8 @@ COPY . .
 EXPOSE 8000
 EXPOSE 5432
 
+# Set up environment variable to indicate the app is running in docker
+ENV DOCKER_DEPLOYED=1
+
 # Run the application.
 CMD ["fastapi", "run", "cda_api/main.py", "--port", "8000"]

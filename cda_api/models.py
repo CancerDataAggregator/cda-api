@@ -1,5 +1,6 @@
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field
-from typing import Optional, Any
 
 
 class QNode(BaseModel):
@@ -7,52 +8,65 @@ class QNode(BaseModel):
     MATCH_SOME: list[str] | None = None
     ADD_COLUMNS: list[str] | None = None
     EXCLUDE_COLUMNS: list[str] | None = None
-    def as_dict(self):
-        return {"MATCH_ALL": self.MATCH_ALL, 
-                "MATCH_SOME": self.MATCH_SOME,
-                "ADD_COLUMNS": self.ADD_COLUMNS,
-                "EXCLUDE_COLUMNS": self.EXCLUDE_COLUMNS}
+
+    def to_dict(self):
+        return {
+            "MATCH_ALL": self.MATCH_ALL,
+            "MATCH_SOME": self.MATCH_SOME,
+            "ADD_COLUMNS": self.ADD_COLUMNS,
+            "EXCLUDE_COLUMNS": self.EXCLUDE_COLUMNS,
+        }
+
     def as_string(self):
-        return str(self.as_dict()).replace("'", '"')
-    
+        return str(self.to_dict()).replace("'", '"')
+
     def is_empty(self):
         print("CHECKING")
-        if ((self.MATCH_ALL is None) and (self.MATCH_SOME is None)):
+        if (self.MATCH_ALL is None) and (self.MATCH_SOME is None):
             print("TRUE")
             return True
         else:
             print("FALSE")
             return False
-    
+
     def replace(self, attribute: str, values: list):
-        if attribute not in ['MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS']:
+        if attribute not in ["MATCH_ALL", "MATCH_SOME", "ADD_COLUMNS", "EXCLUDE_COLUMNS"]:
             raise ValueError(f"{attribute} not in list: ['MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS']")
         setattr(self, attribute, values)
-        
+
     def __eq__(self, value: object) -> bool:
         return super().__eq__(value)
-
 
 
 class PagedResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
     query_sql: str | None = Field(description="SQL Query generated to yield the results")
     total_row_count: int | None = Field(default=None, description="Count of total number of results from the query")
-    next_url: Optional[str] = Field(default=None, description="URL to get to next page of results", )
+    next_url: Optional[str] = Field(
+        default=None,
+        description="URL to get to next page of results",
+    )
+
 
 class SummaryResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
     query_sql: str | None = Field(description="SQL Query generated to yield the results")
 
+
 class ColumnResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
+
 
 # TODO: change to represent actual frequency result
 class UniqueValueResponseObj(BaseModel):
     result: list[dict[str, Any] | None] = Field(description="List of query result json objects")
     query_sql: str | None = Field(description="SQL Query generated to yield the results")
     total_row_count: int | None = Field(default=None, description="Count of total number of results from the query")
-    next_url: Optional[str] = Field(default=None, description="URL to get to next page of results", )
+    next_url: Optional[str] = Field(
+        default=None,
+        description="URL to get to next page of results",
+    )
+
 
 # TODO: change to represent actual release metadata result
 class ReleaseMetadataObj(BaseModel):

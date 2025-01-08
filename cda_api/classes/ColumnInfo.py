@@ -1,11 +1,12 @@
-import cda_api.db
-from sqlalchemy.orm.decl_api import DeclarativeMeta
-from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlalchemy import Column, Table
 from dataclasses import dataclass, field
 
+from sqlalchemy import Column, Table
+from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.orm.decl_api import DeclarativeMeta
+
+
 @dataclass
-class ColumnInfo():
+class ColumnInfo:
     uniquename: str
     entity_table: DeclarativeMeta
     metadata_table: Table
@@ -21,10 +22,10 @@ class ColumnInfo():
     process_before_display: str = field(init=False)
     virtual_table: str = field(init=False)
 
-    def __post_init__(self): 
+    def __post_init__(self):
         self.columnname = self.metadata_column.name
         self.tablename = self.metadata_table.name
-        self.table_columnname = f'{self.tablename}.{self.columnname}'
+        self.table_columnname = f"{self.tablename}.{self.columnname}"
 
         # Set metadata
         self.column_type = None
@@ -38,15 +39,14 @@ class ColumnInfo():
             if self.tablename in self.column_metadata_map.keys():
                 if self.columnname in self.column_metadata_map[self.tablename].keys():
                     column_metadata = self.column_metadata_map[self.tablename][self.columnname]
-                    self.column_type = column_metadata['column_type']
-                    self.summary_display = column_metadata['summary_display']
-                    self.fetch_rows_returns = column_metadata['fetch_rows_returns']
-                    self.process_before_display = column_metadata['process_before_display']
-                    self.virtual_table = column_metadata['virtual_table']
+                    self.column_type = column_metadata["column_type"]
+                    self.summary_display = column_metadata["summary_display"]
+                    self.fetch_rows_returns = column_metadata["fetch_rows_returns"]
+                    self.process_before_display = column_metadata["process_before_display"]
+                    self.virtual_table = column_metadata["virtual_table"]
 
         else:
             self.entity_column = None
 
     def in_entity_table(self):
         return bool(self.entity_table)
-

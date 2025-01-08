@@ -1395,3 +1395,557 @@ FROM subject_dicom_preselect)) AS json_result
 2025-01-07 12:02:49,369 - Query: 10537b85-ce84-49dd-b6e2-4952cda7c7ff - INFO: Query execution time: 0.5689139366149902s
 2025-01-07 12:02:49,369 - Query: 10537b85-ce84-49dd-b6e2-4952cda7c7ff - INFO: Returning 20 rows out of 20 results | limit=100 & offset=0
 2025-01-07 12:02:49,370 - Query: 10537b85-ce84-49dd-b6e2-4952cda7c7ff - INFO: Success
+2025-01-07 14:42:05,513 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-07 14:42:05,514 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-07 14:42:05,557 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-07 14:42:07,144 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-07 14:42:07,144 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-07 14:42:07,145 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-07 14:42:07,145 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-07 14:42:07,146 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-07 14:42:07,146 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-07 14:42:07,160 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-07 14:42:07,263 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-07 14:42:07,264 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-07 14:42:07,264 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-07 14:42:07,264 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-07 14:42:07,266 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-07 14:42:15,809 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-07 14:42:15,809 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-07 14:42:15,850 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-07 14:42:17,426 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-07 14:42:17,426 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-07 14:42:17,426 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-07 14:42:17,426 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-07 14:42:17,427 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-07 14:42:17,427 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-07 14:42:17,436 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-07 14:42:17,537 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-07 14:42:17,537 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-07 14:42:17,538 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-07 14:42:17,538 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-07 14:42:17,539 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-07 16:46:35,528 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-07 16:46:35,528 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-07 16:46:35,565 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-07 16:46:37,207 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-07 16:46:37,207 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-07 16:46:37,208 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-07 16:46:37,208 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-07 16:46:37,209 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-07 16:46:37,209 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-07 16:46:37,221 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-07 16:46:37,327 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-07 16:46:37,327 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-07 16:46:37,327 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-07 16:46:37,328 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-07 16:46:37,329 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-07 16:46:51,829 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-07 16:46:51,829 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-07 16:46:51,865 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-07 16:46:53,478 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-07 16:46:53,479 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-07 16:46:53,479 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-07 16:46:53,480 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-07 16:46:53,480 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-07 16:46:53,480 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-07 16:46:53,493 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-07 16:46:53,599 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-07 16:46:53,600 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-07 16:46:53,600 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-07 16:46:53,600 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-07 16:46:53,602 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-07 16:51:46,279 - Query: f1cd8136-cca7-4a35-866f-194bf17b9381 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=49971)
+2025-01-07 16:51:46,279 - Query: f1cd8136-cca7-4a35-866f-194bf17b9381 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 16:51:46,279 - Query: f1cd8136-cca7-4a35-866f-194bf17b9381 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 16:51:46,279 - Query: f1cd8136-cca7-4a35-866f-194bf17b9381 - INFO: Building fetch_rows query
+2025-01-07 16:51:46,279 - Query: f1cd8136-cca7-4a35-866f-194bf17b9381 - INFO: Building MATCH conditions
+2025-01-07 16:51:46,280 - Query: f1cd8136-cca7-4a35-866f-194bf17b9381 - INFO: Building SELECT clause
+2025-01-07 16:51:46,281 - Query: f1cd8136-cca7-4a35-866f-194bf17b9381 - ERROR: cannot unpack non-iterable NoneType object
+Traceback (most recent call last):
+  File "/Users/coontd/cda/cda-api/cda_api/routers/data.py", line 57, in subject_fetch_rows_endpoint
+    result = fetch_rows(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset, log=log)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/coontd/cda/cda-api/cda_api/db/query_builders.py", line 56, in fetch_rows
+    dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
+2025-01-07 16:55:06,674 - Query: 8fc3149a-07c8-4d11-8e53-5857f5da133e - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50142)
+2025-01-07 16:55:06,674 - Query: 8fc3149a-07c8-4d11-8e53-5857f5da133e - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 16:55:06,674 - Query: 8fc3149a-07c8-4d11-8e53-5857f5da133e - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 16:55:06,674 - Query: 8fc3149a-07c8-4d11-8e53-5857f5da133e - INFO: Building fetch_rows query
+2025-01-07 16:55:06,674 - Query: 8fc3149a-07c8-4d11-8e53-5857f5da133e - INFO: Building MATCH conditions
+2025-01-07 16:55:06,674 - Query: 8fc3149a-07c8-4d11-8e53-5857f5da133e - INFO: Building SELECT clause
+2025-01-07 16:55:06,675 - Query: 8fc3149a-07c8-4d11-8e53-5857f5da133e - ERROR: cannot unpack non-iterable NoneType object
+Traceback (most recent call last):
+  File "/Users/coontd/cda/cda-api/cda_api/routers/data.py", line 57, in subject_fetch_rows_endpoint
+    result = fetch_rows(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset, log=log)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/coontd/cda/cda-api/cda_api/db/query_builders.py", line 56, in fetch_rows
+    dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
+2025-01-07 16:58:41,200 - Query: 175c01ee-47e1-486e-ae5d-87a5b9d01ae9 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50365)
+2025-01-07 16:58:41,200 - Query: 175c01ee-47e1-486e-ae5d-87a5b9d01ae9 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 16:58:41,200 - Query: 175c01ee-47e1-486e-ae5d-87a5b9d01ae9 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 16:58:41,200 - Query: 175c01ee-47e1-486e-ae5d-87a5b9d01ae9 - INFO: Building fetch_rows query
+2025-01-07 16:58:41,200 - Query: 175c01ee-47e1-486e-ae5d-87a5b9d01ae9 - INFO: Building MATCH conditions
+2025-01-07 16:58:41,201 - Query: 175c01ee-47e1-486e-ae5d-87a5b9d01ae9 - INFO: Building SELECT clause
+2025-01-07 16:58:41,202 - Query: 175c01ee-47e1-486e-ae5d-87a5b9d01ae9 - ERROR: cannot unpack non-iterable NoneType object
+Traceback (most recent call last):
+  File "/Users/coontd/cda/cda-api/cda_api/routers/data.py", line 57, in subject_fetch_rows_endpoint
+    result = fetch_rows(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset, log=log)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/coontd/cda/cda-api/cda_api/db/query_builders.py", line 56, in fetch_rows
+    dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
+2025-01-07 16:59:03,845 - Query: 283679ef-3932-41f3-ac19-9890b55d2804 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50391)
+2025-01-07 16:59:03,845 - Query: 283679ef-3932-41f3-ac19-9890b55d2804 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 16:59:03,845 - Query: 283679ef-3932-41f3-ac19-9890b55d2804 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 16:59:03,845 - Query: 283679ef-3932-41f3-ac19-9890b55d2804 - INFO: Building fetch_rows query
+2025-01-07 16:59:03,845 - Query: 283679ef-3932-41f3-ac19-9890b55d2804 - INFO: Building MATCH conditions
+2025-01-07 16:59:03,846 - Query: 283679ef-3932-41f3-ac19-9890b55d2804 - INFO: Building SELECT clause
+2025-01-07 16:59:03,847 - Query: 283679ef-3932-41f3-ac19-9890b55d2804 - ERROR: cannot unpack non-iterable NoneType object
+Traceback (most recent call last):
+  File "/Users/coontd/cda/cda-api/cda_api/routers/data.py", line 57, in subject_fetch_rows_endpoint
+    result = fetch_rows(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset, log=log)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/coontd/cda/cda-api/cda_api/db/query_builders.py", line 56, in fetch_rows
+    dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
+2025-01-07 17:00:59,582 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50506)
+2025-01-07 17:00:59,583 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: QNode: {"MATCH_ALL": ["sex = male"], "MATCH_SOME": None, "ADD_COLUMNS": None, "EXCLUDE_COLUMNS": None}
+2025-01-07 17:00:59,583 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: http://127.0.0.1:8000/data/subject?limit=100&offset=0
+2025-01-07 17:00:59,583 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Building fetch_rows query
+2025-01-07 17:00:59,583 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Building MATCH conditions
+2025-01-07 17:00:59,585 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Building SELECT clause
+2025-01-07 17:00:59,586 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Building MATCH conditions
+2025-01-07 17:00:59,587 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Building SELECT clause
+2025-01-07 17:01:01,468 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Query execution time: 1.855078935623169s
+2025-01-07 17:01:01,469 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Returning 100 rows out of 148070 results | limit=100 & offset=0
+2025-01-07 17:01:01,475 - Query: 46b26d9f-b3d0-47c6-8f0f-4f2f959b126a - INFO: Success
+2025-01-07 17:01:22,504 - Query: 9126fee9-a833-4cf8-9614-dbbcf5cf634d - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50521)
+2025-01-07 17:01:22,504 - Query: 9126fee9-a833-4cf8-9614-dbbcf5cf634d - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:01:22,504 - Query: 9126fee9-a833-4cf8-9614-dbbcf5cf634d - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:01:22,504 - Query: 9126fee9-a833-4cf8-9614-dbbcf5cf634d - INFO: Building fetch_rows query
+2025-01-07 17:01:22,504 - Query: 9126fee9-a833-4cf8-9614-dbbcf5cf634d - INFO: Building MATCH conditions
+2025-01-07 17:01:22,505 - Query: 9126fee9-a833-4cf8-9614-dbbcf5cf634d - INFO: Building SELECT clause
+2025-01-07 17:01:22,508 - Query: 9126fee9-a833-4cf8-9614-dbbcf5cf634d - ERROR: cannot unpack non-iterable NoneType object
+Traceback (most recent call last):
+  File "/Users/coontd/cda/cda-api/cda_api/routers/data.py", line 57, in subject_fetch_rows_endpoint
+    result = fetch_rows(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset, log=log)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/coontd/cda/cda-api/cda_api/db/query_builders.py", line 56, in fetch_rows
+    dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
+2025-01-07 17:03:08,104 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-07 17:03:08,104 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-07 17:03:08,144 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-07 17:03:09,777 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-07 17:03:09,777 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-07 17:03:09,778 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-07 17:03:09,778 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-07 17:03:09,779 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-07 17:03:09,779 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-07 17:03:09,791 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-07 17:03:09,897 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-07 17:03:09,897 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-07 17:03:09,898 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-07 17:03:09,898 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-07 17:03:09,900 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-07 17:03:16,570 - Query: c145b62a-d472-499e-9da8-e0a67543a72c - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50619)
+2025-01-07 17:03:16,570 - Query: c145b62a-d472-499e-9da8-e0a67543a72c - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:03:16,570 - Query: c145b62a-d472-499e-9da8-e0a67543a72c - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:03:16,570 - Query: c145b62a-d472-499e-9da8-e0a67543a72c - INFO: Building fetch_rows query
+2025-01-07 17:03:16,570 - Query: c145b62a-d472-499e-9da8-e0a67543a72c - INFO: Building MATCH conditions
+2025-01-07 17:03:16,571 - Query: c145b62a-d472-499e-9da8-e0a67543a72c - INFO: Building SELECT clause
+2025-01-07 17:03:19,501 - Query: c145b62a-d472-499e-9da8-e0a67543a72c - ERROR: name 'dicom_count_query' is not defined
+Traceback (most recent call last):
+  File "/Users/coontd/cda/cda-api/cda_api/routers/data.py", line 57, in subject_fetch_rows_endpoint
+    result = fetch_rows(db, endpoint_tablename='subject', qnode=qnode, limit=limit, offset=offset, log=log)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/coontd/cda/cda-api/cda_api/db/query_builders.py", line 74, in fetch_rows
+    if dicom_count_query:
+       ^^^^^^^^^^^^^^^^^
+NameError: name 'dicom_count_query' is not defined
+2025-01-07 17:03:30,864 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-07 17:03:30,864 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-07 17:03:30,902 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-07 17:03:32,521 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-07 17:03:32,522 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-07 17:03:32,522 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-07 17:03:32,523 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-07 17:03:32,523 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-07 17:03:32,523 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-07 17:03:32,535 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-07 17:03:32,639 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-07 17:03:32,639 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-07 17:03:32,640 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-07 17:03:32,640 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-07 17:03:32,642 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-07 17:03:38,196 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50646)
+2025-01-07 17:03:38,196 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:03:38,196 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:03:38,196 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: Building fetch_rows query
+2025-01-07 17:03:38,196 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: Building MATCH conditions
+2025-01-07 17:03:38,197 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: Building SELECT clause
+2025-01-07 17:03:41,103 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: Query execution time: 2.8931779861450195s
+2025-01-07 17:03:41,103 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:03:41,104 - Query: ef89316b-611b-4b88-9705-9bc75bea9b6f - INFO: Success
+2025-01-07 17:04:43,698 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-07 17:04:43,698 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-07 17:04:43,735 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-07 17:04:45,308 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-07 17:04:45,309 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-07 17:04:45,309 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-07 17:04:45,310 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-07 17:04:45,310 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-07 17:04:45,310 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-07 17:04:45,322 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-07 17:04:45,425 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-07 17:04:45,425 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-07 17:04:45,426 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-07 17:04:45,426 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-07 17:04:45,427 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-07 17:04:49,869 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50716)
+2025-01-07 17:04:49,870 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:04:49,870 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:04:49,870 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: Building fetch_rows query
+2025-01-07 17:04:49,870 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: Building MATCH conditions
+2025-01-07 17:04:49,870 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: Building SELECT clause
+2025-01-07 17:04:53,455 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: Query execution time: 3.571094036102295s
+2025-01-07 17:04:53,455 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:04:53,456 - Query: f080ad20-3f52-41a1-bb1f-a04544c86f40 - INFO: Success
+2025-01-07 17:06:48,819 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50867)
+2025-01-07 17:06:48,819 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:06:48,819 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:06:48,820 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: Building fetch_rows query
+2025-01-07 17:06:48,820 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: Building MATCH conditions
+2025-01-07 17:06:48,820 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: Building SELECT clause
+2025-01-07 17:06:51,937 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: Query execution time: 3.108281135559082s
+2025-01-07 17:06:51,937 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:06:51,939 - Query: 85524cb6-449b-40c6-b929-1f46699e1b4e - INFO: Success
+2025-01-07 17:07:41,146 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=50938)
+2025-01-07 17:07:41,146 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:07:41,147 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:07:41,147 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: Building fetch_rows query
+2025-01-07 17:07:41,147 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: Building MATCH conditions
+2025-01-07 17:07:41,148 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: Building SELECT clause
+2025-01-07 17:07:44,349 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: Query execution time: 3.1818532943725586s
+2025-01-07 17:07:44,350 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:07:44,351 - Query: 68ec5bc1-67e2-4bd8-8a36-11552be17cca - INFO: Success
+2025-01-07 17:08:45,922 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51021)
+2025-01-07 17:08:45,922 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:08:45,923 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:08:45,923 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: Building fetch_rows query
+2025-01-07 17:08:45,923 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: Building MATCH conditions
+2025-01-07 17:08:45,924 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: Building SELECT clause
+2025-01-07 17:08:49,456 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: Query execution time: 3.5231499671936035s
+2025-01-07 17:08:49,456 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:08:49,458 - Query: 45513d50-fd9a-4db8-8743-2038a8dbe105 - INFO: Success
+2025-01-07 17:10:16,666 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51122)
+2025-01-07 17:10:16,666 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:10:16,666 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:10:16,666 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: Building fetch_rows query
+2025-01-07 17:10:16,666 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: Building MATCH conditions
+2025-01-07 17:10:16,671 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: Building SELECT clause
+2025-01-07 17:10:19,979 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: Query execution time: 3.2855591773986816s
+2025-01-07 17:10:19,979 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:10:19,980 - Query: b263630d-8ab7-4062-997c-b6ccef68f540 - INFO: Success
+2025-01-07 17:12:02,837 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51250)
+2025-01-07 17:12:02,837 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:12:02,837 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:12:02,837 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: Building fetch_rows query
+2025-01-07 17:12:02,837 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: Building MATCH conditions
+2025-01-07 17:12:02,838 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: Building SELECT clause
+2025-01-07 17:12:06,507 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: Query execution time: 3.660109043121338s
+2025-01-07 17:12:06,507 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:12:06,509 - Query: 267b7a67-4e31-4a45-988a-1748f2b6a239 - INFO: Success
+2025-01-07 17:12:51,532 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51333)
+2025-01-07 17:12:51,533 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:12:51,533 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:12:51,533 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: Building fetch_rows query
+2025-01-07 17:12:51,533 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: Building MATCH conditions
+2025-01-07 17:12:51,533 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: Building SELECT clause
+2025-01-07 17:12:54,785 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: Query execution time: 3.23980975151062s
+2025-01-07 17:12:54,785 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:12:54,786 - Query: 18d0a968-606c-46fc-9bef-ef97cb70cf2b - INFO: Success
+2025-01-07 17:13:51,657 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51399)
+2025-01-07 17:13:51,657 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:13:51,657 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:13:51,657 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: Building fetch_rows query
+2025-01-07 17:13:51,657 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: Building MATCH conditions
+2025-01-07 17:13:51,658 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: Building SELECT clause
+2025-01-07 17:13:54,921 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: Query execution time: 3.2536728382110596s
+2025-01-07 17:13:54,921 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:13:54,923 - Query: b6dccbf3-66ac-4f62-8001-3eb48b28f6ce - INFO: Success
+2025-01-07 17:14:15,778 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51444)
+2025-01-07 17:14:15,779 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:14:15,779 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:14:15,779 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: Building fetch_rows query
+2025-01-07 17:14:15,779 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: Building MATCH conditions
+2025-01-07 17:14:15,780 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: Building SELECT clause
+2025-01-07 17:14:18,924 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: Query execution time: 3.133763074874878s
+2025-01-07 17:14:18,924 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:14:18,925 - Query: a7ab2746-8b13-4c4b-8817-47c05a29b249 - INFO: Success
+2025-01-07 17:15:08,611 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51530)
+2025-01-07 17:15:08,611 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:15:08,611 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:15:08,611 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: Building fetch_rows query
+2025-01-07 17:15:08,611 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: Building MATCH conditions
+2025-01-07 17:15:08,611 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: Building SELECT clause
+2025-01-07 17:15:11,247 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: Query execution time: 2.626222848892212s
+2025-01-07 17:15:11,247 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:15:11,248 - Query: a0cec6e8-4fe8-4cbb-89fb-a849ed87b008 - INFO: Success
+2025-01-07 17:17:55,054 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=51707)
+2025-01-07 17:17:55,054 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-07 17:17:55,054 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-07 17:17:55,054 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: Building fetch_rows query
+2025-01-07 17:17:55,054 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: Building MATCH conditions
+2025-01-07 17:17:55,054 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: Building SELECT clause
+2025-01-07 17:17:58,035 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: Query execution time: 2.9725067615509033s
+2025-01-07 17:17:58,036 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-07 17:17:58,037 - Query: 8530c351-fd8a-4406-b161-d9a3999c94f1 - INFO: Success
+2025-01-08 09:16:24,863 - Setup: connection.py - INFO: Reading environment variables from .env
+2025-01-08 09:16:24,863 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 09:16:24,864 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 09:16:24,904 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 09:16:26,615 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 09:16:26,616 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 09:16:26,616 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 09:16:26,617 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 09:16:26,617 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 09:16:26,617 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 09:16:26,630 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 09:16:26,747 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 09:16:26,748 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 09:16:26,748 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 09:16:26,748 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 09:16:26,750 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 09:16:27,394 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 09:16:27,394 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 09:16:27,430 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 09:16:29,087 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 09:16:29,087 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 09:16:29,088 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 09:16:29,088 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 09:16:29,088 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 09:16:29,088 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 09:16:29,097 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 09:16:29,205 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 09:16:29,205 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 09:16:29,205 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 09:16:29,205 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 09:16:29,205 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 09:19:01,371 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=60956)
+2025-01-08 09:19:01,371 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: QNode: {"MATCH_ALL": ["sex = Male"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death"], "EXCLUDE_COLUMNS": []}
+2025-01-08 09:19:01,371 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 09:19:01,371 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: Building fetch_rows query
+2025-01-08 09:19:01,371 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: Building MATCH conditions
+2025-01-08 09:19:01,373 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: Building SELECT clause
+2025-01-08 09:19:05,076 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: Query execution time: 3.692056179046631s
+2025-01-08 09:19:05,076 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: Returning 74035 rows out of 74035 results | limit=500000 & offset=0
+2025-01-08 09:19:05,077 - Query: 2a34d9cc-350a-4a88-b513-60cadef09b7e - INFO: Success
+2025-01-08 09:19:09,179 - Query: b9dd44f5-6dce-4e27-a1f3-fc07c35e2b41 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=60964)
+2025-01-08 09:19:09,179 - Query: b9dd44f5-6dce-4e27-a1f3-fc07c35e2b41 - INFO: http://127.0.0.1:8000/unique_values/sex?system=&count=true&totalCount=true&limit=500000&offset=0
+2025-01-08 09:19:09,179 - Query: b9dd44f5-6dce-4e27-a1f3-fc07c35e2b41 - INFO: Building unique_values query
+2025-01-08 09:19:09,370 - Query: b9dd44f5-6dce-4e27-a1f3-fc07c35e2b41 - INFO: Query execution time: 0.18238496780395508s
+2025-01-08 09:19:09,370 - Query: b9dd44f5-6dce-4e27-a1f3-fc07c35e2b41 - INFO: Returning 3 rows out of 3 results | limit=500000 & offset=0
+2025-01-08 09:23:40,391 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=61175)
+2025-01-08 09:23:40,392 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 09:23:40,392 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 09:23:40,392 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: Building fetch_rows query
+2025-01-08 09:23:40,392 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: Building MATCH conditions
+2025-01-08 09:23:40,393 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: Building SELECT clause
+2025-01-08 09:24:09,608 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: Query execution time: 29.198452949523926s
+2025-01-08 09:24:09,609 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: Returning 24417 rows out of 24417 results | limit=500000 & offset=0
+2025-01-08 09:24:09,613 - Query: 7ab8ca40-d590-46ab-81bc-e1bfae6def61 - INFO: Success
+2025-01-08 10:09:55,182 - Setup: connection.py - INFO: Reading environment variables from .env
+2025-01-08 10:09:55,183 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 10:09:55,183 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 10:09:55,234 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 10:09:56,861 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 10:09:56,861 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 10:09:56,861 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 10:09:56,862 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 10:09:56,862 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 10:09:56,862 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 10:09:56,873 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 10:09:56,976 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 10:09:56,977 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 10:09:56,977 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 10:09:56,977 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 10:09:56,979 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 10:09:57,639 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 10:09:57,639 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 10:09:57,674 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 10:09:59,316 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 10:09:59,317 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 10:09:59,317 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 10:09:59,318 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 10:09:59,318 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 10:09:59,318 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 10:09:59,329 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 10:09:59,434 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 10:09:59,434 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 10:09:59,435 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 10:09:59,435 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 10:09:59,436 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 10:10:13,278 - Query: 0b039912-283a-4f16-9801-b3d549940503 - INFO: unique_values endpoint hit: Address(host='127.0.0.1', port=64757)
+2025-01-08 10:10:13,278 - Query: 0b039912-283a-4f16-9801-b3d549940503 - INFO: http://127.0.0.1:8000/unique_values/sex?system=&count=true&totalCount=true&limit=500000&offset=0
+2025-01-08 10:10:13,278 - Query: 0b039912-283a-4f16-9801-b3d549940503 - INFO: Building unique_values query
+2025-01-08 10:10:13,851 - Query: 0b039912-283a-4f16-9801-b3d549940503 - INFO: Query execution time: 0.5664467811584473s
+2025-01-08 10:10:13,851 - Query: 0b039912-283a-4f16-9801-b3d549940503 - INFO: Returning 3 rows out of 3 results | limit=500000 & offset=0
+2025-01-08 10:11:58,024 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=64859)
+2025-01-08 10:11:58,025 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 10:11:58,025 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 10:11:58,025 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: Building fetch_rows query
+2025-01-08 10:11:58,025 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: Building MATCH conditions
+2025-01-08 10:11:58,027 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: Building SELECT clause
+2025-01-08 10:12:05,386 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: Query execution time: 7.340574026107788s
+2025-01-08 10:12:05,387 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: Returning 24417 rows out of 24417 results | limit=500000 & offset=0
+2025-01-08 10:12:05,389 - Query: 9425b406-06fe-4374-a085-7752a6f68367 - INFO: Success
+2025-01-08 10:12:25,386 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=64880)
+2025-01-08 10:12:25,386 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 10:12:25,386 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 10:12:25,386 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: Building fetch_rows query
+2025-01-08 10:12:25,386 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: Building MATCH conditions
+2025-01-08 10:12:25,387 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: Building SELECT clause
+2025-01-08 10:12:32,896 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: Query execution time: 7.489321947097778s
+2025-01-08 10:12:32,896 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: Returning 24417 rows out of 24417 results | limit=500000 & offset=0
+2025-01-08 10:12:32,900 - Query: 8e1aa38c-0e45-4e94-91a4-792a11ad455d - INFO: Success
+2025-01-08 10:13:07,605 - Setup: connection.py - INFO: Reading environment variables from .env
+2025-01-08 10:13:07,606 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 10:13:07,606 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 10:13:07,654 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 10:13:09,256 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 10:13:09,256 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 10:13:09,257 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 10:13:09,257 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 10:13:09,258 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 10:13:09,258 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 10:13:09,269 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 10:13:09,373 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 10:13:09,373 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 10:13:09,373 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 10:13:09,373 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 10:13:09,374 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 10:13:10,030 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 10:13:10,030 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 10:13:10,065 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 10:13:11,648 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 10:13:11,649 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 10:13:11,649 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 10:13:11,649 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 10:13:11,650 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 10:13:11,650 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 10:13:11,659 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 10:13:11,762 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 10:13:11,762 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 10:13:11,762 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 10:13:11,763 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 10:13:11,763 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 10:13:14,745 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=64945)
+2025-01-08 10:13:14,745 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 10:13:14,745 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 10:13:14,745 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Building fetch_rows query
+2025-01-08 10:13:14,745 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Building MATCH conditions
+2025-01-08 10:13:14,748 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Building SELECT clause
+2025-01-08 10:13:14,760 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Building MATCH conditions
+2025-01-08 10:13:14,760 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Building SELECT clause
+2025-01-08 10:13:38,067 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Query execution time: 23.286876916885376s
+2025-01-08 10:13:38,068 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Returning 24670 rows out of 24670 results | limit=500000 & offset=0
+2025-01-08 10:13:38,074 - Query: 2fee4e0d-fcf8-4e27-8bbd-296cb4faaaf5 - INFO: Success
+2025-01-08 10:13:43,866 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=64988)
+2025-01-08 10:13:43,866 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 10:13:43,866 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 10:13:43,866 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Building fetch_rows query
+2025-01-08 10:13:43,866 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Building MATCH conditions
+2025-01-08 10:13:43,867 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Building SELECT clause
+2025-01-08 10:13:43,892 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Building MATCH conditions
+2025-01-08 10:13:43,893 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Building SELECT clause
+2025-01-08 10:13:52,666 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Query execution time: 8.749603033065796s
+2025-01-08 10:13:52,667 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Returning 24670 rows out of 24670 results | limit=500000 & offset=0
+2025-01-08 10:13:52,672 - Query: 16e392df-b4a0-46e2-9ad5-96aea47ba399 - INFO: Success
+2025-01-08 10:57:02,808 - Setup: connection.py - INFO: Reading environment variables from .env
+2025-01-08 10:57:02,809 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 10:57:02,809 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 10:57:02,856 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 10:57:04,454 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 10:57:04,454 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 10:57:04,454 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 10:57:04,455 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 10:57:04,455 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 10:57:04,455 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 10:57:04,465 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 10:57:04,567 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 10:57:04,567 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 10:57:04,567 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 10:57:04,567 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 10:57:04,568 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 10:57:05,206 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 10:57:05,206 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 10:57:05,241 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 10:57:06,864 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 10:57:06,865 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 10:57:06,865 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 10:57:06,865 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 10:57:06,866 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 10:57:06,866 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 10:57:06,874 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 10:57:06,977 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 10:57:06,977 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 10:57:06,977 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 10:57:06,977 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 10:57:06,978 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 11:13:26,640 - Setup: connection.py - INFO: Creating database connection url from environment variables found in config/.env
+2025-01-08 11:13:26,640 - Setup: connection.py - INFO: Creating database engine and session objects
+2025-01-08 11:13:26,681 - Setup: schema.py - INFO: Building SQLAlchemy automap
+2025-01-08 11:13:28,365 - Setup: schema.py - INFO: Successfully built SQLAlchemy automap
+2025-01-08 11:13:28,365 - Setup: schema.py - INFO: Adding relationships to file table
+2025-01-08 11:13:28,365 - Setup: schema.py - INFO: Adding relationships to project table
+2025-01-08 11:13:28,366 - Setup: schema.py - INFO: Adding relationships to dicom_series table
+2025-01-08 11:13:28,366 - Setup: schema.py - INFO: Successfully added relationships to file project, and dicom_series tables
+2025-01-08 11:13:28,366 - Setup: schema.py - INFO: Successfully added relationships for dicom_series to its secondary tables
+2025-01-08 11:13:28,380 - Setup: DatabaseMap.py - INFO: Building column_metadata map
+2025-01-08 11:13:28,487 - Setup: DatabaseMap.py - INFO: Building DatabaseMap Object
+2025-01-08 11:13:28,487 - Setup: DatabaseMap.py - INFO: Building metadata variables from automapped Base
+2025-01-08 11:13:28,487 - Setup: DatabaseMap.py - INFO: Building entity class variables from automapped Base
+2025-01-08 11:13:28,488 - Setup: DatabaseMap.py - INFO: Building column map
+2025-01-08 11:13:28,489 - Setup: DatabaseMap.py - INFO: Building relationship map
+2025-01-08 11:34:32,053 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=53016)
+2025-01-08 11:34:32,053 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 11:34:32,053 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 11:34:32,053 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Building fetch_rows query
+2025-01-08 11:34:32,053 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Building MATCH conditions
+2025-01-08 11:34:32,056 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Building SELECT clause
+2025-01-08 11:34:32,065 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Building MATCH conditions
+2025-01-08 11:34:32,065 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Building SELECT clause
+2025-01-08 11:34:37,440 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=53050)
+2025-01-08 11:34:37,440 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 11:34:37,440 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 11:34:37,440 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Building fetch_rows query
+2025-01-08 11:34:37,440 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Building MATCH conditions
+2025-01-08 11:34:37,440 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Building SELECT clause
+2025-01-08 11:34:37,446 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Building MATCH conditions
+2025-01-08 11:34:37,447 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Building SELECT clause
+2025-01-08 11:34:41,713 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Query execution time: 9.628874063491821s
+2025-01-08 11:34:41,714 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Returning 24670 rows out of 24670 results | limit=500000 & offset=0
+2025-01-08 11:34:41,720 - Query: ce832aeb-d525-41c2-bbbd-de95171cb5e8 - INFO: Success
+2025-01-08 11:34:46,387 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Query execution time: 8.919213056564331s
+2025-01-08 11:34:46,387 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Returning 24670 rows out of 24670 results | limit=500000 & offset=0
+2025-01-08 11:34:46,389 - Query: 838ebdfb-8c79-4284-ac8b-16c71d7d8a7c - INFO: Success
+2025-01-08 12:44:18,884 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: data/subject endpoint hit: Address(host='127.0.0.1', port=56971)
+2025-01-08 12:44:18,884 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: QNode: {"MATCH_ALL": ["sex = Male", "file_size < 10000"], "MATCH_SOME": [], "ADD_COLUMNS": ["subject_crdc_id", "subject_id", "cause_of_death", "ethnicity", "race", "species", "subject_data_at_cds", "subject_data_at_gdc", "subject_data_at_icdc", "subject_data_at_idc", "subject_data_at_pdc", "subject_data_source_count", "year_of_birth", "year_of_death", "file_size"], "EXCLUDE_COLUMNS": []}
+2025-01-08 12:44:18,884 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: http://127.0.0.1:8000/data/subject?limit=500000&offset=0
+2025-01-08 12:44:18,884 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Building fetch_rows query
+2025-01-08 12:44:18,884 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Building MATCH conditions
+2025-01-08 12:44:18,886 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Building SELECT clause
+2025-01-08 12:44:18,893 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Building MATCH conditions
+2025-01-08 12:44:18,893 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Building SELECT clause
+2025-01-08 12:44:27,513 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Query execution time: 8.599965810775757s
+2025-01-08 12:44:27,513 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Returning 24670 rows out of 24670 results | limit=500000 & offset=0
+2025-01-08 12:44:27,519 - Query: 30f6941a-7ffd-4099-a418-dcf736b896cf - INFO: Success

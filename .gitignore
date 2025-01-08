@@ -3,8 +3,6 @@ cda_api/config/.env
 /.vscode
 /.pytest_cache
 *__pycache__*
-*.log
-info.log
 poetry.lock
 
 
