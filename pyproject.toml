@@ -7,9 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.115.5"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
 python-dotenv = "^1.0.1"
-sqlalchemy = "^2.0.34"
+sqlalchemy = "^2.0.36"
 pytest = "^8.3.2"
 psycopg2-binary = "^2.9.9"
 sqlparse = "^0.5.1"
