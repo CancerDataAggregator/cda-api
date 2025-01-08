@@ -1,6 +1,5 @@
+from cda_api import app
 from fastapi.testclient import TestClient
-from cda_api.db.query_builders import fetch_rows
-from cda_api import app, ColumnNotFound
 
 client = TestClient(app)
 
@@ -12,14 +11,15 @@ def test_summary_subject_endpoint_query_generation():
         json={"MATCH_ALL": ["subject_id_alias < 0"]},
     )
     assert response.status_code == 200
-    assert response.json()['query_sql'].startswith('WITH')
+    assert response.json()["query_sql"].startswith("WITH")
+
 
 def test_summary_subject_endpoint_column_not_found():
     response = client.post(
         "/summary/subject",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {'detail': "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    expected_response_json = {"detail": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
     assert response.status_code == 404
     assert response.json() == expected_response_json
 
@@ -31,7 +31,7 @@ def test_summary_file_endpoint_query_generation():
         json={"MATCH_ALL": ["file_id_alias < 0"]},
     )
     assert response.status_code == 200
-    assert response.json()['query_sql'].startswith('WITH')
+    assert response.json()["query_sql"].startswith("WITH")
 
 
 def test_summary_file_endpoint_column_not_found():
@@ -39,6 +39,6 @@ def test_summary_file_endpoint_column_not_found():
         "/summary/file",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {'detail': "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    expected_response_json = {"detail": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
     assert response.status_code == 404
     assert response.json() == expected_response_json

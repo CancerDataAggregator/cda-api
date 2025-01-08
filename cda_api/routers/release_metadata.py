@@ -1,21 +1,18 @@
-from fastapi import Depends, APIRouter, HTTPException, Request
-from cda_api.db.metadata import get_release_metadata
-from cda_api.db import get_db
-from cda_api import get_logger
-from cda_api.models import QNode, ReleaseMetadataObj
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-import uuid
 
+from cda_api import get_logger, get_query_id
+from cda_api.application_utilities import handle_router_errors
+from cda_api.db import get_db
+from cda_api.db.metadata import get_release_metadata
+from cda_api.models import ReleaseMetadataObj
 
-router = APIRouter(
-    prefix="/release_metadata",
-    tags=["release_metadata"]
-)
+router = APIRouter(prefix="/release_metadata", tags=["release_metadata"])
+
 
 # TODO - include count(*) for all tables
-@router.get('/')
-def release_metadata_endpoint(request: Request, 
-                              db: Session = Depends(get_db)) -> ReleaseMetadataObj:
+@router.get("/")
+def release_metadata_endpoint(request: Request, db: Session = Depends(get_db)) -> ReleaseMetadataObj:
     """_summary_
 
     Args:
@@ -25,16 +22,14 @@ def release_metadata_endpoint(request: Request,
     Returns:
         FrequencyResponseObj: _description_
     """
-    qid = str(uuid.uuid4())
+    qid = get_query_id()
     log = get_logger(qid)
-    log.info(f'release_metadata endpoint hit: {request.client}')
-    log.info(f'{request.url}')
-    
+    log.info(f"release_metadata endpoint hit: {request.client}")
+    log.info(f"{request.url}")
+
     try:
         result = get_release_metadata(db, log)
-        log.info('Success')
+        log.info("Success")
     except Exception as e:
-        # TODO - possibly a better exception to throw
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
+        handle_router_errors(e, log)
     return result

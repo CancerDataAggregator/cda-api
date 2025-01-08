@@ -8,7 +8,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 def test_engine_connection():
     try:
         db_session = TestingSessionLocal()
-        db_session.execute(text('SELECT 1'))
+        db_session.execute(text("SELECT 1"))
         db_session.close()
     except:
-        raise Exception #TODO better exception
+        raise Exception  # TODO better exception
