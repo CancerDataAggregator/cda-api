@@ -62,4 +62,6 @@ ENV/
 env.bak/
 venv.bak/
 poetry.lock
+
+#Logs
 info.log
