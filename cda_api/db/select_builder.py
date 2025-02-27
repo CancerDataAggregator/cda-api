@@ -16,7 +16,6 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
         if column_info.fetch_rows_returns
     ]
     foreign_array_map = {}
-    foreign_array_preselects = []
     foreign_joins = []
 
     # Add additional columns to select list
@@ -52,10 +51,9 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
 
     # Build foreign array column preselects
     for foreign_tablename, columns in foreign_array_map.items():
-        foreign_array_preselect, foreign_join, preselect_columns = build_foreign_array_preselect(
+        foreign_join, preselect_columns = build_foreign_array_preselect(
             db, entity_tablename, foreign_tablename, columns, filter_preselect_query, dicom_flag
         )
-        foreign_array_preselects.append(foreign_array_preselect)
         foreign_joins.append(foreign_join)
 
         # Need to remove previous columns that were added to select_columns and replace them with the new preselect_columns
@@ -70,7 +68,4 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
         for col in preselect_columns:
             select_columns.append(col.label(col.name))
 
-        # # Add preselect columns
-        # select_columns += preselect_columns
-
-    return select_columns, foreign_array_preselects, foreign_joins
+    return select_columns, foreign_joins

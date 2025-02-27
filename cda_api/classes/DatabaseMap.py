@@ -59,6 +59,19 @@ class DatabaseMap:
 
     def _build_column_map(self):
         setup_log.info("Building column map")
+        uniquename_overwrite = {
+            'file_description': 'description',
+            'file_drs_uri': 'drs_uri',
+            'file_access': 'access',
+            'file_checksum_type': 'checksum_type',
+            'file_checksum_value': 'checksum_value',
+            'file_size': 'size',
+            'file_format': 'format',
+            'file_category': 'category',
+            'file_tumor_vs_normal_tumor_vs_normal': 'tumor_vs_normal',
+            'file_anatomic_site_anatomic_site': 'anatomic_site',
+        }
+
         self.column_map = {}
 
         duplicate_column_names = list(
@@ -78,9 +91,12 @@ class DatabaseMap:
                 entity_table = None
             for metadata_column in metadata_table.columns:
                 if metadata_column.name in duplicate_column_names:
-                    uniquename = f"{metadata_tablename}_{metadata_column.name}"
+                      uniquename = f"{metadata_tablename}_{metadata_column.name}"
                 else:
                     uniquename = metadata_column.name
+                
+                if uniquename in uniquename_overwrite.keys():
+                    uniquename = uniquename_overwrite[uniquename]
 
                 self.column_map[uniquename] = ColumnInfo(
                     uniquename=uniquename,
@@ -115,25 +131,23 @@ class DatabaseMap:
             "file_id_alias": self.get_column_info("dicom_series_id_alias"),
             "file_crdc_id": self.get_column_info("dicom_series_instance_crdc_id"),
             "file_name": self.get_column_info("dicom_series_instance_name"),
-            "file_description": self.get_column_info("dicom_series_description"),
-            "file_drs_uri": self.get_column_info("dicom_series_instance_drs_uri"),
-            "file_access": self.get_column_info("dicom_series_access"),
-            "file_size": self.get_column_info("dicom_series_instance_size"),
-            "file_checksum_type": self.get_column_info("dicom_series_checksum_type"),
-            "file_checksum_value": self.get_column_info("dicom_series_instance_checksum_value"),
-            "file_format": self.get_column_info("dicom_series_format"),
+            "description": self.get_column_info("dicom_series_description"),
+            "drs_uri": self.get_column_info("dicom_series_instance_drs_uri"),
+            "access": self.get_column_info("dicom_series_access"),
+            "size": self.get_column_info("dicom_series_instance_size"),
+            "checksum_type": self.get_column_info("dicom_series_checksum_type"),
+            "checksum_value": self.get_column_info("dicom_series_instance_checksum_value"),
+            "format": self.get_column_info("dicom_series_format"),
             "file_type": self.get_column_info("dicom_series_instance_type"),
-            "file_category": self.get_column_info("dicom_series_category"),
+            "category": self.get_column_info("dicom_series_category"),
             "file_data_at_cds": self.get_column_info("dicom_series_data_at_cds"),
             "file_data_at_gdc": self.get_column_info("dicom_series_data_at_gdc"),
             "file_data_at_icdc": self.get_column_info("dicom_series_data_at_icdc"),
             "file_data_at_idc": self.get_column_info("dicom_series_data_at_idc"),
             "file_data_at_pdc": self.get_column_info("dicom_series_data_at_pdc"),
             "file_data_source_count": self.get_column_info("dicom_series_data_source_count"),
-            "file_anatomic_site_anatomic_site": self.get_column_info("dicom_series_anatomic_site_anatomic_site"),
-            "file_tumor_vs_normal_tumor_vs_normal": self.get_column_info(
-                "dicom_series_tumor_vs_normal_tumor_vs_normal"
-            ),
+            "anatomic_site": self.get_column_info("dicom_series_anatomic_site_anatomic_site"),
+            "tumor_vs_normal": self.get_column_info("dicom_series_tumor_vs_normal_tumor_vs_normal"),
         }
 
     def _build_hanging_table_relationship_map(self):
@@ -160,6 +174,7 @@ class DatabaseMap:
                     self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = {
                         "join_table": hanging_table,
                         "statement": hanging_table_alias == connecting_table_alias,
+                        "hanging_fk_parent": hanging_table_alias
                     }
 
                 elif connecting_tablename == "dicom_series" and entity_tablename == "file":
@@ -186,30 +201,42 @@ class DatabaseMap:
                 self.hanging_table_relationship_map[hanging_tablename]["dicom_series"] = {
                     "join_table": hanging_table,
                     "statement": hanging_table_alias == connecting_table_alias,
+                    "hanging_fk_parent": hanging_table_alias
                 }
+    
+    def relationship_exists(self, entity_tablename, foreign_tablename):
+        if entity_tablename not in self.relationship_map.keys():
+            error_message = f"Unable to find entity table {entity_tablename}"
+            raise TableNotFound(error_message)
+        return foreign_tablename in self.relationship_map[entity_tablename].keys()
+    
+    def hanging_table_join_exists(self, hanging_tablename, entity_tablename):
+        if hanging_tablename not in self.hanging_table_relationship_map.keys():
+            error_message = f"Unable to find entity table {hanging_tablename}"
+            raise TableNotFound(error_message)
+        return entity_tablename in self.hanging_table_relationship_map[hanging_tablename].keys()
+
+    def get_column_not_found_message(self, columnname, e = None):
+        possible_cols = [k for k in self.column_map.keys() if k.endswith(columnname) and not (k.startswith('dicom_series'))]
+        possible_cols.extend([k for k in self.column_map.keys() if k.startswith(columnname) and not (k.startswith('dicom_series'))])
+        if possible_cols:
+            error_message = f"Column Not Found: {columnname}, did you mean: {possible_cols}\n{e}"
+        else:
+            error_message = f"Column Not Found: {columnname}\n{e}"
+        return error_message
 
     def get_column_info(self, columnname) -> ColumnInfo:
         try:
             return self.column_map[columnname]
         except Exception as e:
-            possible_cols = [k for k in self.column_map.keys() if k.endswith(columnname)]
-            possible_cols.extend([k for k in self.column_map.keys() if k.startswith(columnname)])
-            if possible_cols:
-                error_message = f"Column Not Found: {columnname}, did you mean: {possible_cols}\n{e}"
-            else:
-                error_message = f"Column Not Found: {columnname}\n{e}"
+            error_message =  self.get_column_not_found_message(columnname, e)
             raise ColumnNotFound(error_message)
 
     def get_meta_column(self, columnname) -> Column:
         try:
             return self.column_map[columnname].metadata_column
         except Exception as e:
-            possible_cols = [k for k in self.column_map.keys() if k.endswith(columnname)]
-            possible_cols.extend([k for k in self.column_map.keys() if k.startswith(columnname)])
-            if possible_cols:
-                error_message = f"Column Not Found: {columnname}, did you mean: {possible_cols}\n{e}"
-            else:
-                error_message = f"Column Not Found: {columnname}\n{e}"
+            error_message =  self.get_column_not_found_message(columnname, e)
             raise ColumnNotFound(error_message)
 
     def get_relationship(self, entity_tablename, foreign_tablename) -> EntityRelationship:

@@ -1,9 +1,10 @@
-from sqlalchemy import Label
+from sqlalchemy import Label, func
+
 
 from cda_api import ColumnNotFound
 from cda_api.db import DB_MAP
 from cda_api.db.filter_builder import build_match_conditons, parse_filter_string
-from cda_api.db.query_utilities import add_hanging_table_joins, build_filter_preselect
+from cda_api.db.query_utilities import add_hanging_table_joins, build_filter_preselect, build_match_query, print_query
 from cda_api.db.select_builder import build_fetch_rows_select_clause
 from cda_api.models import QNode
 
@@ -59,6 +60,47 @@ def get_dicom_series_qnode(qnode, log):
         MATCH_ALL=ds_match_all, MATCH_SOME=ds_match_some, ADD_COLUMNS=ds_add_columns, EXCLUDE_COLUMNS=ds_exclude_columns
     )
 
+def build_dicom_match_query(db, select_columns, qnode, endpoint_tablename, log):
+    dicom_qnode = get_dicom_series_qnode(qnode, log)
+    if (dicom_qnode.MATCH_ALL == qnode.MATCH_ALL) and (dicom_qnode.MATCH_SOME == dicom_qnode.MATCH_SOME):
+        log.debug('No file column being selected so no need to relate to dicom_series')
+        return None
+    
+    if endpoint_tablename == 'file':
+        tablename = 'dicom_series'
+    else:
+        tablename = endpoint_tablename
+
+    dicom_select_columns = []
+    mapping_joins = []
+    for column in select_columns:
+        if column.name in DB_MAP.file_dicom_column_map.keys():
+            column_info = DB_MAP.file_dicom_column_map[column.name]
+            dicom_select_columns.append(column_info.metadata_column.label(column.name))
+            if column_info.tablename != tablename:
+                hanging_join = DB_MAP.get_hanging_table_join(column_info.tablename, tablename)
+                mapping_join = {'target': hanging_join['join_table'], 'onclause': hanging_join['statement']}
+                if mapping_join not in mapping_joins:
+                    mapping_joins.append(mapping_join)
+
+        else:
+            dicom_select_columns.append(column)
+
+    
+    ds_match_all_conditions, ds_match_some_conditions = build_match_conditons(tablename, dicom_qnode, log)
+    dicom_preselect_query, dicom_id_alias = build_filter_preselect(db, tablename, ds_match_all_conditions, ds_match_some_conditions, dicom_flag=True)
+    match_query = build_match_query(db=db,
+                                    select_columns=dicom_select_columns, 
+                                    match_all_conditions=ds_match_all_conditions,
+                                    match_some_conditions=ds_match_some_conditions,
+                                    mapping_joins=mapping_joins)
+    print(db.query(func.count()).select_from(DB_MAP.get_metadata_table(tablename)).filter(*ds_match_all_conditions))
+    print('|'*100)
+    print_query(db.query(func.count()).select_from(match_query))
+    print('|'*100)
+    return match_query
+    
+
 
 def get_dicom_series_fetch_rows_query(db, select_columns, qnode, endpoint_tablename, log):
     dicom_qnode = get_dicom_series_qnode(qnode, log)
@@ -75,7 +117,7 @@ def get_dicom_series_fetch_rows_query(db, select_columns, qnode, endpoint_tablen
     dicom_preselect_query, dicom_id_alias = build_filter_preselect(
         db, tablename, ds_match_all_conditions, ds_match_some_conditions, dicom_flag=True
     )
-    preselect_columns, ds_foreign_array_preselects, ds_foreign_joins = build_fetch_rows_select_clause(
+    preselect_columns, ds_foreign_joins = build_fetch_rows_select_clause(
         db, tablename, dicom_qnode, dicom_preselect_query, log, dicom_flag=True
     )
 

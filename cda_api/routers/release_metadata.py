@@ -20,7 +20,7 @@ def release_metadata_endpoint(request: Request, db: Session = Depends(get_db)) -
         db (Session, optional): _description_. Defaults to Depends(get_db).
 
     Returns:
-        FrequencyResponseObj: _description_
+        ReleaseMetadataObj: _description_
     """
     qid = get_query_id()
     log = get_logger(qid)

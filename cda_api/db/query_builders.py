@@ -1,10 +1,10 @@
 import time
 
-from sqlalchemy import distinct, func, union_all
+from sqlalchemy import distinct, func, union_all, union, SelectLabelStyle
 
-from cda_api import SystemNotFound
+from cda_api import SystemNotFound, ColumnNotFound
 from cda_api.db import DB_MAP
-from cda_api.db.dicom_series_utilities import get_dicom_series_fetch_rows_query
+from cda_api.db.dicom_series_utilities import get_dicom_series_fetch_rows_query, build_dicom_match_query
 from cda_api.db.schema import Base
 
 from .filter_builder import build_match_conditons
@@ -12,6 +12,7 @@ from .query_utilities import (
     add_hanging_table_joins,
     build_filter_preselect,
     build_foreign_array_summary_preselect,
+    build_file_array_summary_preselect,
     build_match_query,
     categorical_summary,
     data_source_counts,
@@ -20,6 +21,7 @@ from .query_utilities import (
     numeric_summary,
     query_to_string,
     total_column_count_subquery,
+    print_query
 )
 from .select_builder import build_fetch_rows_select_clause
 
@@ -54,7 +56,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     )
 
     # Build the select columns and joins to foreign column array preselects
-    select_columns, foreign_array_preselects, foreign_joins = build_fetch_rows_select_clause(
+    select_columns, foreign_joins = build_fetch_rows_select_clause(
         db, endpoint_tablename, qnode, filter_preselect_query, log
     )
 
@@ -76,6 +78,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(
         db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log
     )
+    dicom_count_query = None
     if dicom_query:
         query = union_all(query, dicom_query)
         dicom_count_query = db.query(func.count()).select_from(dicom_count_subquery)
@@ -130,32 +133,56 @@ def summary_query(db, endpoint_tablename, qnode, log):
     # Build preselect query
     endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
     endpoint_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
-    preselect_query = build_match_query(
-        db=db,
-        select_columns=endpoint_columns,
-        match_all_conditions=match_all_conditions,
-        match_some_conditions=match_some_conditions,
-    )
-    preselect_query = preselect_query.cte("filter_preselect")
+    match_query = build_match_query(db=db,
+                                    select_columns=endpoint_columns, 
+                                    match_all_conditions=match_all_conditions,
+                                    match_some_conditions=match_some_conditions)
+
+    dicom_match_query = build_dicom_match_query(db, endpoint_columns, qnode, endpoint_tablename, log)
+    file_match_cte = None
+    dicom_match_cte = None
+
+    if dicom_match_query != None:
+        file_match_cte = match_query.cte(f'{endpoint_tablename}_file_preselect')
+        dicom_match_cte = dicom_match_query.cte(f'{endpoint_tablename}_dicom_preselect')
+        combined_match = union(db.query(file_match_cte), 
+                                db.query(dicom_match_cte)
+                                ).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE)
+        preselect_query = db.query(combined_match.subquery('combined_match'))
+
+    else:
+        preselect_query = match_query
+
+
+    preselect_query = preselect_query.cte(f'{endpoint_tablename}_preselect')
 
     # Create list for select clause
     summary_select_clause = []
 
     # Get total count query
-    total_count = total_column_count_subquery(
-        db, get_cte_column(preselect_query, f"{endpoint_tablename}_id_alias")
-    ).label("total_count")
+    total_count = total_column_count_subquery(db, preselect_query).label('total_count')
+    # total_count = total_column_count_subquery(db, get_cte_column(preselect_query, f'{endpoint_tablename}_id_alias')).label('total_count')
     summary_select_clause.append(total_count)
 
     # Get file or subject count
-    if endpoint_tablename != "subject":
-        entity_to_count = "subject"
+    if endpoint_tablename != 'subject':
+        entity_to_count = 'subject'
+        entity_preselect_query = preselect_query
+        
     else:
-        entity_to_count = "file"
-    sub_file_count = entity_count(
-        db=db, endpoint_tablename=endpoint_tablename, preselect_query=preselect_query, entity_to_count=entity_to_count
-    )
-    summary_select_clause.append(sub_file_count.label(f"{entity_to_count}_count"))
+        entity_to_count = 'file'
+        if dicom_match_query != None:
+            entity_preselect_query = file_match_cte
+        else:
+            entity_preselect_query = preselect_query
+
+    sub_file_count = entity_count(db=db,
+                                endpoint_tablename=endpoint_tablename, 
+                                preselect_query=entity_preselect_query,
+                                entity_to_count=entity_to_count,
+                                dicom_preselect_query=dicom_match_cte)
+    
+    summary_select_clause.append(sub_file_count.label(f'{entity_to_count}_count'))
 
     # Get categorical & numeric summaries
     ## Step through each column in the endpoint table
@@ -164,33 +191,27 @@ def summary_query(db, endpoint_tablename, qnode, log):
         ## Get the preselect column
         preselect_column = get_cte_column(preselect_query, column_info.uniquename)
         ## If column is supposed to be displayed in summary but not a data_source column:
-        if column_info.summary_display and column_info.process_before_display != "data_source":
+        if column_info.summary_display and column_info.process_before_display != 'data_source':
             match column_info.column_type:
-                case "numeric":
+                case 'numeric':
                     column_summary = numeric_summary(db, preselect_column)
-                    summary_select_clause.append(column_summary.label(f"{column_info.uniquename}_summary"))
-                case "categorical":
+                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
+                case 'categorical':
                     column_summary = categorical_summary(db, preselect_column)
-                    summary_select_clause.append(column_summary.label(f"{column_info.uniquename}_summary"))
+                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
                 case _:
-                    log.warning(
-                        f"Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}"
-                    )
+                    log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
                     pass
 
     # Get data_source counts
     table_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
     ## Get unique names of columns that have process_before_display of 'data_source' in the column_metadata table
-    data_source_columnnames = [
-        column_info.uniquename
-        for column_info in table_column_infos
-        if column_info.process_before_display == "data_source"
-    ]
+    data_source_columnnames = [column_info.uniquename for column_info in table_column_infos if column_info.process_before_display == 'data_source']
     ## Get preselect columns of the 'data_source' columns
     data_source_columns = [column for column in preselect_query.c if column.name in data_source_columnnames]
     ## Get the data source select query
     data_source_count_select = data_source_counts(db, data_source_columnnames, data_source_columns)
-    summary_select_clause.append(data_source_count_select.label("data_source"))
+    summary_select_clause.append(data_source_count_select.label('data_source'))
 
     foreign_array_map = {}
     if qnode.ADD_COLUMNS:
@@ -198,25 +219,26 @@ def summary_query(db, endpoint_tablename, qnode, log):
             column_info = DB_MAP.get_column_info(columnname)
             if column_info.tablename != endpoint_tablename:
                 if column_info.tablename not in foreign_array_map.keys():
-                    foreign_array_map[column_info.tablename] = [
-                        column_info.metadata_column.label(column_info.uniquename)
-                    ]
+                    foreign_array_map[column_info.tablename] = [column_info.metadata_column.label(column_info.uniquename)]
                 else:
-                    foreign_array_map[column_info.tablename].append(
-                        column_info.metadata_column.label(column_info.uniquename)
-                    )
+                    foreign_array_map[column_info.tablename].append(column_info.metadata_column.label(column_info.uniquename))
         log.debug(foreign_array_map)
 
         for foreign_tablename, columns in foreign_array_map.items():
-            foreign_array_preselect, preselect_columns = build_foreign_array_summary_preselect(
-                db, endpoint_tablename, foreign_tablename, columns, preselect_query
-            )
+            if foreign_tablename.startswith('file'):
+                if dicom_match_query != None:
+                    foreign_array_preselect, preselect_columns = build_file_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, file_match_cte, dicom_match_cte)
+                else:
+                    foreign_array_preselect, preselect_columns = build_file_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+            else:
+                foreign_array_preselect, preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
             for column in preselect_columns:
                 summary_select_clause.append(db.query(column).label(column.name))
+        
 
     # Wrap everything in a subquery
-    subquery = db.query(*summary_select_clause).subquery("json_result")
-    query = db.query(func.row_to_json(subquery.table_valued()).label("results"))
+    subquery = db.query(*summary_select_clause).subquery('json_result')
+    query = db.query(func.row_to_json(subquery.table_valued()).label('results'))
 
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
 
@@ -251,6 +273,8 @@ def columns_query(db):
 
     # Step through columns in each table and use their ColumnInfo class to return required information
     for tablename in tablenames:
+        if tablename.startswith('dicom'):
+            continue
         columns = DB_MAP.get_table_column_infos(tablename)
         for column_info in columns:
             column = column_info.metadata_column
@@ -283,6 +307,10 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
         }
     """
     log.info("Building unique_values query")
+
+    if columnname.startswith('dicom'):
+        error_message = DB_MAP.get_column_not_found_message(columnname)
+        raise ColumnNotFound(error_message)
 
     column = DB_MAP.get_meta_column(columnname)
 
@@ -320,15 +348,17 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
     log.info(f"Query execution time: {query_time}s")
     log.info(f"Returning {len(result)} rows out of {total_count} results | limit={limit} & offset={offset}")
 
-    # Fake return for now
+    # Return the results
     ret = {"result": result, "query_sql": query_to_string(query), "total_row_count": total_count, "next_url": ""}
     return ret
 
 
 def release_metadata_query(db, log):
+    # Simply get all the rows in the release_metadata database
     query = db.query(Base.metadata.tables["release_metadata"])
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
-    # Fake return for now
+
+    # Return the results
     ret = {
         "result": [{"release_metadata": "success"}],
         "query_sql": query_to_string(query),
