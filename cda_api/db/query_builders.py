@@ -4,7 +4,6 @@ from sqlalchemy import distinct, func, union_all, union, SelectLabelStyle
 
 from cda_api import SystemNotFound, ColumnNotFound
 from cda_api.db import DB_MAP
-from cda_api.db.dicom_series_utilities import get_dicom_series_fetch_rows_query, build_dicom_match_query
 from cda_api.db.schema import Base
 
 from .filter_builder import build_match_conditons
@@ -74,15 +73,6 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     )
     count_query = db.query(func.count()).select_from(count_subquery)
 
-    # # Get dicom_series half of the query if file table or columns are every used and create a union statement
-    dicom_query, dicom_count_subquery = get_dicom_series_fetch_rows_query(
-        db=db, select_columns=select_columns, qnode=qnode, endpoint_tablename=endpoint_tablename, log=log
-    )
-    dicom_count_query = None
-    if dicom_query:
-        query = union_all(query, dicom_query)
-        dicom_count_query = db.query(func.count()).select_from(dicom_count_subquery)
-
     subquery = query.subquery("json_result")
     query = db.query(func.row_to_json(subquery.table_valued()))
 
@@ -94,9 +84,6 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     start_time = time.time()
     result = query.offset(offset).limit(limit).all()
     row_count = count_query.scalar()
-    if dicom_count_query:
-        log.debug(f'Dicom Count Query:\n{"-"*100}\n{query_to_string(dicom_count_query, indented = True)}\n{"-"*100}')
-        row_count += dicom_count_query.scalar()
 
     # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     result = [row for (row,) in result]
@@ -138,23 +125,7 @@ def summary_query(db, endpoint_tablename, qnode, log):
                                     match_all_conditions=match_all_conditions,
                                     match_some_conditions=match_some_conditions)
 
-    dicom_match_query = build_dicom_match_query(db, endpoint_columns, qnode, endpoint_tablename, log)
-    file_match_cte = None
-    dicom_match_cte = None
-
-    if dicom_match_query != None:
-        file_match_cte = match_query.cte(f'{endpoint_tablename}_file_preselect')
-        dicom_match_cte = dicom_match_query.cte(f'{endpoint_tablename}_dicom_preselect')
-        combined_match = union(db.query(file_match_cte), 
-                                db.query(dicom_match_cte)
-                                ).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE)
-        preselect_query = db.query(combined_match.subquery('combined_match'))
-
-    else:
-        preselect_query = match_query
-
-
-    preselect_query = preselect_query.cte(f'{endpoint_tablename}_preselect')
+    preselect_query = match_query.cte(f'{endpoint_tablename}_preselect')
 
     # Create list for select clause
     summary_select_clause = []
@@ -167,20 +138,13 @@ def summary_query(db, endpoint_tablename, qnode, log):
     # Get file or subject count
     if endpoint_tablename != 'subject':
         entity_to_count = 'subject'
-        entity_preselect_query = preselect_query
-        
     else:
         entity_to_count = 'file'
-        if dicom_match_query != None:
-            entity_preselect_query = file_match_cte
-        else:
-            entity_preselect_query = preselect_query
 
     sub_file_count = entity_count(db=db,
                                 endpoint_tablename=endpoint_tablename, 
-                                preselect_query=entity_preselect_query,
-                                entity_to_count=entity_to_count,
-                                dicom_preselect_query=dicom_match_cte)
+                                preselect_query=preselect_query,
+                                entity_to_count=entity_to_count)
     
     summary_select_clause.append(sub_file_count.label(f'{entity_to_count}_count'))
 
@@ -225,13 +189,7 @@ def summary_query(db, endpoint_tablename, qnode, log):
         log.debug(foreign_array_map)
 
         for foreign_tablename, columns in foreign_array_map.items():
-            if foreign_tablename.startswith('file'):
-                if dicom_match_query != None:
-                    foreign_array_preselect, preselect_columns = build_file_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, file_match_cte, dicom_match_cte)
-                else:
-                    foreign_array_preselect, preselect_columns = build_file_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
-            else:
-                foreign_array_preselect, preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+            _, preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
             for column in preselect_columns:
                 summary_select_clause.append(db.query(column).label(column.name))
         
@@ -273,8 +231,6 @@ def columns_query(db):
 
     # Step through columns in each table and use their ColumnInfo class to return required information
     for tablename in tablenames:
-        if tablename.startswith('dicom'):
-            continue
         columns = DB_MAP.get_table_column_infos(tablename)
         for column_info in columns:
             column = column_info.metadata_column
@@ -307,10 +263,6 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
         }
     """
     log.info("Building unique_values query")
-
-    if columnname.startswith('dicom'):
-        error_message = DB_MAP.get_column_not_found_message(columnname)
-        raise ColumnNotFound(error_message)
 
     column = DB_MAP.get_meta_column(columnname)
 
