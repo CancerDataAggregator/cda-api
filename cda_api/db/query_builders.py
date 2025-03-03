@@ -11,7 +11,6 @@ from .query_utilities import (
     add_hanging_table_joins,
     build_filter_preselect,
     build_foreign_array_summary_preselect,
-    build_file_array_summary_preselect,
     build_match_query,
     categorical_summary,
     data_source_counts,

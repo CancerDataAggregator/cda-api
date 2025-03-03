@@ -103,10 +103,6 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
     # ensure the unique column name exists in mapping and assign variables
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
-    # relate filter to dicom_series if filter column is from file
-    if endpoint_tablename == "dicom_series" and filter_column_info.uniquename in DB_MAP.file_dicom_column_map.keys():
-        filter_column_info = DB_MAP.file_dicom_column_map[filter_column_info.uniquename]
-
     # build the sqlalachemy orm filter with the components
     filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)
 

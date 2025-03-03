@@ -37,7 +37,6 @@ class DatabaseMap:
         self._build_entity_table_variables()
         self._build_column_map()
         self._build_relationship_map()
-        self._build_file_dicom_column_map()
         self._build_hanging_table_relationship_map()
 
     def _build_metadata_variables(self):
@@ -125,30 +124,6 @@ class DatabaseMap:
                     except Exception as e:
                         raise e
 
-    def _build_file_dicom_column_map(self):
-        self.file_dicom_column_map = {
-            "file_id": self.get_column_info("dicom_series_instance_id"),
-            "file_id_alias": self.get_column_info("dicom_series_id_alias"),
-            "file_crdc_id": self.get_column_info("dicom_series_instance_crdc_id"),
-            "file_name": self.get_column_info("dicom_series_instance_name"),
-            "description": self.get_column_info("dicom_series_description"),
-            "drs_uri": self.get_column_info("dicom_series_instance_drs_uri"),
-            "access": self.get_column_info("dicom_series_access"),
-            "size": self.get_column_info("dicom_series_instance_size"),
-            "checksum_type": self.get_column_info("dicom_series_checksum_type"),
-            "checksum_value": self.get_column_info("dicom_series_instance_checksum_value"),
-            "format": self.get_column_info("dicom_series_format"),
-            "file_type": self.get_column_info("dicom_series_instance_type"),
-            "category": self.get_column_info("dicom_series_category"),
-            "file_data_at_cds": self.get_column_info("dicom_series_data_at_cds"),
-            "file_data_at_gdc": self.get_column_info("dicom_series_data_at_gdc"),
-            "file_data_at_icdc": self.get_column_info("dicom_series_data_at_icdc"),
-            "file_data_at_idc": self.get_column_info("dicom_series_data_at_idc"),
-            "file_data_at_pdc": self.get_column_info("dicom_series_data_at_pdc"),
-            "file_data_source_count": self.get_column_info("dicom_series_data_source_count"),
-            "anatomic_site": self.get_column_info("dicom_series_anatomic_site_anatomic_site"),
-            "tumor_vs_normal": self.get_column_info("dicom_series_tumor_vs_normal_tumor_vs_normal"),
-        }
 
     def _build_hanging_table_relationship_map(self):
         excluded_tables = ["project_in_project", "release_metadata", "column_metadata", "upstream_identifiers"]
@@ -176,9 +151,6 @@ class DatabaseMap:
                         "statement": hanging_table_alias == connecting_table_alias,
                         "hanging_fk_parent": hanging_table_alias
                     }
-
-                elif connecting_tablename == "dicom_series" and entity_tablename == "file":
-                    pass
                 else:
                     entity_connecting_relationship = self.get_relationship(
                         entity_tablename=entity_tablename, foreign_tablename=connecting_tablename
@@ -196,13 +168,6 @@ class DatabaseMap:
                     self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = (
                         mapping_table_to_hanging_table_join
                     )
-
-            if connecting_tablename == "dicom_series":
-                self.hanging_table_relationship_map[hanging_tablename]["dicom_series"] = {
-                    "join_table": hanging_table,
-                    "statement": hanging_table_alias == connecting_table_alias,
-                    "hanging_fk_parent": hanging_table_alias
-                }
     
     def relationship_exists(self, entity_tablename, foreign_tablename):
         if entity_tablename not in self.relationship_map.keys():
@@ -217,8 +182,8 @@ class DatabaseMap:
         return entity_tablename in self.hanging_table_relationship_map[hanging_tablename].keys()
 
     def get_column_not_found_message(self, columnname, e = None):
-        possible_cols = [k for k in self.column_map.keys() if k.endswith(columnname) and not (k.startswith('dicom_series'))]
-        possible_cols.extend([k for k in self.column_map.keys() if k.startswith(columnname) and not (k.startswith('dicom_series'))])
+        possible_cols = [k for k in self.column_map.keys() if k.endswith(columnname)]
+        possible_cols.extend([k for k in self.column_map.keys() if k.startswith(columnname)])
         if possible_cols:
             error_message = f"Column Not Found: {columnname}, did you mean: {possible_cols}\n{e}"
         else:
