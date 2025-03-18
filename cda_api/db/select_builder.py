@@ -5,7 +5,7 @@ from cda_api.db import DB_MAP
 from .query_utilities import build_foreign_array_preselect
 
 
-def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log, dicom_flag=False):
+def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
     log.info("Building SELECT clause")
     add_columns = qnode.ADD_COLUMNS
     exclude_columns = qnode.EXCLUDE_COLUMNS
@@ -22,8 +22,6 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
     if add_columns:
         for add_columnname in add_columns:
             add_column = DB_MAP.get_meta_column(add_columnname)
-            if dicom_flag and add_columnname in DB_MAP.file_dicom_column_map.keys():
-                add_column = DB_MAP.file_dicom_column_map[add_columnname].metadata_column
             if add_column not in select_columns:
                 log.debug(f"Adding {add_columnname} to SELECT clause")
                 select_columns.append(add_column.label(add_columnname))
@@ -52,7 +50,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
     # Build foreign array column preselects
     for foreign_tablename, columns in foreign_array_map.items():
         foreign_join, preselect_columns = build_foreign_array_preselect(
-            db, entity_tablename, foreign_tablename, columns, filter_preselect_query, dicom_flag
+            db, entity_tablename, foreign_tablename, columns, filter_preselect_query
         )
         foreign_joins.append(foreign_join)
 

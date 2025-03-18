@@ -131,67 +131,7 @@ try:
         viewonly=True,
     )
 
-    # Map entitity tables with subject_alias and from dicom_series
-    log.info("Adding relationships to dicom_series table")
-
-    dicom_series_describes_subject = Base.metadata.tables["dicom_series_describes_subject"]
-
-    Base.classes.dicom_series.observation = relationship(
-        "observation",
-        secondary=dicom_series_describes_subject,
-        primaryjoin=Base.classes.dicom_series.id_alias == dicom_series_describes_subject.columns["dicom_series_alias"],
-        secondaryjoin=Base.classes.observation.subject_alias == dicom_series_describes_subject.columns["subject_alias"],
-        viewonly=True,
-    )
-
-    Base.classes.dicom_series.mutation = relationship(
-        "mutation",
-        secondary=dicom_series_describes_subject,
-        primaryjoin=Base.classes.dicom_series.id_alias == dicom_series_describes_subject.columns["dicom_series_alias"],
-        secondaryjoin=Base.classes.mutation.subject_alias == dicom_series_describes_subject.columns["subject_alias"],
-        viewonly=True,
-    )
-
-    Base.classes.dicom_series.treatment = relationship(
-        "treatment",
-        secondary=dicom_series_describes_subject,
-        primaryjoin=Base.classes.dicom_series.id_alias == dicom_series_describes_subject.columns["dicom_series_alias"],
-        secondaryjoin=Base.classes.treatment.subject_alias == dicom_series_describes_subject.columns["subject_alias"],
-        viewonly=True,
-    )
-
-    Base.classes.observation.dicom_series = relationship(
-        "dicom_series",
-        secondary=dicom_series_describes_subject,
-        primaryjoin=Base.classes.observation.subject_alias == dicom_series_describes_subject.columns["subject_alias"],
-        secondaryjoin=Base.classes.dicom_series.id_alias
-        == dicom_series_describes_subject.columns["dicom_series_alias"],
-        viewonly=True,
-    )
-
-    Base.classes.mutation.dicom_series = relationship(
-        "dicom_series",
-        secondary=dicom_series_describes_subject,
-        primaryjoin=Base.classes.mutation.subject_alias == dicom_series_describes_subject.columns["subject_alias"],
-        secondaryjoin=Base.classes.dicom_series.id_alias
-        == dicom_series_describes_subject.columns["dicom_series_alias"],
-        viewonly=True,
-    )
-
-    Base.classes.treatment.dicom_series = relationship(
-        "dicom_series",
-        secondary=dicom_series_describes_subject,
-        primaryjoin=Base.classes.treatment.subject_alias == dicom_series_describes_subject.columns["subject_alias"],
-        secondaryjoin=Base.classes.dicom_series.id_alias
-        == dicom_series_describes_subject.columns["dicom_series_alias"],
-        viewonly=True,
-    )
-
-    log.info("Successfully added relationships to file project, and dicom_series tables")
-
-    # Map entitity tables with subject_alias and from project
-
-    log.info("Successfully added relationships for dicom_series to its secondary tables")
+   
 
 except Exception as e:
     log.exception(e)

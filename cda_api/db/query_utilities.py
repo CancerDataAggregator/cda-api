@@ -114,13 +114,7 @@ def get_entity_count_components(db, endpoint_tablename, preselect_query, entity_
     )
 
     # Get subquery of the entity_local_column
-    if endpoint_tablename == 'dicom_series':
-        column_uniquename = [file_column 
-                             for file_column, dicom_col_info in 
-                             DB_MAP.file_dicom_column_map.items() 
-                             if dicom_col_info.uniquename == entity_local_column_uniquename][0]
-    else:
-        column_uniquename = entity_local_column_uniquename
+    column_uniquename = entity_local_column_uniquename
     subquery = db.query(
             get_cte_column(preselect_query, column_uniquename)
             .label(entity_local_column_uniquename)
@@ -136,35 +130,15 @@ def get_entity_count_components(db, endpoint_tablename, preselect_query, entity_
     return subquery, column_to_count, column_to_filter_on
 
 # Gets the total count of an entity's related files and subjects by only counting from the mapping table (ie. observation_of_subject)
-def entity_count(db, endpoint_tablename, preselect_query, entity_to_count, dicom_preselect_query=None):
-    # TODO: count dicom instances when endpoint_tablename is file
-    if entity_to_count != 'file' and dicom_preselect_query == None:
-        print('HERE', '('*100)
-        subquery, column_to_count, column_to_filter_on = get_entity_count_components(db, endpoint_tablename, preselect_query, entity_to_count)
+def entity_count(db, endpoint_tablename, preselect_query, entity_to_count):
+    subquery, column_to_count, column_to_filter_on = get_entity_count_components(db, endpoint_tablename, preselect_query, entity_to_count)
 
-        # Get count subquery
-        entity_count_select = (
-                db.query(func.count(distinct(column_to_count))
-                        .label("count_result"))
-                .filter(column_to_filter_on.in_(subquery))
-                .scalar_subquery()
-            )
-        
-    else:
-        print('HERE', ')'*100)
-        file_subquery, file_column_to_count, file_column_to_filter_on = get_entity_count_components(db, endpoint_tablename, preselect_query, entity_to_count)
-        if dicom_preselect_query == None:
-            dicom_preselect_query = preselect_query
-        dicom_subquery, dicom_column_to_count, dicom_column_to_filter_on = get_entity_count_components(db, 'dicom_series', dicom_preselect_query, entity_to_count)
-        file_count_cte = db.query(file_column_to_count).filter(file_column_to_filter_on.in_(file_subquery)).cte(f'file_count_preselect')
-        dicom_count_cte = db.query(dicom_column_to_count).filter(dicom_column_to_filter_on.in_(dicom_subquery)).cte(f'dicom_count_preselect')
-                               
-        
-        entity_count_select = db.query(db.query(distinct_count(*file_count_cte.columns)).scalar_subquery() + 
-                                       db.query(distinct_count(*dicom_count_cte.columns)).scalar_subquery()
-                                       ).scalar_subquery()
-    
-
+    # Get count subquery
+    entity_count_select = (
+            db.query(func.count(distinct(column_to_count)).label("count_result"))
+            .filter(column_to_filter_on.in_(subquery))
+            .scalar_subquery()
+    )
     return entity_count_select
 
 # Get array aggregate of unique values in a column not including null
@@ -215,14 +189,8 @@ def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
 
 
 # Build the preselects of arrays when adding foreign columns
-def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query, dicom_flag=False):
-    # Rename preselect to include "dicom" when the foreign table and entity table are not dicom tables 
-    # (ie. adding observation columns on the subject endpoint when there are filters involving file columns, and therefore dicom columns as well)
-    if dicom_flag and "dicom" not in foreign_tablename and "dicom" not in entity_tablename:
-        cte_name = f"{foreign_tablename}_{entity_tablename}_dicom_columns"
-    else:
-        cte_name = f"{foreign_tablename}_{entity_tablename}_columns"
-    
+def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query):
+    cte_name = f"{foreign_tablename}_{entity_tablename}_columns"
     entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(entity_tablename, foreign_tablename)
     
     select_cols = [unique_column_array_agg(column) for column in columns] + [foreign_column]
@@ -244,19 +212,9 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
 def get_foreign_array_summary_subquery(db, entity_tablename, foreign_tablename, select_cols, filter_preselect):
     entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(entity_tablename, foreign_tablename)
     entity_uniquename = DB_MAP.get_column_uniquename(entity_column.name, entity_column.table.name)
-    try:
-        preselect_column = get_cte_column(filter_preselect, entity_uniquename)
-    except Exception as e:
-        try:
-            entity_uniquename = [file_columnname for file_columnname, dicom_column_info in 
-                                DB_MAP.file_dicom_column_map.items()
-                                if dicom_column_info.uniquename == entity_uniquename][0]
-            preselect_column = get_cte_column(filter_preselect, entity_uniquename)
-        except: 
-            raise e
-         
-
+    preselect_column = get_cte_column(filter_preselect, entity_uniquename)
     filter_array_summary_query = db.query(*select_cols).filter(foreign_column.in_(db.query(preselect_column)))
+
     if foreign_array_join: 
         filter_array_summary_query = filter_array_summary_query.join(**foreign_array_join)
     return filter_array_summary_query.subquery(f"{foreign_tablename}_subquery")
@@ -290,48 +248,9 @@ def build_foreign_array_summary_preselect(db, entity_tablename, foreign_tablenam
     
     return foreign_array_preselect, preselect_columns
 
-def build_file_array_summary_preselect(db, entity_tablename, foreign_tablename, columns, preselect, dicom_preselect = None):
-    dicom_columns = []
-    for column in columns:
-        uniquename = column.name
-        dicom_column = DB_MAP.file_dicom_column_map[uniquename].metadata_column.label(uniquename)
-        dicom_columns.append(dicom_column)
-    
-    # file_relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
-    # dicom_relation = DB_MAP.get_relationship(entity_tablename, 'dicom_series')
-    dicom_tablename = DB_MAP.file_dicom_column_map[columns[0].name].tablename
-
-    if entity_tablename == 'file':
-        dicom_entity_tablename = 'dicom_series'
-    else:
-        dicom_entity_tablename = entity_tablename
-
-    if dicom_preselect != None:
-        file_subquery = get_foreign_array_summary_subquery(db, entity_tablename, foreign_tablename, columns, preselect)
-        print('*'*120)
-        print('file_subquery')
-        print('*'*120)
-        dicom_subquery = get_foreign_array_summary_subquery(db, dicom_entity_tablename, dicom_tablename, dicom_columns, dicom_preselect)
-        print('*'*120)
-        print('dicom_subquery')
-        print('*'*120)
-    else:
-        print('*'*150)
-        print('not dicom_preselect')
-        print('*'*150)
-        file_subquery = get_foreign_array_summary_subquery(db, entity_tablename, foreign_tablename, columns, preselect)
-        dicom_subquery = get_foreign_array_summary_subquery(db, dicom_entity_tablename, dicom_tablename, dicom_columns, preselect)
-
-    combined_preselect = union_all(db.query(file_subquery),db.query(dicom_subquery)).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).cte(f'{foreign_tablename}_column_arrays_preselect')
-    select_columns = get_foreign_array_summary_select_columns(db, combined_preselect.columns)
-
-    foreign_array_preselect = db.query(*select_columns).cte(f'{foreign_tablename}_columns')
-    preselect_columns = [col for col in foreign_array_preselect.c]
-
-    return foreign_array_preselect, preselect_columns
 
 
-def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions, dicom_flag=False):
+def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
     # Get the id_alias column
     endpoint_id_alias = DB_MAP.get_meta_column(f"{endpoint_tablename}_id_alias")
 
@@ -346,10 +265,7 @@ def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_s
     elif match_some_conditions:
         preselect_cte = preselect_cte.filter(or_(*match_some_conditions))
 
-    if dicom_flag:
-        preselect_cte = preselect_cte.cte(f"{endpoint_tablename}_dicom_preselect")
-    else:
-        preselect_cte = preselect_cte.cte(f"{endpoint_tablename}_preselect")
+    preselect_cte = preselect_cte.cte(f"{endpoint_tablename}_preselect")
     preselect_query = db.query(preselect_cte.c.id_alias)
     return preselect_query, endpoint_id_alias
 
