@@ -1,8 +1,10 @@
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import relationship
+from sqlalchemy import and_
 
 from cda_api import get_logger
 from cda_api.db.connection import engine
+from cda_api.db.query_operators import case_insensitive_equals
 
 log = get_logger("Setup: schema.py")
 
@@ -131,7 +133,7 @@ try:
         viewonly=True,
     )
 
-   
+
 
 except Exception as e:
     log.exception(e)
