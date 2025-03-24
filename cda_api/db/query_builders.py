@@ -263,12 +263,13 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
     """
     log.info("Building unique_values query")
 
-    column = DB_MAP.get_meta_column(columnname)
+    column_info = DB_MAP.get_column_info(columnname)
+    column = column_info.metadata_column
 
     if countOpt:
-        unique_values_query = db.query(column, func.count().label("value_count")).group_by(column).order_by(column)
+        unique_values_query = db.query(column.label(column_info.uniquename), func.count().label("value_count")).group_by(column).order_by(column)
     else:
-        unique_values_query = db.query(distinct(column).label(column.name)).order_by(column)
+        unique_values_query = db.query(distinct(column).label(column_info.uniquename)).order_by(column)
 
     if system:
         try:
