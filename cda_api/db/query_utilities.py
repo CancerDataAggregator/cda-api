@@ -179,8 +179,16 @@ def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
             
         # If there is a direct connection (ie. file_tumor_vs_normal -> file)
         else:
-            entity_column = list(hanging_table_join["join_table"].foreign_keys)[0].column
-            foreign_column = hanging_table_join["hanging_fk_parent"]
+            if foreign_tablename == 'upstream_identifiers':
+                entity_column = DB_MAP.get_meta_column(f'{entity_tablename}_id_alias'),
+                foreign_column = hanging_table_join["hanging_fk_parent"]
+                foreign_array_join = {
+                    'target': hanging_table_join["join_table"], 
+                    'onclause': entity_column == foreign_column
+                    }
+            else:
+                entity_column = list(hanging_table_join["join_table"].foreign_keys)[0].column
+                foreign_column = hanging_table_join["hanging_fk_parent"]
 
     else:
         error_message = f'Unable to build foreign array preselect between {entity_tablename} and {foreign_tablename}'
