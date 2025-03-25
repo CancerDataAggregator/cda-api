@@ -239,7 +239,7 @@ def columns_query(db):
                 col["column"] = column_info.uniquename
                 col["data_type"] = str(column.type).lower()
                 col["nullable"] = column.nullable
-                col["description"] = "unset"
+                col["description"] = column.comment
                 cols.append(col)
 
     ret = {"result": cols}
