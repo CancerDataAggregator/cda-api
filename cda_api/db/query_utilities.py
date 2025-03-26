@@ -352,7 +352,7 @@ def get_identifiers_preselect_columns(db, entity_tablename, preselect_query):
     ui_subquery = (
         db.query(
             ui_id_alias_info.metadata_column.label(ui_id_alias_info.uniquename),
-            ui_data_source_info.metadata_column.label(ui_data_source_info.uniquename),
+            ui_data_source_info.metadata_column.label('data_source'),
             ui_data_source_id_field_name_info.metadata_column.label(ui_data_source_id_field_name_info.uniquename),
             ui_data_source_id_value_info.metadata_column.label(ui_data_source_id_value_info.uniquename)
         )
@@ -364,9 +364,8 @@ def get_identifiers_preselect_columns(db, entity_tablename, preselect_query):
         db.query(
             ui_subquery.c[ui_id_alias_info.uniquename].label('id_alias'),
             func.json_build_object(
-                ui_data_source_info.uniquename, ui_subquery.c[ui_data_source_info.uniquename],
-                ui_data_source_id_field_name_info.uniquename, ui_subquery.c[ui_data_source_id_field_name_info.uniquename],
-                ui_data_source_id_value_info.uniquename, ui_subquery.c[ui_data_source_id_value_info.uniquename]
+                'data_source', ui_subquery.c['data_source'],
+                ui_subquery.c[ui_data_source_id_field_name_info.uniquename], ui_subquery.c[ui_data_source_id_value_info.uniquename]
             ).label('json_results')
         )
         .subquery('json_subquery')
