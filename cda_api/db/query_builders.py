@@ -65,10 +65,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
         for foreign_join in foreign_joins:
             print(foreign_join)
             query = query.join(**foreign_join, isouter=True)
-    print('2')
-    log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
     query = add_hanging_table_joins(endpoint_tablename, select_columns, query)
-    print('3')
     # Optimize Count query by only counting the id_alias column based on the preselect filter
     count_subquery = (
         db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query)).subquery("rows_to_count")
@@ -77,7 +74,6 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
 
     subquery = query.subquery("json_result")
     query = db.query(func.row_to_json(subquery.table_valued()))
-    print('3')
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
 
     log.debug(f'Count Query:\n{"-"*100}\n{query_to_string(count_query, indented = True)}\n{"-"*100}')

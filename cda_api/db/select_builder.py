@@ -2,7 +2,7 @@ from sqlalchemy import Label
 
 from cda_api.db import DB_MAP
 
-from .query_utilities import build_foreign_array_preselect
+from .query_utilities import build_foreign_array_preselect, get_identifiers_preselect_columns
 
 
 def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
@@ -17,10 +17,14 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
     ]
     foreign_array_map = {}
     foreign_joins = []
+    identifiers = False
 
     # Add additional columns to select list
     if add_columns:
         for add_columnname in add_columns:
+            if add_columnname == f'{entity_tablename}_identifier':
+                identifiers = True
+                continue
             add_column = DB_MAP.get_meta_column(add_columnname)
             if add_column not in select_columns:
                 log.debug(f"Adding {add_columnname} to SELECT clause")
@@ -63,6 +67,12 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
 
         select_columns = [col for col in select_columns if col not in to_remove]
 
+        for col in preselect_columns:
+            select_columns.append(col.label(col.name))
+
+    if identifiers:
+        foreign_join, preselect_columns = get_identifiers_preselect_columns(db, entity_tablename, filter_preselect_query)
+        foreign_joins.append(foreign_join)
         for col in preselect_columns:
             select_columns.append(col.label(col.name))
 
