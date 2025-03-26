@@ -1,5 +1,5 @@
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, foreign
 from sqlalchemy import and_
 
 from cda_api import get_logger
@@ -134,6 +134,24 @@ try:
     )
 
 
+    # # Mapping upstream_identifiers to file and subject
+    # log.info("Adding relationships to upstream_identifiers table")
+
+    # upstream_identifiers = Base.classes.upstream_identifiers
+
+    # Base.classes.subject.upstream_identifiers = relationship(
+    #     "upstream_identifiers",
+    #     primaryjoin=and_(foreign(Base.classes.subject.id_alias) == upstream_identifiers.id_alias, 
+    #                      case_insensitive_equals(upstream_identifiers.cda_table, 'subject')),
+    #     viewonly=True,
+    # )
+
+    # Base.classes.file.upstream_identifiers = relationship(
+    #     "upstream_identifiers",
+    #     primaryjoin=and_(foreign(Base.classes.file.id_alias) == upstream_identifiers.id_alias, 
+    #                      case_insensitive_equals(upstream_identifiers.cda_table, 'file')),
+    #     viewonly=True,
+    # )
 
 except Exception as e:
     log.exception(e)

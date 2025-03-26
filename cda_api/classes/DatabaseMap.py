@@ -126,7 +126,7 @@ class DatabaseMap:
 
 
     def _build_hanging_table_relationship_map(self):
-        excluded_tables = ["project_in_project", "release_metadata", "column_metadata", "upstream_identifiers"]
+        excluded_tables = ["project_in_project", "release_metadata", "column_metadata"]
         hanging_table_dict = {
             tablename: table
             for tablename, table in Base.metadata.tables.items()
@@ -138,36 +138,45 @@ class DatabaseMap:
         self.hanging_table_relationship_map = {tablename: {} for tablename in hanging_table_dict.keys()}
 
         for hanging_tablename, hanging_table in hanging_table_dict.items():
-            fk = list(hanging_table.foreign_keys)[0]
-            hanging_table_alias = fk.parent
-            connecting_table_alias = fk.column
-            connecting_table = fk.column.table
-            connecting_tablename = connecting_table.name
+            if hanging_tablename != 'upstream_identifiers':
+                fk = list(hanging_table.foreign_keys)[0]
+                hanging_table_alias = fk.parent
+                connecting_table_alias = fk.column
+                connecting_table = fk.column.table
+                connecting_tablename = connecting_table.name
 
-            for entity_tablename in ["subject", "file"]:
-                if connecting_tablename == entity_tablename:
+                for entity_tablename in ["subject", "file"]:
+                    if connecting_tablename == entity_tablename:
+                        self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = {
+                            "join_table": hanging_table,
+                            "statement": hanging_table_alias == connecting_table_alias,
+                            "hanging_fk_parent": hanging_table_alias
+                        }
+                    else:
+                        entity_connecting_relationship = self.get_relationship(
+                            entity_tablename=entity_tablename, foreign_tablename=connecting_tablename
+                        )
+                        mapping_table_to_hanging_table_join = {
+                            "join_table": entity_connecting_relationship.mapping_table,
+                            "statement": entity_connecting_relationship.foreign_mapping_column == hanging_table_alias,
+                            "hanging_fk_parent": hanging_table_alias,
+                            "entity_mapping_columnname": entity_connecting_relationship.entity_mapping_column.name,
+                            "entity_mapping_column": entity_connecting_relationship.entity_mapping_column,
+                            "entity_column": entity_connecting_relationship.entity_column,
+                            "entity_mapping_join": entity_connecting_relationship.entity_column
+                            == entity_connecting_relationship.entity_mapping_column,
+                        }
+                        self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = (
+                            mapping_table_to_hanging_table_join
+                        )
+            else:
+                hanging_table_alias = self.get_meta_column('upstream_identifiers_id_alias')
+                for entity_tablename in ["subject", "file"]:
                     self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = {
                         "join_table": hanging_table,
-                        "statement": hanging_table_alias == connecting_table_alias,
+                        "statement": hanging_table_alias == self.get_meta_column(f'{entity_tablename}_id_alias'),
                         "hanging_fk_parent": hanging_table_alias
                     }
-                else:
-                    entity_connecting_relationship = self.get_relationship(
-                        entity_tablename=entity_tablename, foreign_tablename=connecting_tablename
-                    )
-                    mapping_table_to_hanging_table_join = {
-                        "join_table": entity_connecting_relationship.mapping_table,
-                        "statement": entity_connecting_relationship.foreign_mapping_column == hanging_table_alias,
-                        "hanging_fk_parent": hanging_table_alias,
-                        "entity_mapping_columnname": entity_connecting_relationship.entity_mapping_column.name,
-                        "entity_mapping_column": entity_connecting_relationship.entity_mapping_column,
-                        "entity_column": entity_connecting_relationship.entity_column,
-                        "entity_mapping_join": entity_connecting_relationship.entity_column
-                        == entity_connecting_relationship.entity_mapping_column,
-                    }
-                    self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = (
-                        mapping_table_to_hanging_table_join
-                    )
     
     def relationship_exists(self, entity_tablename, foreign_tablename):
         if entity_tablename not in self.relationship_map.keys():

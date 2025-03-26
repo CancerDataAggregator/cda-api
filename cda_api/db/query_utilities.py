@@ -2,6 +2,7 @@ import itertools
 
 import sqlparse
 from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union
+from sqlalchemy.exc import CompileError
 from sqlalchemy.dialects import postgresql
 
 from cda_api import RelationshipNotFound, get_logger
@@ -12,11 +13,20 @@ log = get_logger()
 
 # Generates compiled SQL string from query object
 def query_to_string(q, indented=False) -> str:
-    sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
-    if indented:
-        return sqlparse.format(sql_string, reindent=True, keyword_case="upper")
-    else:
-        return sql_string.replace("\n", "")
+    try:
+        sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
+        if indented:
+            return sqlparse.format(sql_string, reindent=True, keyword_case="upper")
+        else:
+            return sql_string.replace("\n", "")
+    except CompileError as ce:
+        sql_string = str(q.statement.compile(dialect=postgresql.dialect()))
+        if indented:
+            return sqlparse.format(sql_string, reindent=True, keyword_case="upper")
+        else:
+            return sql_string.replace("\n", "")
+    except Exception as e:
+        raise e
 
 
 # Prints compiled SQL string from query object
@@ -179,8 +189,17 @@ def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
             
         # If there is a direct connection (ie. file_tumor_vs_normal -> file)
         else:
-            entity_column = list(hanging_table_join["join_table"].foreign_keys)[0].column
-            foreign_column = hanging_table_join["hanging_fk_parent"]
+            print(foreign_tablename)
+            if foreign_tablename == 'upstream_identifiers':
+                entity_column = DB_MAP.get_meta_column(f'{entity_tablename}_id_alias')
+                foreign_column = hanging_table_join["hanging_fk_parent"]
+                # foreign_array_join = {
+                #     'target': hanging_table_join["join_table"], 
+                #     'onclause': entity_column == foreign_column
+                #     }
+            else:
+                entity_column = list(hanging_table_join["join_table"].foreign_keys)[0].column
+                foreign_column = hanging_table_join["hanging_fk_parent"]
 
     else:
         error_message = f'Unable to build foreign array preselect between {entity_tablename} and {foreign_tablename}'
@@ -194,11 +213,19 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
     entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(entity_tablename, foreign_tablename)
     
     select_cols = [unique_column_array_agg(column) for column in columns] + [foreign_column]
-    foreign_array_preselect = (
-                db.query(*select_cols)
-                .filter(foreign_column.in_(preselect_query))
-                .group_by(foreign_column)
-            )
+    if foreign_tablename == 'upstream_identifiers':
+        foreign_array_preselect = (
+                    db.query(*select_cols)
+                    .filter(foreign_column.in_(preselect_query))
+                    .filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == entity_tablename)
+                    .group_by(foreign_column)
+                )
+    else:
+        foreign_array_preselect = (
+                    db.query(*select_cols)
+                    .filter(foreign_column.in_(preselect_query))
+                    .group_by(foreign_column)
+                )
     if foreign_array_join:
         foreign_array_preselect = foreign_array_preselect.join(**foreign_array_join)
     foreign_array_preselect = foreign_array_preselect.cte(cte_name)
@@ -314,3 +341,46 @@ def add_hanging_table_joins(endpoint_tablename, select_columns, query):
         else:
             log.warning(f"Unable to map {hanging_tablename} and {endpoint_tablename}")
     return query
+
+
+def get_identifiers_preselect_columns(db, entity_tablename, preselect_query):
+    ui_cda_table_info = DB_MAP.get_column_info('upstream_identifiers_cda_table')
+    ui_id_alias_info = DB_MAP.get_column_info('upstream_identifiers_id_alias')
+    ui_data_source_info = DB_MAP.get_column_info('upstream_identifiers_data_source')
+    ui_data_source_id_field_name_info = DB_MAP.get_column_info('data_source_id_field_name')
+    ui_data_source_id_value_info = DB_MAP.get_column_info('data_source_id_value')
+    ui_subquery = (
+        db.query(
+            ui_id_alias_info.metadata_column.label(ui_id_alias_info.uniquename),
+            ui_data_source_info.metadata_column.label('data_source'),
+            ui_data_source_id_field_name_info.metadata_column.label(ui_data_source_id_field_name_info.uniquename),
+            ui_data_source_id_value_info.metadata_column.label(ui_data_source_id_value_info.uniquename)
+        )
+        .filter(ui_cda_table_info.metadata_column == entity_tablename)
+        .filter(ui_id_alias_info.metadata_column.in_(preselect_query))
+        .subquery('subquery')
+    )
+    ui_json_subquery = (
+        db.query(
+            ui_subquery.c[ui_id_alias_info.uniquename].label('id_alias'),
+            func.json_build_object(
+                'data_source', ui_subquery.c['data_source'],
+                ui_subquery.c[ui_data_source_id_field_name_info.uniquename], ui_subquery.c[ui_data_source_id_value_info.uniquename]
+            ).label('json_results')
+        )
+        .subquery('json_subquery')
+    )
+    ui_preselect = (
+        db.query(
+            ui_json_subquery.c['id_alias'].label('id_alias'),
+            func.array_agg(ui_json_subquery.c['json_results']).label(f'{entity_tablename}_identifier')
+        )
+        .group_by(ui_json_subquery.c['id_alias'])
+    )
+    ui_preselect = ui_preselect.cte(f'{entity_tablename}_identifiers_preselect')
+    preselect_columns = [get_cte_column(ui_preselect, f'{entity_tablename}_identifier')]
+    onclause = get_cte_column(ui_preselect, f'id_alias') == DB_MAP.get_meta_column(f'{entity_tablename}_id_alias')
+    foreign_join = {"target": ui_preselect, "onclause": onclause}
+
+    return foreign_join, preselect_columns
+    
