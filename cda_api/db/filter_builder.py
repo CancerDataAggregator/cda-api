@@ -124,18 +124,28 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
                 filter_clause = exists(
                     select(1)
                     .select_from(hanging_table_join["join_table"])
-                    .where(hanging_table_join["statement"])
-                    .where(hanging_table_join["entity_mapping_join"])
-                    .where(filter_clause)
+                    .filter(hanging_table_join["statement"])
+                    .filter(hanging_table_join["entity_mapping_join"])
+                    .filter(filter_clause)
                 )
                 pass
             else:
-                filter_clause = exists(
-                    select(1)
-                    .select_from(hanging_table_join["join_table"])
-                    .where(hanging_table_join["statement"])
-                    .where(filter_clause)
-                )
+                if filter_column_info.tablename == 'upstream_identifiers':
+                    upstream_identifiers_cda_table = DB_MAP.get_column_info('upstream_identifiers_cda_table')
+                    filter_clause = exists(
+                        select(1)
+                        .select_from(hanging_table_join["join_table"])
+                        .filter(hanging_table_join["statement"])
+                        .filter(filter_clause)
+                        .filter(upstream_identifiers_cda_table.metadata_column == endpoint_tablename)
+                    )
+                else:
+                    filter_clause = exists(
+                        select(1)
+                        .select_from(hanging_table_join["join_table"])
+                        .filter(hanging_table_join["statement"])
+                        .filter(filter_clause)
+                    )
 
         except Exception as e:
             raise e
