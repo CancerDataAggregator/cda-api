@@ -55,7 +55,7 @@ def numeric_summary(db, column):
     column_subquery = db.query(
         func.min(column).label("min"),
         func.max(column).label("max"),
-        func.avg(column).label("mean"),
+        func.round(func.avg(column)).label("mean"),
         func.percentile_disc(0.5).within_group(column).label("median"),
         func.percentile_disc(0.25).within_group(column).label("lower_quartile"),
         func.percentile_disc(0.75).within_group(column).label("upper_quartile"),
