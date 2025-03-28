@@ -318,6 +318,19 @@ def build_match_query(db, select_columns, match_all_conditions=None, match_some_
 
     return query
 
+def get_hanging_table_join(endpoint_tablename, select_column):
+    if isinstance(select_column, Label):
+        column_table = select_column.element.table
+        if not isinstance(column_table, CTE):
+            column_tablename = column_table.name
+            if column_tablename in DB_MAP.hanging_table_relationship_map.keys():
+                if endpoint_tablename in DB_MAP.hanging_table_relationship_map[column_tablename].keys():
+                    hanging_table_join = DB_MAP.get_hanging_table_join(
+                        hanging_tablename=column_tablename, entity_tablename=endpoint_tablename
+                    )
+                    return {'target': hanging_table_join["join_table"], 'onclause': hanging_table_join["statement"]}
+    return None
+    
 
 def add_hanging_table_joins(endpoint_tablename, select_columns, query):
     hanging_tablenames = []

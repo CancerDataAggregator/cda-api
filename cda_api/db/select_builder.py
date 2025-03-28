@@ -1,8 +1,8 @@
-from sqlalchemy import Label
+from sqlalchemy import Label, func
 
 from cda_api.db import DB_MAP
 
-from .query_utilities import build_foreign_array_preselect, get_identifiers_preselect_columns
+from .query_utilities import build_foreign_array_preselect, get_identifiers_preselect_columns, get_hanging_table_join
 
 
 def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
@@ -68,7 +68,11 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
         select_columns = [col for col in select_columns if col not in to_remove]
 
         for col in preselect_columns:
-            select_columns.append(col.label(col.name))
+            hanging_table_join = get_hanging_table_join(entity_tablename, col)
+            if hanging_table_join != None:
+                foreign_joins.append(hanging_table_join)
+
+            select_columns.append(func.coalesce(col, []).label(col.name))
 
     if identifiers:
         foreign_join, preselect_columns = get_identifiers_preselect_columns(db, entity_tablename, filter_preselect_query)

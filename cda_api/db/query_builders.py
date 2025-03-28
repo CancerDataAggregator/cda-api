@@ -65,7 +65,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
         for foreign_join in foreign_joins:
             print(foreign_join)
             query = query.join(**foreign_join, isouter=True)
-    query = add_hanging_table_joins(endpoint_tablename, select_columns, query)
+    # query = add_hanging_table_joins(endpoint_tablename, select_columns, query)
     # Optimize Count query by only counting the id_alias column based on the preselect filter
     count_subquery = (
         db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query)).subquery("rows_to_count")
