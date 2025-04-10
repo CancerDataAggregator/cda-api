@@ -14,13 +14,13 @@ log = get_logger()
 # Generates compiled SQL string from query object
 def query_to_string(q, indented=False) -> str:
     try:
-        sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}, dialect=postgresql.dialect()))
+        sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}))
         if indented:
             return sqlparse.format(sql_string, reindent=True, keyword_case="upper")
         else:
             return sql_string.replace("\n", "")
     except CompileError as ce:
-        sql_string = str(q.statement.compile(dialect=postgresql.dialect()))
+        sql_string = str(q.statement.compile())
         if indented:
             return sqlparse.format(sql_string, reindent=True, keyword_case="upper")
         else:

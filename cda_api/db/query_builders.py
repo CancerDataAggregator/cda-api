@@ -46,7 +46,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     log.info("Building fetch_rows query")
 
     # Get match_all and match_some filters
-    match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode, log)
+    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, qnode, log)
 
     # Build the preselect query
     filter_preselect_query, endpoint_id_alias = build_filter_preselect(
@@ -55,7 +55,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
 
     # Build the select columns and joins to foreign column array preselects
     select_columns, foreign_joins = build_fetch_rows_select_clause(
-        db, endpoint_tablename, qnode, filter_preselect_query, log
+        db, endpoint_tablename, qnode, filter_preselect_query, filter_columnnames, log
     )
     
     query = db.query(*select_columns)
@@ -114,7 +114,7 @@ def summary_query(db, endpoint_tablename, qnode, log):
     log.info("Building summary query")
 
     # Build filter conditionals
-    match_all_conditions, match_some_conditions = build_match_conditons(endpoint_tablename, qnode, log)
+    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, qnode, log)
 
     # Build preselect query
     endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
@@ -233,14 +233,14 @@ def columns_query(db):
         columns = DB_MAP.get_table_column_infos(tablename)
         for column_info in columns:
             column = column_info.metadata_column
-            if column.name != "id_alias":
-                col = dict()
-                col["table"] = column_info.tablename
-                col["column"] = column_info.uniquename
-                col["data_type"] = str(column.type).lower()
-                col["nullable"] = column.nullable
-                col["description"] = column.comment
-                cols.append(col)
+            # if column.name != "id_alias":
+            col = dict()
+            col["table"] = column_info.tablename
+            col["column"] = column_info.uniquename
+            col["data_type"] = str(column.type).lower()
+            col["nullable"] = column.nullable
+            col["description"] = column.comment
+            cols.append(col)
 
     ret = {"result": cols}
 

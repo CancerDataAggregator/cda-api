@@ -71,3 +71,12 @@ class UniqueValueResponseObj(BaseModel):
 # TODO: change to represent actual release metadata result
 class ReleaseMetadataObj(BaseModel):
     result: list[dict[str, Any] | None]
+
+
+class InternalError(BaseModel):
+    error_type: str
+    message: str
+
+class ClientError(BaseModel):
+    error_type: str
+    message: str

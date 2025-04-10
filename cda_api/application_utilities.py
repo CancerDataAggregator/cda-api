@@ -3,8 +3,11 @@ import uuid
 from os import getenv
 
 import yaml
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError
+from cda_api.models import ClientError, InternalError
+from cda_api.classes.exceptions import CDABaseException, DatabaseConnectionDrop, InternalErrorExcpetion
 
 
 # Function to generate logger from config file
@@ -22,20 +25,33 @@ def get_logger(id="") -> logging.Logger:
     return logger
 
 
-def handle_router_errors(e, log):
-    if isinstance(e, OperationalError):
-        log.exception(e)
-        raise HTTPException(
-            status_code=404,
-            detail="There was a slight drop in the database connection, please attempt your query again.",
-        )
-    elif isinstance(e, Exception):
-        # TODO - possibly a better exception to throw
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
-    else:
-        log.error(f"Unexpected object passed to error handler: {e}")
 
+    
+
+def database_connection_drop_handler(request, exc):
+    return JSONResponse(
+        status_code=500,
+        content=InternalError(type='DatabaseConnectionDropped', message=str(exc)),
+    )
+
+def convert_exceptions(e, log):
+    if isinstance(e, OperationalError):
+        log.debug('Database drop detected. Converting error output')
+        log.error(e)
+        error = DatabaseConnectionDrop('A drop in the database connection was detected, please attempt your query again.')
+    else:
+        # default to server error
+        log.debug('Unexpected error detected. Converting error output')
+        error = InternalErrorExcpetion(str(e))
+    return error
+    
+
+def handle_router_errors(e, log):
+    print(e)
+    log.error(e)
+    if not isinstance(e, CDABaseException):
+        e = convert_exceptions(e, log)
+    raise(e)
 
 def get_query_id():
     return f"Query: {str(uuid.uuid4())}"

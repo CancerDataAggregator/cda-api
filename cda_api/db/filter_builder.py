@@ -114,8 +114,6 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
             )
             mapping_column = relationship.entity_collection
             filter_clause = mapping_column.any(filter_clause)
-            print(mapping_column)
-            file = DB_MAP.get_metadata_table("file")
         except RelationshipNotFound:
             hanging_table_join = DB_MAP.get_hanging_table_join(
                 hanging_tablename=filter_column_info.tablename, entity_tablename=endpoint_tablename
@@ -150,7 +148,7 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
         except Exception as e:
             raise e
 
-    return filter_clause
+    return filter_clause, filter_columnname
 
 
 # Build match_all and match_some filter conditional lists
@@ -158,14 +156,17 @@ def build_match_conditons(endpoint_tablename, qnode, log):
     log.info("Building MATCH conditions")
     match_all_conditions = []
     match_some_conditions = []
+    filter_columnnames = []
     # match_all_conditions will be all AND'd together
     if qnode.MATCH_ALL:
-        match_all_conditions = [
-            get_preselect_filter(endpoint_tablename, filter_string, log) for filter_string in qnode.MATCH_ALL
-        ]
+        for filter_string in qnode.MATCH_ALL:
+            filter_clause, filter_columnname = get_preselect_filter(endpoint_tablename, filter_string, log) 
+            match_all_conditions.append(filter_clause)
+            filter_columnnames.append(filter_columnname)
     # match_some_conditions will be all OR'd together
     if qnode.MATCH_SOME:
-        match_some_conditions = [
-            get_preselect_filter(endpoint_tablename, filter_string, log) for filter_string in qnode.MATCH_SOME
-        ]
-    return match_all_conditions, match_some_conditions
+        for filter_string in qnode.MATCH_SOME:
+            filter_clause, filter_columnname = get_preselect_filter(endpoint_tablename, filter_string, log) 
+            match_all_conditions.append(filter_clause)
+            filter_columnnames.append(filter_columnname)
+    return match_all_conditions, match_some_conditions, filter_columnnames

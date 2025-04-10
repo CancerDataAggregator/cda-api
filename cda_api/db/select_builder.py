@@ -5,9 +5,11 @@ from cda_api.db import DB_MAP
 from .query_utilities import build_foreign_array_preselect, get_identifiers_preselect_columns, get_hanging_table_join
 
 
-def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
+def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, filter_columnnames, log):
     log.info("Building SELECT clause")
-    add_columns = qnode.ADD_COLUMNS
+    add_columns = filter_columnnames
+    if qnode.ADD_COLUMNS:
+        add_columns.extend(qnode.ADD_COLUMNS)
     exclude_columns = qnode.EXCLUDE_COLUMNS
     table_column_infos = DB_MAP.get_table_column_infos(entity_tablename)
     select_columns = [
@@ -18,6 +20,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
     foreign_array_map = {}
     foreign_joins = []
     identifiers = False
+    added_columns = [column_info.uniquename for column_info in table_column_infos if column_info.fetch_rows_returns]
 
     # Add additional columns to select list
     if add_columns:
@@ -25,10 +28,21 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
             if add_columnname == f'{entity_tablename}_identifier':
                 identifiers = True
                 continue
-            add_column = DB_MAP.get_meta_column(add_columnname)
-            if add_column not in select_columns:
-                log.debug(f"Adding {add_columnname} to SELECT clause")
-                select_columns.append(add_column.label(add_columnname))
+            elif add_columnname in DB_MAP.entity_tablenames:
+                link_to_table_column_infos = DB_MAP.get_table_column_infos(add_columnname)
+                for column_info in link_to_table_column_infos:
+                    if column_info.fetch_rows_returns:
+                        add_column = column_info.metadata_column
+                        if column_info.uniquename not in added_columns:
+                            print(column_info.uniquename)
+                            select_columns.append(add_column.label(column_info.uniquename))
+                            added_columns.append(column_info.uniquename)
+            else:
+                add_column = DB_MAP.get_meta_column(add_columnname)
+                if add_column not in added_columns:
+                    log.debug(f"Adding {add_columnname} to SELECT clause")
+                    select_columns.append(add_column.label(add_columnname))
+                    added_columns.append(add_columnname)
 
     # Remove columns from select list
     to_remove = []
