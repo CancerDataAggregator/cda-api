@@ -13,16 +13,11 @@ from .query_operators import apply_filter_operator
 def parse_filter_string(filter_string, log):
     # Clean up the filter
     filter_string = filter_string.strip()
-
-    # Parse out the operator (Note: Order matters, you can't put = before <=)
-    operator_pattern = r"(?:\snot\s|\s)(?:!=|<>|<=|>=|=|<|>|is|in|like|between|not)+(?:\snot\s|\s)"
-    operator_rexp = re.compile(operator_pattern)
-    parsed_operators = [op.strip() for op in operator_rexp.findall(filter_string.lower())]
-    if len(parsed_operators) != 1:
+    if len(filter_string.split()) < 3:
         raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
-
-    # Get the operator from the list of matches
-    operator = parsed_operators[0]
+    columnname = filter_string.split()[0]
+    operator = filter_string.split()[1]
+    value_string = ' '.join(filter_string.split()[2:])
 
     # Verify the matched operator is valid
     valid_operators = [
@@ -46,27 +41,6 @@ def parse_filter_string(filter_string, log):
     if operator not in valid_operators:
         raise ParsingError(f'Parsed operator: "{operator}" not valid')
 
-    # Ensure the operator isn't at the beginning or the end of the filter string
-    operator_location = re.search(operator, filter_string.lower())
-    if operator_location.start() == 0:
-        raise ParsingError(f'Missing column in filter before operator "{filter_string}"')
-
-    if operator_location.end() == len(filter_string):
-        raise ParsingError(f'Missing value after operator "{filter_string}"')
-
-    # Set columnname value to the stripped string before the operator
-    columnname = filter_string[: operator_location.start()].strip()
-
-    # Check if the string before the operator wasn't just whitespace
-    if len(columnname) < 1:
-        raise ParsingError(f'Missing column in filter before operator "{filter_string}"')
-
-    # Ensure there is no whitespace in the parsed columnname
-    if re.search(r"\s", columnname):
-        raise ParsingError(f'Invalid column "{columnname}" in filter: "{filter_string}"')
-
-    # Set columnname value to the stripped string after the operator
-    value_string = filter_string[operator_location.end() :].strip()
 
     # Use ast.literal_eval() to safely evaluate the value
     try:
