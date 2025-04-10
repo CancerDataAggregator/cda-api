@@ -65,6 +65,4 @@ poetry.lock
 
 #Logs
 info.log
-.DS_Store
-cda_api/.DS_Store
-.DS_Store
+*.DS_Store
