@@ -286,10 +286,13 @@ def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_s
 
     # Apply filter conditionals
     if match_all_conditions and match_some_conditions:
+        print('1')
         preselect_cte = preselect_cte.filter(and_(*match_all_conditions)).filter(or_(*match_some_conditions))
     elif match_all_conditions:
+        print(match_some_conditions)
         preselect_cte = preselect_cte.filter(and_(*match_all_conditions))
     elif match_some_conditions:
+        print('3')
         preselect_cte = preselect_cte.filter(or_(*match_some_conditions))
 
     preselect_cte = preselect_cte.cte(f"{endpoint_tablename}_preselect")

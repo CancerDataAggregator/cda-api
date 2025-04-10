@@ -7,7 +7,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError
 from cda_api.models import ClientError, InternalError
-from cda_api.classes.exceptions import CDABaseException, DatabaseConnectionDrop, InternalErrorExcpetion
+from cda_api.classes.exceptions import CDABaseException, DatabaseConnectionDrop, InternalErrorException
 
 
 # Function to generate logger from config file
@@ -42,7 +42,7 @@ def convert_exceptions(e, log):
     else:
         # default to server error
         log.debug('Unexpected error detected. Converting error output')
-        error = InternalErrorExcpetion(str(e))
+        error = InternalErrorException(str(e))
     return error
     
 

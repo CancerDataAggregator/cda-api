@@ -80,6 +80,13 @@ def parse_filter_string(filter_string, log):
         if value.lower() == "null":
             value = None
 
+    elif isinstance(value, set) or isinstance(value, tuple):
+        value = list(value)
+
+    # Throw error on dictionary filter
+    elif isinstance(value, dict):
+        raise ParsingError(f'Dictionary filters are not accepted: {filter_string}')
+
     # Need to ensure lists and the operators "in"/"not in" are only ever used together
     if isinstance(value, list) and (operator not in ["in", "not in"]):
         raise ParsingError(f'Operator must be "in" or "not in" when using a list value -> filter: {filter_string}')
@@ -167,6 +174,6 @@ def build_match_conditons(endpoint_tablename, qnode, log):
     if qnode.MATCH_SOME:
         for filter_string in qnode.MATCH_SOME:
             filter_clause, filter_columnname = get_preselect_filter(endpoint_tablename, filter_string, log) 
-            match_all_conditions.append(filter_clause)
+            match_some_conditions.append(filter_clause)
             filter_columnnames.append(filter_columnname)
     return match_all_conditions, match_some_conditions, filter_columnnames
