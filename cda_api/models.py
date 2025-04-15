@@ -8,6 +8,7 @@ class QNode(BaseModel):
     MATCH_SOME: list[str] | None = None
     ADD_COLUMNS: list[str] | None = None
     EXCLUDE_COLUMNS: list[str] | None = None
+    EXPAND_RESULTS: bool | None = False
 
     def to_dict(self):
         return {
@@ -15,6 +16,7 @@ class QNode(BaseModel):
             "MATCH_SOME": self.MATCH_SOME,
             "ADD_COLUMNS": self.ADD_COLUMNS,
             "EXCLUDE_COLUMNS": self.EXCLUDE_COLUMNS,
+            "EXPAND_RESULTS": self.EXPAND_RESULTS
         }
 
     def as_string(self):

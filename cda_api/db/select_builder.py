@@ -2,6 +2,8 @@ from sqlalchemy import Label, func
 
 from cda_api.db import DB_MAP
 
+from cda_api.classes.exceptions import TableNotFound
+
 from .query_utilities import build_foreign_array_preselect, get_identifiers_preselect_columns, get_hanging_table_join
 
 
@@ -28,13 +30,15 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
             if add_columnname == f'{entity_tablename}_identifier':
                 identifiers = True
                 continue
-            elif add_columnname in DB_MAP.entity_tablenames:
-                link_to_table_column_infos = DB_MAP.get_table_column_infos(add_columnname)
+            elif add_columnname.endswith('.*'):
+                tablename = add_columnname.replace('.*', '')
+                if tablename not in DB_MAP.entity_tablenames:
+                    raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
+                link_to_table_column_infos = DB_MAP.get_table_column_infos(tablename)
                 for column_info in link_to_table_column_infos:
                     if column_info.fetch_rows_returns:
                         add_column = column_info.metadata_column
                         if column_info.uniquename not in added_columns:
-                            print(column_info.uniquename)
                             select_columns.append(add_column.label(column_info.uniquename))
                             added_columns.append(column_info.uniquename)
             else:
