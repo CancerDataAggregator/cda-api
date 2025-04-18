@@ -2,7 +2,6 @@ import ast
 import re
 
 from sqlalchemy.sql import exists, select
-from sqlalchemy import TEXT
 
 from cda_api import ParsingError, RelationshipNotFound
 from cda_api.db import DB_MAP
@@ -14,11 +13,16 @@ from .query_operators import apply_filter_operator
 def parse_filter_string(filter_string, log):
     # Clean up the filter
     filter_string = filter_string.strip()
-    if len(filter_string.split()) < 3:
+    split_filter_string = filter_string.split()
+    if len(split_filter_string) < 3:
         raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
-    columnname = filter_string.split()[0]
-    operator = filter_string.split()[1]
-    value_string = ' '.join(filter_string.split()[2:])
+    columnname = split_filter_string[0]
+    operator = split_filter_string[1]
+    value_string = ' '.join(split_filter_string[2:])
+    if len(split_filter_string) > 3:
+        if split_filter_string[2] in ['in', 'like', 'not']:
+            operator =  f'{operator} {split_filter_string[2]}'
+            value_string = ' '.join(split_filter_string[3:])
 
     # Verify the matched operator is valid
     valid_operators = [
@@ -32,15 +36,13 @@ def parse_filter_string(filter_string, log):
         "is",
         "in",
         "like",
-        "between",
         "not",
         "is not",
         "not in",
         "not like",
-        "not between",
     ]
-    if operator not in valid_operators:
-        raise ParsingError(f'Parsed operator: "{operator}" not valid')
+    if operator.lower() not in valid_operators:
+        raise ParsingError(f'Parsed operator: "{operator}" is not a valid operator')
 
 
     # Use ast.literal_eval() to safely evaluate the value
@@ -84,11 +86,6 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
 
     # ensure the unique column name exists in mapping and assign variables
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
-
-    if isinstance(filter_column_info.metadata_column.type, TEXT):
-        if isinstance(filter_value, int) or isinstance(filter_value, float):
-            filter_value = str(filter_value)
-
 
     # build the sqlalachemy orm filter with the components
     filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)

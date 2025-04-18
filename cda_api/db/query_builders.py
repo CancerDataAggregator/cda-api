@@ -10,7 +10,7 @@ from .filter_builder import build_match_conditons
 from .query_utilities import (
     add_hanging_table_joins,
     build_filter_preselect,
-    build_foreign_array_summary_preselect,
+    get_foreign_array_summary_selects,
     build_match_query,
     categorical_summary,
     data_source_counts,
@@ -120,6 +120,9 @@ def summary_query(db, endpoint_tablename, qnode, log):
     # Build preselect query
     endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
     endpoint_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
+    virtual_table_column_infos = DB_MAP.get_virtual_table_column_infos(endpoint_tablename)
+    endpoint_column_infos.extend(virtual_table_column_infos)
+
     match_query = build_match_query(db=db,
                                     select_columns=endpoint_columns, 
                                     match_all_conditions=match_all_conditions,
@@ -152,20 +155,26 @@ def summary_query(db, endpoint_tablename, qnode, log):
     ## Step through each column in the endpoint table
     for column_info in endpoint_column_infos:
         column_summary = None
-        ## Get the preselect column
-        preselect_column = get_cte_column(preselect_query, column_info.uniquename)
-        ## If column is supposed to be displayed in summary but not a data_source column:
-        if column_info.summary_display and column_info.process_before_display != 'data_source':
-            match column_info.column_type:
-                case 'numeric':
-                    column_summary = numeric_summary(db, preselect_column)
-                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
-                case 'categorical':
-                    column_summary = categorical_summary(db, preselect_column)
-                    summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
-                case _:
-                    log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
-                    pass
+        if column_info.virtual_table == None:
+            ## Get the preselect column
+            preselect_column = get_cte_column(preselect_query, column_info.uniquename)
+            ## If column is supposed to be displayed in summary but not a data_source column:
+            if column_info.summary_display and column_info.process_before_display != 'data_source':
+                
+                match column_info.column_type:
+                    case 'numeric':
+                        column_summary = numeric_summary(db, preselect_column)
+                        summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
+                    case 'categorical':
+                        column_summary = categorical_summary(db, preselect_column)
+                        summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
+                    case _:
+                        log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
+                        pass
+        else:
+            add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, [column_info.uniquename], preselect_query, log)
+            for select in add_columns_selects:
+                summary_select_clause.append(db.query(select).label(select.name))
 
     # Get data_source counts
     table_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
@@ -177,22 +186,10 @@ def summary_query(db, endpoint_tablename, qnode, log):
     data_source_count_select = data_source_counts(db, data_source_columnnames, data_source_columns)
     summary_select_clause.append(data_source_count_select.label('data_source'))
 
-    foreign_array_map = {}
-    if qnode.ADD_COLUMNS:
-        for columnname in qnode.ADD_COLUMNS:
-            column_info = DB_MAP.get_column_info(columnname)
-            if column_info.tablename != endpoint_tablename:
-                if column_info.tablename not in foreign_array_map.keys():
-                    foreign_array_map[column_info.tablename] = [column_info.metadata_column.label(column_info.uniquename)]
-                else:
-                    foreign_array_map[column_info.tablename].append(column_info.metadata_column.label(column_info.uniquename))
-        log.debug(foreign_array_map)
-
-        for foreign_tablename, columns in foreign_array_map.items():
-            build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
-            preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
-            for column in preselect_columns:
-                summary_select_clause.append(db.query(column).label(column.name))
+    if qnode.ADD_COLUMNS != None:
+        add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, qnode.ADD_COLUMNS, preselect_query, log)
+        for select in add_columns_selects:
+            summary_select_clause.append(db.query(select).label(select.name))
         
 
     # Wrap everything in a subquery
@@ -212,7 +209,7 @@ def summary_query(db, endpoint_tablename, qnode, log):
     return ret
 
 
-def columns_query(db):
+def columns_query(db, log):
     """Generates list of column info for entity tables.
 
     Args:
@@ -233,12 +230,18 @@ def columns_query(db):
     # Step through columns in each table and use their ColumnInfo class to return required information
     for tablename in tablenames:
         columns = DB_MAP.get_table_column_infos(tablename)
+        virtual_columns = DB_MAP.get_virtual_table_column_infos(tablename)
+        columns.extend(virtual_columns)
         for column_info in columns:
             if column_info.fetch_rows_returns:
                 column = column_info.metadata_column
                 # if column.name != "id_alias":
                 col = dict()
-                col["table"] = column_info.tablename
+                if column_info.virtual_table != None:
+                    col["table"] = column_info.virtual_table
+                else:
+                    col["table"] = column_info.tablename
+
                 col["column"] = column_info.uniquename
                 col["data_type"] = str(column.type).lower()
                 col["nullable"] = column.nullable

@@ -47,7 +47,6 @@ def convert_exceptions(e, log):
     
 
 def handle_router_errors(e, log):
-    print(e)
     log.error(e)
     if not isinstance(e, CDABaseException):
         e = convert_exceptions(e, log)

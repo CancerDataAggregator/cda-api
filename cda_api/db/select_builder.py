@@ -14,6 +14,8 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
         add_columns.extend(qnode.ADD_COLUMNS)
     exclude_columns = qnode.EXCLUDE_COLUMNS
     table_column_infos = DB_MAP.get_table_column_infos(entity_tablename)
+    virtual_table_column_infos = DB_MAP.get_virtual_table_column_infos(entity_tablename)
+    table_column_infos.extend(virtual_table_column_infos)
     select_columns = [
         column_info.metadata_column.label(column_info.uniquename)
         for column_info in table_column_infos

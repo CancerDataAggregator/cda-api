@@ -37,17 +37,17 @@ class ColumnInfo:
 
         if self.entity_table:
             self.entity_column = getattr(self.entity_table, self.columnname)
-            if self.tablename in self.column_metadata_map.keys():
-                if self.columnname in self.column_metadata_map[self.tablename].keys():
-                    column_metadata = self.column_metadata_map[self.tablename][self.columnname]
-                    self.column_type = column_metadata["column_type"]
-                    self.summary_display = column_metadata["summary_display"]
-                    self.fetch_rows_returns = column_metadata["fetch_rows_returns"]
-                    self.process_before_display = column_metadata["process_before_display"]
-                    self.virtual_table = column_metadata["virtual_table"]
-
         else:
             self.entity_column = None
+            
+        if self.tablename in self.column_metadata_map.keys():
+            if self.columnname in self.column_metadata_map[self.tablename].keys():
+                column_metadata = self.column_metadata_map[self.tablename][self.columnname]
+                self.column_type = column_metadata["column_type"]
+                self.summary_display = column_metadata["summary_display"]
+                self.fetch_rows_returns = column_metadata["fetch_rows_returns"]
+                self.process_before_display = column_metadata["process_before_display"]
+                self.virtual_table = column_metadata["virtual_table"]
 
     def in_entity_table(self):
         return bool(self.entity_table)

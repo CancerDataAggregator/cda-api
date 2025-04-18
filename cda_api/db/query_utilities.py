@@ -357,6 +357,25 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     foreign_array_preselect = db.query(*select_columns).cte(f'{foreign_tablename}_columns')
     return foreign_array_preselect.c
     
+def get_foreign_array_summary_selects(db, endpoint_tablename, foreign_columns, preselect_query, log):
+    summary_selects = []
+    foreign_array_map = {}
+    for columnname in foreign_columns:
+        print('test')
+        column_info = DB_MAP.get_column_info(columnname)
+        print('2')
+        if column_info.tablename != endpoint_tablename:
+            if column_info.tablename not in foreign_array_map.keys():
+                foreign_array_map[column_info.tablename] = [column_info.metadata_column.label(column_info.uniquename)]
+            else:
+                foreign_array_map[column_info.tablename].append(column_info.metadata_column.label(column_info.uniquename))
+
+    for foreign_tablename, columns in foreign_array_map.items():
+        build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+        preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+        for column in preselect_columns:
+            summary_selects.append(db.query(column).label(column.name))
+    return summary_selects
 
 
 def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):

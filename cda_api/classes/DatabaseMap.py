@@ -299,3 +299,9 @@ class DatabaseMap:
             raise tnf
         except Exception as e:
             raise TableNotFound(e)
+        
+    def get_virtual_table_column_infos(self, tablename):
+        try:
+            return [column_info for column_info in self.column_map.values() if column_info.virtual_table == tablename]
+        except Exception as e:
+            raise e
