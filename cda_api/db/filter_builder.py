@@ -2,6 +2,7 @@ import ast
 import re
 
 from sqlalchemy.sql import exists, select
+from sqlalchemy import TEXT
 
 from cda_api import ParsingError, RelationshipNotFound
 from cda_api.db import DB_MAP
@@ -83,6 +84,11 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
 
     # ensure the unique column name exists in mapping and assign variables
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
+
+    if isinstance(filter_column_info.metadata_column.type, TEXT):
+        if isinstance(filter_value, int) or isinstance(filter_value, float):
+            filter_value = str(filter_value)
+
 
     # build the sqlalachemy orm filter with the components
     filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)

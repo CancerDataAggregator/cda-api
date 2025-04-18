@@ -26,6 +26,7 @@ class ColumnInfo:
         self.columnname = self.metadata_column.name
         self.tablename = self.metadata_table.name
         self.table_columnname = f"{self.tablename}.{self.columnname}"
+        self.labeled_column = self.metadata_column.label(self.uniquename)
 
         # Set metadata
         self.column_type = None

@@ -113,6 +113,7 @@ def summary_query(db, endpoint_tablename, qnode, log):
 
     log.info("Building summary query")
 
+    #TODO add filter columns to output
     # Build filter conditionals
     match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, qnode, log)
 
@@ -188,7 +189,8 @@ def summary_query(db, endpoint_tablename, qnode, log):
         log.debug(foreign_array_map)
 
         for foreign_tablename, columns in foreign_array_map.items():
-            _, preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+            build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+            preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
             for column in preselect_columns:
                 summary_select_clause.append(db.query(column).label(column.name))
         
@@ -232,15 +234,16 @@ def columns_query(db):
     for tablename in tablenames:
         columns = DB_MAP.get_table_column_infos(tablename)
         for column_info in columns:
-            column = column_info.metadata_column
-            # if column.name != "id_alias":
-            col = dict()
-            col["table"] = column_info.tablename
-            col["column"] = column_info.uniquename
-            col["data_type"] = str(column.type).lower()
-            col["nullable"] = column.nullable
-            col["description"] = column.comment
-            cols.append(col)
+            if column_info.fetch_rows_returns:
+                column = column_info.metadata_column
+                # if column.name != "id_alias":
+                col = dict()
+                col["table"] = column_info.tablename
+                col["column"] = column_info.uniquename
+                col["data_type"] = str(column.type).lower()
+                col["nullable"] = column.nullable
+                col["description"] = column.comment
+                cols.append(col)
 
     ret = {"result": cols}
 

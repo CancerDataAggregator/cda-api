@@ -160,11 +160,13 @@ class DatabaseMap:
                             "join_table": entity_connecting_relationship.mapping_table,
                             "statement": entity_connecting_relationship.foreign_mapping_column == hanging_table_alias,
                             "hanging_fk_parent": hanging_table_alias,
+                            "foreign_mapping_column": entity_connecting_relationship.foreign_mapping_column,
                             "entity_mapping_columnname": entity_connecting_relationship.entity_mapping_column.name,
                             "entity_mapping_column": entity_connecting_relationship.entity_mapping_column,
                             "entity_column": entity_connecting_relationship.entity_column,
                             "entity_mapping_join": entity_connecting_relationship.entity_column
                             == entity_connecting_relationship.entity_mapping_column,
+
                         }
                         self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = (
                             mapping_table_to_hanging_table_join
@@ -253,6 +255,20 @@ class DatabaseMap:
     def get_table_column_infos(self, tablename):
         try:
             return [column_info for column_info in self.column_map.values() if column_info.tablename == tablename]
+        except ColumnNotFound as cnf:
+            raise cnf
+        except Exception as e:
+            error_message = f"Unable to find entity table {tablename}\n{e}"
+            raise TableNotFound(error_message)
+        
+    def get_table_column_info(self, tablename, columnname) -> ColumnInfo:
+        try:
+            col_infos = [column_info for column_info in self.column_map.values() if column_info.tablename == tablename]
+            col_info = [column_info for column_info in col_infos if column_info.columnname == columnname]
+            if col_info:
+                return col_info[0]
+            else:
+                raise ColumnNotFound(f'Could not find column "{columnname}" in table "{tablename}"')
         except ColumnNotFound as cnf:
             raise cnf
         except Exception as e:
