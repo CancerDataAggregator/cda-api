@@ -155,12 +155,14 @@ def summary_query(db, endpoint_tablename, qnode, log):
     ## Step through each column in the endpoint table
     for column_info in endpoint_column_infos:
         column_summary = None
+        if not column_info.summary_display:
+            log.debug(f'Skipping column: {column_info.uniquename} because it is not supposed to be displayed')
+            continue
         if column_info.virtual_table == None:
             ## Get the preselect column
             preselect_column = get_cte_column(preselect_query, column_info.uniquename)
             ## If column is supposed to be displayed in summary but not a data_source column:
-            if column_info.summary_display and column_info.process_before_display != 'data_source':
-                
+            if column_info.process_before_display != 'data_source':  
                 match column_info.column_type:
                     case 'numeric':
                         column_summary = numeric_summary(db, preselect_column)
