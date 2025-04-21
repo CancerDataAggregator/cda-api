@@ -305,3 +305,15 @@ class DatabaseMap:
             return [column_info for column_info in self.column_map.values() if column_info.virtual_table == tablename]
         except Exception as e:
             raise e
+        
+    def get_table_data_column_infos(self, tablename):
+        if tablename not in self.entity_tablenames:
+            raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
+        column_infos = self.get_table_column_infos(tablename)
+        return [col_info for col_info in column_infos if col_info.fetch_rows_returns]
+    
+    def get_table_summary_column_infos(self, tablename):
+        if tablename not in self.entity_tablenames:
+            raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
+        column_infos = self.get_table_column_infos(tablename)
+        return [col_info for col_info in column_infos if col_info.summary_display]

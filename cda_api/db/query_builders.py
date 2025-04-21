@@ -9,6 +9,7 @@ from cda_api.db.schema import Base
 from .filter_builder import build_match_conditons
 from .query_utilities import (
     add_hanging_table_joins,
+    normalize_add_exclude_columns,
     build_filter_preselect,
     get_foreign_array_summary_selects,
     build_match_query,
@@ -48,6 +49,9 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     # Get match_all and match_some filters
     match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, qnode, log)
 
+    # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
+    qnode = normalize_add_exclude_columns(qnode, 'data', filter_columnnames)
+
     # Build the preselect query
     filter_preselect_query, endpoint_id_alias = build_filter_preselect(
         db, endpoint_tablename, match_all_conditions, match_some_conditions
@@ -55,7 +59,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
 
     # Build the select columns and joins to foreign column array preselects
     select_columns, foreign_joins = build_fetch_rows_select_clause(
-        db, endpoint_tablename, qnode, filter_preselect_query, filter_columnnames, log
+        db, endpoint_tablename, qnode, filter_preselect_query, log
     )
     
     query = db.query(*select_columns)
@@ -113,9 +117,11 @@ def summary_query(db, endpoint_tablename, qnode, log):
 
     log.info("Building summary query")
 
-    #TODO add filter columns to output
     # Build filter conditionals
     match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, qnode, log)
+
+    # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
+    qnode = normalize_add_exclude_columns(qnode, 'summary', filter_columnnames)
 
     # Build preselect query
     endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)

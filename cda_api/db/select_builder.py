@@ -4,12 +4,12 @@ from cda_api.db import DB_MAP
 
 from cda_api.classes.exceptions import TableNotFound
 
-from .query_utilities import build_foreign_array_preselect, get_identifiers_preselect_columns, get_hanging_table_join
+from .query_utilities import build_foreign_array_preselect, build_foreign_json_preselect, get_identifiers_preselect_columns, get_hanging_table_join
 
 
-def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, filter_columnnames, log):
+def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
     log.info("Building SELECT clause")
-    add_columns = filter_columnnames
+    add_columns = []
     if qnode.ADD_COLUMNS:
         add_columns.extend(qnode.ADD_COLUMNS)
     exclude_columns = qnode.EXCLUDE_COLUMNS
@@ -73,10 +73,16 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
 
     # Build foreign array column preselects
     for foreign_tablename, columns in foreign_array_map.items():
-        foreign_join, preselect_columns = build_foreign_array_preselect(
-            db, entity_tablename, foreign_tablename, columns, filter_preselect_query
-        )
-        foreign_joins.append(foreign_join)
+        if qnode.EXPAND_RESULTS:
+            foreign_join, preselect_columns = build_foreign_json_preselect(
+                db, entity_tablename, foreign_tablename, columns, filter_preselect_query
+            )
+            foreign_joins.append(foreign_join)
+        else:
+            foreign_join, preselect_columns = build_foreign_array_preselect(
+                db, entity_tablename, foreign_tablename, columns, filter_preselect_query
+            )
+            foreign_joins.append(foreign_join)
 
         # Need to remove previous columns that were added to select_columns and replace them with the new preselect_columns
         to_remove = []
@@ -91,8 +97,10 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
             hanging_table_join = get_hanging_table_join(entity_tablename, col)
             if hanging_table_join != None:
                 foreign_joins.append(hanging_table_join)
-
-            select_columns.append(func.coalesce(col, []).label(col.name))
+            if qnode.EXPAND_RESULTS:
+                select_columns.append(col.label(col.name))
+            else:
+                select_columns.append(func.coalesce(col, []).label(col.name))
 
     if identifiers:
         foreign_join, preselect_columns = get_identifiers_preselect_columns(db, entity_tablename, filter_preselect_query)

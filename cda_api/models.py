@@ -4,10 +4,10 @@ from pydantic import BaseModel, Field
 
 
 class QNode(BaseModel):
-    MATCH_ALL: list[str] | None = None
-    MATCH_SOME: list[str] | None = None
-    ADD_COLUMNS: list[str] | None = None
-    EXCLUDE_COLUMNS: list[str] | None = None
+    MATCH_ALL: list[str] | None = []
+    MATCH_SOME: list[str] | None = []
+    ADD_COLUMNS: list[str] | None = []
+    EXCLUDE_COLUMNS: list[str] | None = []
     EXPAND_RESULTS: bool | None = False
 
     def to_dict(self):

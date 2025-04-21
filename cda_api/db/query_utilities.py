@@ -5,7 +5,7 @@ from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, 
 from sqlalchemy.exc import CompileError
 from sqlalchemy.dialects import postgresql
 
-from cda_api import RelationshipNotFound, get_logger
+from cda_api import RelationshipNotFound, get_logger, TableNotFound
 from cda_api.db import DB_MAP
 
 log = get_logger()
@@ -42,6 +42,40 @@ def get_cte_column(cte, columnname):
 # distinct(count COLUMN)
 def distinct_count(column):
     return func.count(distinct(column))
+
+def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnnames):
+    new_add_columns = filter_columnnames
+    if request_body.ADD_COLUMNS != None:
+        for columnname in request_body.ADD_COLUMNS:
+            if columnname.endswith('.*'):
+                tablename = columnname.replace('.*', '')
+                if endpoint_type == 'data':
+                    table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_data_column_infos(tablename) if col_info.uniquename not in new_add_columns]
+                elif endpoint_type == 'summary':
+                    table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_summary_column_infos(tablename) if col_info.uniquename not in new_add_columns]
+                else:
+                    raise Exception(f'Unknown endpoint type: "{endpoint_type}". Could not build column list for table: "{tablename}"')
+                new_add_columns = new_add_columns + table_columnnames
+            elif columnname not in new_add_columns:
+                new_add_columns.append(columnname)
+
+    new_exclude_columns = []
+    if request_body.ADD_COLUMNS != None:
+        for columnname in request_body.EXCLUDE_COLUMNS:
+            if columnname.endswith('.*'):
+                tablename = columnname.replace('.*', '')
+                if endpoint_type == 'data':
+                    table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_data_column_infos(tablename) if col_info.uniquename not in new_exclude_columns]
+                else:
+                    table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_summary_column_infos(tablename) if col_info.uniquename not in new_exclude_columns]
+                new_exclude_columns = new_exclude_columns + table_columnnames
+            elif columnname not in new_exclude_columns:
+                new_exclude_columns.append(columnname)
+
+    request_body.ADD_COLUMNS = new_add_columns
+    request_body.EXCLUDE_COLUMNS = new_exclude_columns
+
+    return request_body
 
 
 # Gets the total distinct counts of a column as a subquery
@@ -212,19 +246,14 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
     entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(entity_tablename, foreign_tablename)
     
     select_cols = [unique_column_array_agg(column) for column in columns] + [foreign_column]
+    foreign_array_preselect = (
+                    db.query(*select_cols)
+                    .filter(foreign_column.in_(preselect_query))
+                    .group_by(foreign_column)
+                )
     if foreign_tablename == 'upstream_identifiers':
-        foreign_array_preselect = (
-                    db.query(*select_cols)
-                    .filter(foreign_column.in_(preselect_query))
-                    .filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == entity_tablename)
-                    .group_by(foreign_column)
-                )
-    else:
-        foreign_array_preselect = (
-                    db.query(*select_cols)
-                    .filter(foreign_column.in_(preselect_query))
-                    .group_by(foreign_column)
-                )
+        foreign_array_preselect = foreign_array_preselect.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == entity_tablename)
+
     if foreign_array_join:
         foreign_array_preselect = foreign_array_preselect.join(**foreign_array_join)
     foreign_array_preselect = foreign_array_preselect.cte(cte_name)
@@ -232,6 +261,63 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
     onclause = get_cte_column(foreign_array_preselect, foreign_column.name) == entity_column
     preselect_columns = [col for col in foreign_array_preselect.c if col.name != foreign_column.name]
     foreign_join = {"target": foreign_array_preselect, "onclause": onclause}
+    return foreign_join, preselect_columns
+
+def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, columns, filter_preselect_query):
+    cte_name = f"{foreign_tablename}_expanded_preselect"
+    entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, foreign_array_join = get_foreign_array_summary_columns(entity_tablename, foreign_tablename)
+    foreign_column_info = DB_MAP.get_table_column_info(foreign_tablename, foreign_column.name)
+    
+    if (not isinstance(entity_mapping_column, type(None))) and (not isinstance(foreign_mapping_column, type(None))):
+        foreign_id_common_name = entity_mapping_column.name
+        foreign_table_filter = foreign_column.in_(db.query(foreign_mapping_column).filter(entity_mapping_column.in_(filter_preselect_query)))
+        foreign_table_columns = [entity_mapping_column.label(entity_mapping_column.name)] + columns
+        foreign_table_subquery = (
+            db.query(*foreign_table_columns)
+            .filter(foreign_table_filter)
+        )
+        if foreign_array_join:
+            foreign_table_subquery = foreign_table_subquery.join(**foreign_array_join)
+    else:
+        foreign_id_common_name = foreign_column_info.columnname
+        foreign_table_columns = [foreign_column.label(foreign_id_common_name)] + columns
+        foreign_table_subquery = (
+            db.query(*foreign_table_columns)
+            .filter(foreign_column.in_(filter_preselect_query))
+        )
+    foreign_table_subquery = foreign_table_subquery.subquery('subquery')
+    
+    if foreign_tablename == 'foreign_json_columns':
+        foreign_table_subquery = foreign_table_subquery.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == entity_tablename)
+
+    foreign_json_columns = []
+    subquery_id_column = None
+    for column in foreign_table_subquery.c:
+        if column.name != foreign_id_common_name:
+            foreign_json_columns.append(column.name)
+            foreign_json_columns.append(column)
+        else:
+            subquery_id_column = column
+    
+    json_subquery = db.query(
+                        subquery_id_column.label(foreign_id_common_name),
+                        func.json_build_object(*foreign_json_columns).label('json_results')
+                    ).subquery('json_subquery')
+    
+    json_subquery_id_column = json_subquery.c[foreign_id_common_name]
+
+    foreign_json_preselect = (
+        db.query(
+            json_subquery_id_column.label(foreign_id_common_name),
+            func.array_agg(json_subquery.c['json_results']).label(f'{foreign_tablename}_columns')
+        )
+        .group_by(json_subquery_id_column)
+    )
+    foreign_json_preselect = foreign_json_preselect.cte(cte_name)
+
+    onclause = get_cte_column(foreign_json_preselect, foreign_id_common_name) == entity_column
+    preselect_columns = [foreign_json_preselect.c[f'{foreign_tablename}_columns'].label(f'{foreign_tablename}_columns')]
+    foreign_join = {"target": foreign_json_preselect, "onclause": onclause}
     return foreign_join, preselect_columns
 
 
@@ -276,6 +362,7 @@ def get_foreign_array_summary_select_columns(db, columns_to_aggregate):
 def get_foreign_array_summary_columns(entity_tablename, foreign_tablename):
     foreign_mapping_column = None
     entity_mapping_column = None
+    foreign_array_join = None
     # If there is direct relationship defined
     if DB_MAP.relationship_exists(entity_tablename, foreign_tablename):
         relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
@@ -283,6 +370,11 @@ def get_foreign_array_summary_columns(entity_tablename, foreign_tablename):
         entity_mapping_column = relation.entity_mapping_column
         foreign_column = relation.foreign_column
         foreign_mapping_column = relation.foreign_mapping_column
+        if relation.has_mapping_table:
+            foreign_array_join = {
+                'target': relation.mapping_table, 
+                'onclause': relation.foreign_column == relation.foreign_mapping_column
+                }
 
     # If there is a "hanging table" join defined, 
     # (file_tumor_vs_normal is a "hanging table" to file and there is a join defined to subject through file_describes_subject)
@@ -296,6 +388,10 @@ def get_foreign_array_summary_columns(entity_tablename, foreign_tablename):
             entity_mapping_column = hanging_table_join["entity_mapping_column"]
             foreign_column = hanging_table_join["hanging_fk_parent"]
             foreign_mapping_column = hanging_table_join["foreign_mapping_column"]
+            foreign_array_join = {
+                'target': hanging_table_join["join_table"], 
+                'onclause': hanging_table_join["statement"]
+                }
         # If there is a direct connection (ie. file_tumor_vs_normal -> file)
         else:
             if foreign_tablename == 'upstream_identifiers':
@@ -308,10 +404,11 @@ def get_foreign_array_summary_columns(entity_tablename, foreign_tablename):
     else:
         error_message = f'Unable to build foreign array preselect between {entity_tablename} and {foreign_tablename}'
         raise RelationshipNotFound(error_message)
-    return entity_column, entity_mapping_column, foreign_column, foreign_mapping_column
+    return entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, foreign_array_join
     
 def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query):
-    entity_column, entity_mapping_column, foreign_column, foreign_mapping_column = get_foreign_array_summary_columns(endpoint_tablename, foreign_tablename)
+    entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, _ = get_foreign_array_summary_columns(endpoint_tablename, foreign_tablename)
+    print(entity_column, entity_mapping_column, foreign_column, foreign_mapping_column)
     entity_column_info = DB_MAP.get_table_column_info(endpoint_tablename, entity_column.name)
     foreign_column_info = DB_MAP.get_table_column_info(foreign_tablename, foreign_column.name)
     foreign_id_common_name = foreign_column_info.columnname
@@ -326,44 +423,43 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     foreign_table_id_cte = foreign_table_id_cte.cte(f'{foreign_tablename}_mapping_ids')
     foreign_table_id_cte_column = db.query(get_cte_column(foreign_table_id_cte, foreign_id_common_name))
     
+    foreign_columns = [foreign_column.label(foreign_id_common_name)] + [DB_MAP.get_column_info(column.name).labeled_column for column in columns]
+    foreign_table_preselect = db.query(*foreign_columns).filter(foreign_column.in_(foreign_table_id_cte_column)).cte(f'{foreign_tablename}_preselect')
+    foreign_preselect_id = get_cte_column(foreign_table_preselect, foreign_id_common_name)
+
     select_columns = []
     for column in columns:
-        column_info = DB_MAP.get_column_info(column.name)
-        columnname = column_info.uniquename
-        non_null_cte = db.query(column_info.labeled_column, foreign_column.label(foreign_id_common_name)) \
-                        .filter(column_info.metadata_column.is_not(None)) \
-                        .filter(foreign_column.in_(foreign_table_id_cte_column)) \
-                        .group_by(foreign_column, column_info.labeled_column) \
-                        .cte(f'{columnname}_non_nulls')
-        null_cte = db.query(column_info.labeled_column, foreign_column.label(foreign_id_common_name)) \
-                .filter(foreign_column.in_(foreign_table_id_cte_column)) \
-                .filter(foreign_column.not_in(db.query(get_cte_column(non_null_cte, foreign_id_common_name)))) \
-                .group_by(foreign_column, column_info.labeled_column) \
-                .cte(f'{columnname}_nulls')
-        union_subquery = union_all(db.query(non_null_cte.c), db.query(null_cte.c)).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).subquery(f'{columnname}_union')
+        preselect_column = get_cte_column(foreign_table_preselect, column.name)
+        non_null_cte = db.query(preselect_column.label(column.name), foreign_preselect_id.label(foreign_id_common_name)) \
+                        .filter(preselect_column.is_not(None)) \
+                        .group_by(foreign_preselect_id, preselect_column) \
+                        .cte(f'{column.name}_non_nulls')
+        null_cte = db.query(preselect_column.label(column.name), foreign_preselect_id.label(foreign_id_common_name)) \
+                .filter(foreign_preselect_id.not_in(db.query(get_cte_column(non_null_cte, foreign_id_common_name)))) \
+                .group_by(foreign_preselect_id, preselect_column) \
+                .cte(f'{column.name}_nulls')
+        union_subquery = union_all(db.query(non_null_cte.c), db.query(null_cte.c)).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).subquery(f'{column.name}_union')
 
 
-        union_column = get_cte_column(union_subquery, column_info.uniquename)
+        union_column = get_cte_column(union_subquery, column.name)
         count_subquery = db.query(union_column,func.count().label('count_result')) \
                             .group_by(union_column) \
-                            .subquery(f'{columnname}_count_subquery') 
+                            .subquery(f'{column.name}_count_subquery') 
 
 
         column_select = db.query(
                             func.array_agg(
                                 func.row_to_json(count_subquery.table_valued())
-                            ).label(f'{columnname}_array_agg')).scalar_subquery()
-        select_columns.append(column_select.label(columnname))
+                            ).label(f'{column.name}_array_agg')).scalar_subquery()
+        select_columns.append(column_select.label(column.name))
     foreign_array_preselect = db.query(*select_columns).cte(f'{foreign_tablename}_columns')
     return foreign_array_preselect.c
     
-def get_foreign_array_summary_selects(db, endpoint_tablename, foreign_columns, preselect_query, log):
+def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, preselect_query, log):
     summary_selects = []
     foreign_array_map = {}
-    for columnname in foreign_columns:
-        print('test')
+    for columnname in add_columns:
         column_info = DB_MAP.get_column_info(columnname)
-        print('2')
         if column_info.tablename != endpoint_tablename:
             if column_info.tablename not in foreign_array_map.keys():
                 foreign_array_map[column_info.tablename] = [column_info.metadata_column.label(column_info.uniquename)]

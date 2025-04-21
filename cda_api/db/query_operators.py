@@ -72,8 +72,14 @@ def case_insensitive_is_not(column, value):
 
 
 def in_array(column, value):
-    return column.in_(value)
+    if isinstance(value[0], str):
+        return func.coalesce(func.upper(column), "").in_([item.upper() for item in value]) 
+    else:
+        return column.in_(value)
 
 
 def not_in_array(column, value):
-    return column.notin_(value)
+    if isinstance(value[0], str):
+        return func.coalesce(func.upper(column), "").not_in([item.upper() for item in value]) 
+    else:
+        return column.not_in(value)
