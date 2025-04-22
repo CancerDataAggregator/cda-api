@@ -25,7 +25,7 @@ from .query_utilities import (
 from .select_builder import build_fetch_rows_select_clause
 
 
-def fetch_rows(db, endpoint_tablename, request_body, limit, offset, log):
+def data_query(db, endpoint_tablename, request_body, limit, offset, log):
     """Generates json formatted row data based on input query
 
     Args:
@@ -47,7 +47,7 @@ def fetch_rows(db, endpoint_tablename, request_body, limit, offset, log):
     log.info("Building fetch_rows query")
 
     # Get match_all and match_some filters
-    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, request_body, log)
+    match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map = build_match_conditons(endpoint_tablename, request_body, log)
 
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
     request_body = normalize_add_exclude_columns(request_body, 'data', filter_columnnames)
@@ -59,7 +59,7 @@ def fetch_rows(db, endpoint_tablename, request_body, limit, offset, log):
 
     # Build the select columns and joins to foreign column array preselects
     select_columns, foreign_joins = build_fetch_rows_select_clause(
-        db, endpoint_tablename, request_body, filter_preselect_query, log
+        db, endpoint_tablename, request_body, filter_preselect_query, filter_table_map, log
     )
     
     query = db.query(*select_columns)
@@ -118,7 +118,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
     log.info("Building summary query")
 
     # Build filter conditionals
-    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, request_body, log)
+    match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map  = build_match_conditons(endpoint_tablename, request_body, log)
 
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
     request_body = normalize_add_exclude_columns(request_body, 'summary', filter_columnnames)
@@ -180,7 +180,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
                         log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
                         pass
         else:
-            add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, [column_info.uniquename], preselect_query, log)
+            add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, [column_info.uniquename], preselect_query, filter_table_map, log)
             for select in add_columns_selects:
                 summary_select_clause.append(db.query(select).label(select.name))
 
@@ -195,7 +195,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
     summary_select_clause.append(data_source_count_select.label('data_source'))
 
     if request_body.ADD_COLUMNS != None:
-        add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, request_body.ADD_COLUMNS, preselect_query, log)
+        add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, request_body.ADD_COLUMNS, preselect_query, filter_table_map, log)
         for select in add_columns_selects:
             summary_select_clause.append(db.query(select).label(select.name))
         

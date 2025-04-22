@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from cda_api import EmptyQueryError, get_logger, get_query_id
 from cda_api.application_utilities import handle_router_errors
 from cda_api.db import get_db
-from cda_api.db.query_builders import fetch_rows
+from cda_api.db.query_builders import data_query
 from cda_api.models import PagedResponseObj, DataRequestBody
 
 # API router object. Defines /data endpoint options
@@ -46,7 +46,7 @@ def file_fetch_rows_endpoint(
 
     try:
         # Get paged query result
-        result = fetch_rows(db, endpoint_tablename="file", request_body=request_body, limit=limit, offset=offset, log=log)
+        result = data_query(db, endpoint_tablename="file", request_body=request_body, limit=limit, offset=offset, log=log)
         if (offset != None) and (limit != None):
             if result["total_row_count"] > offset + limit:
                 next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")
@@ -95,7 +95,7 @@ def subject_fetch_rows_endpoint(
 
     try:
         # Get paged query result
-        result = fetch_rows(db, endpoint_tablename="subject", request_body=request_body, limit=limit, offset=offset, log=log)
+        result = data_query(db, endpoint_tablename="subject", request_body=request_body, limit=limit, offset=offset, log=log)
         if (offset != None) and (limit != None):
             if result["total_row_count"] > offset + limit:
                 next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")

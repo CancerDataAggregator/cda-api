@@ -7,7 +7,7 @@ from cda_api.classes.exceptions import TableNotFound
 from .query_utilities import build_foreign_array_preselect, build_foreign_json_preselect, get_identifiers_preselect_columns, get_hanging_table_join
 
 
-def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_preselect_query, log):
+def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_preselect_query, filter_table_map, log):
     log.info("Building SELECT clause")
     add_columns = []
     if request_body.ADD_COLUMNS:
@@ -75,12 +75,12 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
     for foreign_tablename, columns in foreign_array_map.items():
         if request_body.EXPAND_RESULTS:
             foreign_join, preselect_columns = build_foreign_json_preselect(
-                db, entity_tablename, foreign_tablename, columns, filter_preselect_query
+                db, entity_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log
             )
             foreign_joins.append(foreign_join)
         else:
             foreign_join, preselect_columns = build_foreign_array_preselect(
-                db, entity_tablename, foreign_tablename, columns, filter_preselect_query
+                db, entity_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log
             )
             foreign_joins.append(foreign_join)
 

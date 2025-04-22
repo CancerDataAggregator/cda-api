@@ -77,6 +77,16 @@ def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnname
 
     return request_body
 
+def apply_match_all_some_filters(query, match_all_filters, match_some_filters):
+    # Apply filter conditionals
+    if match_all_filters and match_some_filters:
+        query = query.filter(and_(*match_all_filters)).filter(or_(*match_some_filters))
+    elif match_all_filters:
+        query = query.filter(and_(*match_all_filters))
+    elif match_some_filters:
+        query = query.filter(or_(*match_some_filters))
+    return query
+
 
 # Gets the total distinct counts of a column as a subquery
 def total_column_count_subquery(db, preselect):
@@ -241,7 +251,7 @@ def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
 
 
 # Build the preselects of arrays when adding foreign columns
-def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query):
+def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query, filter_table_map, log):
     cte_name = f"{foreign_tablename}_{entity_tablename}_columns"
     entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(entity_tablename, foreign_tablename)
     
@@ -251,6 +261,11 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
                     .filter(foreign_column.in_(preselect_query))
                     .group_by(foreign_column)
                 )
+    if foreign_tablename in filter_table_map.keys():
+        match_all = filter_table_map[foreign_tablename]['match_all']
+        match_some = filter_table_map[foreign_tablename]['match_some']
+        foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some)
+    
     if foreign_tablename == 'upstream_identifiers':
         foreign_array_preselect = foreign_array_preselect.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == entity_tablename)
 
@@ -263,7 +278,7 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
     foreign_join = {"target": foreign_array_preselect, "onclause": onclause}
     return foreign_join, preselect_columns
 
-def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, columns, filter_preselect_query):
+def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log):
     cte_name = f"{foreign_tablename}_expanded_preselect"
     entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, foreign_array_join = get_foreign_array_summary_columns(entity_tablename, foreign_tablename)
     foreign_column_info = DB_MAP.get_table_column_info(foreign_tablename, foreign_column.name)
@@ -285,6 +300,12 @@ def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, column
             db.query(*foreign_table_columns)
             .filter(foreign_column.in_(filter_preselect_query))
         )
+
+    if foreign_tablename in filter_table_map.keys():
+        match_all = filter_table_map[foreign_tablename]['match_all']
+        match_some = filter_table_map[foreign_tablename]['match_some']
+        foreign_table_subquery = apply_match_all_some_filters(foreign_table_subquery, match_all, match_some)
+
     foreign_table_subquery = foreign_table_subquery.subquery('subquery')
     
     if foreign_tablename == 'foreign_json_columns':
@@ -406,9 +427,52 @@ def get_foreign_array_summary_columns(entity_tablename, foreign_tablename):
         raise RelationshipNotFound(error_message)
     return entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, foreign_array_join
     
-def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query):
-    entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, _ = get_foreign_array_summary_columns(endpoint_tablename, foreign_tablename)
-    print(entity_column, entity_mapping_column, foreign_column, foreign_mapping_column)
+def foreign_column_categorical_summary(db, preselect_column, foreign_preselect_id):
+    columnname = preselect_column.name
+    foreign_id_common_name = foreign_preselect_id.name
+    non_null_cte = db.query(preselect_column.label(columnname), foreign_preselect_id.label(foreign_id_common_name)) \
+                    .filter(preselect_column.is_not(None)) \
+                    .group_by(foreign_preselect_id, preselect_column) \
+                    .cte(f'{columnname}_non_nulls')
+    null_cte = db.query(preselect_column.label(columnname), foreign_preselect_id.label(foreign_id_common_name)) \
+            .filter(foreign_preselect_id.not_in(db.query(get_cte_column(non_null_cte, foreign_id_common_name)))) \
+            .group_by(foreign_preselect_id, preselect_column) \
+            .cte(f'{columnname}_nulls')
+    union_subquery = union_all(db.query(non_null_cte.c), db.query(null_cte.c)).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).subquery(f'{columnname}_union')
+
+
+    union_column = get_cte_column(union_subquery, columnname)
+    count_subquery = db.query(union_column,func.count().label('count_result')) \
+                        .group_by(union_column) \
+                        .subquery(f'{columnname}_count_subquery') 
+
+    column_select = db.query(
+                        func.array_agg(
+                            func.row_to_json(count_subquery.table_valued())
+                        ).label(f'{columnname}_array_agg')).scalar_subquery()
+    return column_select
+
+
+# Gets statistics of a row for numeric columns
+def foreign_column_numeric_summary(db, preselect_column):
+    column_subquery = db.query(
+        func.min(preselect_column).label("min"),
+        func.max(preselect_column).label("max"),
+        func.round(func.avg(preselect_column)).label("mean"),
+        func.percentile_disc(0.5).within_group(preselect_column).label("median"),
+        func.percentile_disc(0.25).within_group(preselect_column).label("lower_quartile"),
+        func.percentile_disc(0.75).within_group(preselect_column).label("upper_quartile"),
+    ).subquery("subquery")
+    # Get the row_to_json of the subquery
+    column_json = db.query(func.row_to_json(column_subquery.table_valued())
+                           .label(f"{preselect_column.name}_stats")).cte(f"json_{preselect_column.name}")
+    # Apply an array aggregation
+    numeric_array_agg = db.query(func.array_agg(get_cte_column(column_json, f"{preselect_column.name}_stats"))).scalar_subquery()
+    return numeric_array_agg
+
+
+def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map):
+    entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, _= get_foreign_array_summary_columns(endpoint_tablename, foreign_tablename)
     entity_column_info = DB_MAP.get_table_column_info(endpoint_tablename, entity_column.name)
     foreign_column_info = DB_MAP.get_table_column_info(foreign_tablename, foreign_column.name)
     foreign_id_common_name = foreign_column_info.columnname
@@ -424,38 +488,37 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     foreign_table_id_cte_column = db.query(get_cte_column(foreign_table_id_cte, foreign_id_common_name))
     
     foreign_columns = [foreign_column.label(foreign_id_common_name)] + [DB_MAP.get_column_info(column.name).labeled_column for column in columns]
-    foreign_table_preselect = db.query(*foreign_columns).filter(foreign_column.in_(foreign_table_id_cte_column)).cte(f'{foreign_tablename}_preselect')
+    foreign_table_preselect = db.query(*foreign_columns).filter(foreign_column.in_(foreign_table_id_cte_column))
+
+    if foreign_tablename in filter_table_map.keys():
+        print(filter_table_map)
+        match_all = filter_table_map[foreign_tablename]['match_all']
+        match_some = filter_table_map[foreign_tablename]['match_some']
+        foreign_table_preselect = apply_match_all_some_filters(foreign_table_preselect, match_all, match_some)
+    
+    foreign_table_preselect = foreign_table_preselect.cte(f'{foreign_tablename}_preselect')
     foreign_preselect_id = get_cte_column(foreign_table_preselect, foreign_id_common_name)
 
-    select_columns = []
+    foreign_selects = []
     for column in columns:
+        column_info = DB_MAP.get_column_info(column.name)
         preselect_column = get_cte_column(foreign_table_preselect, column.name)
-        non_null_cte = db.query(preselect_column.label(column.name), foreign_preselect_id.label(foreign_id_common_name)) \
-                        .filter(preselect_column.is_not(None)) \
-                        .group_by(foreign_preselect_id, preselect_column) \
-                        .cte(f'{column.name}_non_nulls')
-        null_cte = db.query(preselect_column.label(column.name), foreign_preselect_id.label(foreign_id_common_name)) \
-                .filter(foreign_preselect_id.not_in(db.query(get_cte_column(non_null_cte, foreign_id_common_name)))) \
-                .group_by(foreign_preselect_id, preselect_column) \
-                .cte(f'{column.name}_nulls')
-        union_subquery = union_all(db.query(non_null_cte.c), db.query(null_cte.c)).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).subquery(f'{column.name}_union')
+        if column_info.process_before_display != 'data_source':  
+            match column_info.column_type:
+                case 'numeric':
+                    column_summary = foreign_column_numeric_summary(db, preselect_column)
+                    foreign_selects.append(column_summary.label(column_info.uniquename))
+                case 'categorical':
+                    column_summary = foreign_column_categorical_summary(db, preselect_column, foreign_preselect_id)
+                    foreign_selects.append(column_summary.label(column_info.uniquename))
+                case _:
+                    log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
+                    pass
 
-
-        union_column = get_cte_column(union_subquery, column.name)
-        count_subquery = db.query(union_column,func.count().label('count_result')) \
-                            .group_by(union_column) \
-                            .subquery(f'{column.name}_count_subquery') 
-
-
-        column_select = db.query(
-                            func.array_agg(
-                                func.row_to_json(count_subquery.table_valued())
-                            ).label(f'{column.name}_array_agg')).scalar_subquery()
-        select_columns.append(column_select.label(column.name))
-    foreign_array_preselect = db.query(*select_columns).cte(f'{foreign_tablename}_columns')
+    foreign_array_preselect = db.query(*foreign_selects).cte(f'{foreign_tablename}_columns')
     return foreign_array_preselect.c
     
-def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, preselect_query, log):
+def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, preselect_query, filter_table_map, log):
     summary_selects = []
     foreign_array_map = {}
     for columnname in add_columns:
@@ -467,11 +530,12 @@ def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, prese
                 foreign_array_map[column_info.tablename].append(column_info.metadata_column.label(column_info.uniquename))
 
     for foreign_tablename, columns in foreign_array_map.items():
-        build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
-        preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query)
+        # build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map)
+        preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map)
         for column in preselect_columns:
             summary_selects.append(db.query(column).label(column.name))
     return summary_selects
+
 
 
 def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
@@ -481,13 +545,7 @@ def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_s
     # Set up the CTE preselect by selecting the id_alias column from it
     preselect_cte = db.query(endpoint_id_alias.label("id_alias"))
 
-    # Apply filter conditionals
-    if match_all_conditions and match_some_conditions:
-        preselect_cte = preselect_cte.filter(and_(*match_all_conditions)).filter(or_(*match_some_conditions))
-    elif match_all_conditions:
-        preselect_cte = preselect_cte.filter(and_(*match_all_conditions))
-    elif match_some_conditions:
-        preselect_cte = preselect_cte.filter(or_(*match_some_conditions))
+    preselect_cte = apply_match_all_some_filters(preselect_cte, match_all_conditions, match_some_conditions)
 
     preselect_cte = preselect_cte.cte(f"{endpoint_tablename}_preselect")
     preselect_query = db.query(preselect_cte.c.id_alias)

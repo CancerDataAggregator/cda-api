@@ -89,9 +89,12 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
     # ensure the unique column name exists in mapping and assign variables
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
+    filter_tablename = filter_column_info.tablename
+
     # build the sqlalachemy orm filter with the components
     filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)
 
+    local_filter_clause = filter_clause
     # if the filter applies to a foreign table, preselect on the mapping column
     if filter_column_info.tablename.lower() != endpoint_tablename.lower():
         try:
@@ -134,7 +137,7 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
         except Exception as e:
             raise e
 
-    return filter_clause, filter_columnname
+    return filter_clause, local_filter_clause, filter_columnname, filter_tablename
 
 
 # Build match_all and match_some filter conditional lists
@@ -143,16 +146,27 @@ def build_match_conditons(endpoint_tablename, request_body, log):
     match_all_conditions = []
     match_some_conditions = []
     filter_columnnames = []
+    filter_table_map = {}
     # match_all_conditions will be all AND'd together
     if request_body.MATCH_ALL:
         for filter_string in request_body.MATCH_ALL:
-            filter_clause, filter_columnname = get_preselect_filter(endpoint_tablename, filter_string, log) 
+            filter_clause, local_filter_clause, filter_columnname, filter_tablename = get_preselect_filter(endpoint_tablename, filter_string, log) 
             match_all_conditions.append(filter_clause)
-            filter_columnnames.append(filter_columnname)
+            if filter_columnname not in filter_columnnames:
+                filter_columnnames.append(filter_columnname)
+            if filter_tablename in filter_table_map.keys():
+                filter_table_map[filter_tablename]['match_all'].append(local_filter_clause)
+            else:
+                filter_table_map[filter_tablename] = {'match_all': [local_filter_clause], 'match_some': []}
     # match_some_conditions will be all OR'd together
     if request_body.MATCH_SOME:
         for filter_string in request_body.MATCH_SOME:
-            filter_clause, filter_columnname = get_preselect_filter(endpoint_tablename, filter_string, log) 
+            filter_clause, local_filter_clause, filter_columnname, filter_tablename = get_preselect_filter(endpoint_tablename, filter_string, log) 
             match_some_conditions.append(filter_clause)
-            filter_columnnames.append(filter_columnname)
-    return match_all_conditions, match_some_conditions, filter_columnnames
+            if filter_columnname not in filter_columnnames:
+                filter_columnnames.append(filter_columnname)
+            if filter_tablename in filter_table_map.keys():
+                filter_table_map[filter_tablename]['match_some'].append(local_filter_clause)
+            else:
+                filter_table_map[filter_tablename] = {'match_all': [], 'match_some': [local_filter_clause]}
+    return match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map
