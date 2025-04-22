@@ -19,8 +19,8 @@ def test_summary_subject_endpoint_column_not_found():
         "/summary/subject",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"detail": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
-    assert response.status_code == 404
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    assert response.status_code == 400
     assert response.json() == expected_response_json
 
 
@@ -39,6 +39,6 @@ def test_summary_file_endpoint_column_not_found():
         "/summary/file",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"detail": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
-    assert response.status_code == 404
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    assert response.status_code == 400
     assert response.json() == expected_response_json

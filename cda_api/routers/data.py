@@ -5,7 +5,7 @@ from cda_api import EmptyQueryError, get_logger, get_query_id
 from cda_api.application_utilities import handle_router_errors
 from cda_api.db import get_db
 from cda_api.db.query_builders import fetch_rows
-from cda_api.models import PagedResponseObj, QNode
+from cda_api.models import PagedResponseObj, DataRequestBody
 
 # API router object. Defines /data endpoint options
 router = APIRouter(prefix="/data", tags=["data"])
@@ -13,13 +13,13 @@ router = APIRouter(prefix="/data", tags=["data"])
 
 @router.post("/file")
 def file_fetch_rows_endpoint(
-    request: Request, qnode: QNode, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)
+    request: Request, request_body: DataRequestBody, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)
 ) -> PagedResponseObj:
     """File data endpoint that returns json formatted row data based on input query
 
     Args:
         request (Request): HTTP request object
-        qnode (QNode): JSON input query
+        request_body (DataRequestBody): JSON input query
         limit (int, optional): Limit for paged results. Defaults to 100.
         offset (int, optional): Offset for paged results. Defaults to 0.
         db (Session, optional): Database session object. Defaults to Depends(get_db).
@@ -37,16 +37,16 @@ def file_fetch_rows_endpoint(
     log = get_logger(qid)
 
     log.info(f"data/file endpoint hit: {request.client}")
-    log.info(f"QNode: {qnode.as_string()}")
+    log.info(f"DataRequestBody: {request_body.as_string()}")
     log.info(f"{request.url}")
-    if qnode.is_empty():
+    if request_body.is_empty():
         e = EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
         log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
 
     try:
         # Get paged query result
-        result = fetch_rows(db, endpoint_tablename="file", qnode=qnode, limit=limit, offset=offset, log=log)
+        result = fetch_rows(db, endpoint_tablename="file", request_body=request_body, limit=limit, offset=offset, log=log)
         if (offset != None) and (limit != None):
             if result["total_row_count"] > offset + limit:
                 next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")
@@ -62,13 +62,13 @@ def file_fetch_rows_endpoint(
 
 @router.post("/subject")
 def subject_fetch_rows_endpoint(
-    request: Request, qnode: QNode, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)
+    request: Request, request_body: DataRequestBody, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)
 ) -> PagedResponseObj:
     """Subject data endpoint that returns json formatted row data based on input query
 
     Args:
         request (Request): HTTP request object
-        qnode (QNode): JSON input query
+        request_body (DataRequestBody): JSON input query
         limit (int, optional): Limit for paged results. Defaults to 100.
         offset (int, optional): Offset for paged results. Defaults to 0.
         db (Session, optional): Database session object. Defaults to Depends(get_db).
@@ -86,16 +86,16 @@ def subject_fetch_rows_endpoint(
     qid = get_query_id()
     log = get_logger(qid)
     log.info(f"data/subject endpoint hit: {request.client}")
-    log.info(f"QNode: {qnode.as_string()}")
+    log.info(f"DataRequestBody: {request_body.as_string()}")
     log.info(f"{request.url}")
-    if qnode.is_empty():
+    if request_body.is_empty():
         e = EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
         log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
 
     try:
         # Get paged query result
-        result = fetch_rows(db, endpoint_tablename="subject", qnode=qnode, limit=limit, offset=offset, log=log)
+        result = fetch_rows(db, endpoint_tablename="subject", request_body=request_body, limit=limit, offset=offset, log=log)
         if (offset != None) and (limit != None):
             if result["total_row_count"] > offset + limit:
                 next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")

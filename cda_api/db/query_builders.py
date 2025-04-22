@@ -25,13 +25,13 @@ from .query_utilities import (
 from .select_builder import build_fetch_rows_select_clause
 
 
-def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
+def fetch_rows(db, endpoint_tablename, request_body, limit, offset, log):
     """Generates json formatted row data based on input query
 
     Args:
         db (Session): Database session object
         endpoint_tablename (str): Name of the endpoint table
-        qnode (QNode): JSON input query
+        request_body (request_body): JSON input query
         limit (int): Offset for paged results
         offset (int): Offset for paged results.
 
@@ -47,10 +47,10 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
     log.info("Building fetch_rows query")
 
     # Get match_all and match_some filters
-    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, qnode, log)
+    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, request_body, log)
 
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
-    qnode = normalize_add_exclude_columns(qnode, 'data', filter_columnnames)
+    request_body = normalize_add_exclude_columns(request_body, 'data', filter_columnnames)
 
     # Build the preselect query
     filter_preselect_query, endpoint_id_alias = build_filter_preselect(
@@ -59,7 +59,7 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
 
     # Build the select columns and joins to foreign column array preselects
     select_columns, foreign_joins = build_fetch_rows_select_clause(
-        db, endpoint_tablename, qnode, filter_preselect_query, log
+        db, endpoint_tablename, request_body, filter_preselect_query, log
     )
     
     query = db.query(*select_columns)
@@ -99,13 +99,13 @@ def fetch_rows(db, endpoint_tablename, qnode, limit, offset, log):
 
 
 # TODO
-def summary_query(db, endpoint_tablename, qnode, log):
+def summary_query(db, endpoint_tablename, request_body, log):
     """Generates json formatted summary data based on input query
 
     Args:
         db (Session): Database session object
         endpoint_tablename (str): Name of the endpoint table
-        qnode (QNode): JSON input query
+        request_body (SummaryRequestBody): JSON input query
 
     Returns:
         SummaryResponseObj:
@@ -118,10 +118,10 @@ def summary_query(db, endpoint_tablename, qnode, log):
     log.info("Building summary query")
 
     # Build filter conditionals
-    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, qnode, log)
+    match_all_conditions, match_some_conditions, filter_columnnames = build_match_conditons(endpoint_tablename, request_body, log)
 
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
-    qnode = normalize_add_exclude_columns(qnode, 'summary', filter_columnnames)
+    request_body = normalize_add_exclude_columns(request_body, 'summary', filter_columnnames)
 
     # Build preselect query
     endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
@@ -194,8 +194,8 @@ def summary_query(db, endpoint_tablename, qnode, log):
     data_source_count_select = data_source_counts(db, data_source_columnnames, data_source_columns)
     summary_select_clause.append(data_source_count_select.label('data_source'))
 
-    if qnode.ADD_COLUMNS != None:
-        add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, qnode.ADD_COLUMNS, preselect_query, log)
+    if request_body.ADD_COLUMNS != None:
+        add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, request_body.ADD_COLUMNS, preselect_query, log)
         for select in add_columns_selects:
             summary_select_clause.append(db.query(select).label(select.name))
         
@@ -261,7 +261,7 @@ def columns_query(db, log):
     return ret
 
 
-def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offset, log):
+def column_values_query(db, column, data_source, limit, offset, log):
     """Generates json formatted frequency results based on query for specific column
 
     Args:
@@ -275,29 +275,28 @@ def unique_value_query(db, columnname, system, countOpt, totalCount, limit, offs
             'query_sql': 'SQL statement used to generate result'
         }
     """
-    log.info("Building unique_values query")
+    log.info("Building column_values query")
 
-    column_info = DB_MAP.get_column_info(columnname)
+    column_info = DB_MAP.get_column_info(column)
     column = column_info.metadata_column
 
-    if countOpt:
-        unique_values_query = db.query(column.label(column_info.uniquename), func.count().label("value_count")).group_by(column).order_by(column)
-    else:
-        unique_values_query = db.query(distinct(column).label(column_info.uniquename)).order_by(column)
+    column_values_query = db.query(column.label(column_info.uniquename), func.count().label("value_count")).group_by(column).order_by(column)
 
-    if system:
-        try:
-            data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{system.lower()}")
-            unique_values_query = unique_values_query.filter(data_system_column.is_(True))
-        except Exception:
-            error = SystemNotFound(f"system: {system} - not found")
-            log.exception(error)
-            raise error
+    if data_source:
+        for source in data_source.split(','):
+            source = source.strip()
+            try:
+                data_system_column = DB_MAP.get_meta_column(f"{column.table.name}_data_at_{source.lower()}")
+                column_values_query = column_values_query.filter(data_system_column.is_(True))
+            except Exception:
+                error = SystemNotFound(f"system: {source} - not found")
+                log.exception(error)
+                raise error
 
-    unique_values_query = unique_values_query.subquery("column_json")
+    column_values_query = column_values_query.subquery("column_json")
 
-    query = db.query(func.row_to_json(unique_values_query.table_valued()))
-    total_count_query = db.query(func.count()).select_from(unique_values_query)
+    query = db.query(func.row_to_json(column_values_query.table_valued()))
+    total_count_query = db.query(func.count()).select_from(column_values_query)
 
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query, indented = True)}\n{"-"*60}')
     log.debug(f'Total Count Query:\n{"-"*100}\n{query_to_string(total_count_query, indented = True)}\n{"-"*100}')

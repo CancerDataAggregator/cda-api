@@ -8,14 +8,14 @@ client = TestClient(app)
 # Change the endpoint
 ENDPOINT = "/data/subject"
 
-# OPTIONAL set columnname for unique_values endpoint
+# OPTIONAL set columnname for column_values endpoint
 COLUMNNAME = "sex"
 
 # OPTIONAL: Change the QNODE variable to the body you'd like to test
 QNODE = {"MATCH_ALL": ["subject_id_alias < 0"]}
 
 
-def test_debug_unique_values():
+def test_debug_column_values():
     # Set arguements
     args = {
         "columnname": "sex",  # str
@@ -29,7 +29,7 @@ def test_debug_unique_values():
     arg_strings = [
         f"{key}={str(value).lower()}" for key, value in args.items() if (key != "columnname") and (value != None)
     ]
-    endpoint = f'unique_values/{args["columnname"]}?' + "&".join(arg_strings)
+    endpoint = f'column_values/{args["columnname"]}?' + "&".join(arg_strings)
 
     response = client.post(endpoint)
     assert True

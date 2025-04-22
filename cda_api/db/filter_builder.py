@@ -138,20 +138,20 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
 
 
 # Build match_all and match_some filter conditional lists
-def build_match_conditons(endpoint_tablename, qnode, log):
+def build_match_conditons(endpoint_tablename, request_body, log):
     log.info("Building MATCH conditions")
     match_all_conditions = []
     match_some_conditions = []
     filter_columnnames = []
     # match_all_conditions will be all AND'd together
-    if qnode.MATCH_ALL:
-        for filter_string in qnode.MATCH_ALL:
+    if request_body.MATCH_ALL:
+        for filter_string in request_body.MATCH_ALL:
             filter_clause, filter_columnname = get_preselect_filter(endpoint_tablename, filter_string, log) 
             match_all_conditions.append(filter_clause)
             filter_columnnames.append(filter_columnname)
     # match_some_conditions will be all OR'd together
-    if qnode.MATCH_SOME:
-        for filter_string in qnode.MATCH_SOME:
+    if request_body.MATCH_SOME:
+        for filter_string in request_body.MATCH_SOME:
             filter_clause, filter_columnname = get_preselect_filter(endpoint_tablename, filter_string, log) 
             match_some_conditions.append(filter_clause)
             filter_columnnames.append(filter_columnname)

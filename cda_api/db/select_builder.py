@@ -7,12 +7,12 @@ from cda_api.classes.exceptions import TableNotFound
 from .query_utilities import build_foreign_array_preselect, build_foreign_json_preselect, get_identifiers_preselect_columns, get_hanging_table_join
 
 
-def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect_query, log):
+def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_preselect_query, log):
     log.info("Building SELECT clause")
     add_columns = []
-    if qnode.ADD_COLUMNS:
-        add_columns.extend(qnode.ADD_COLUMNS)
-    exclude_columns = qnode.EXCLUDE_COLUMNS
+    if request_body.ADD_COLUMNS:
+        add_columns.extend(request_body.ADD_COLUMNS)
+    exclude_columns = request_body.EXCLUDE_COLUMNS
     table_column_infos = DB_MAP.get_table_column_infos(entity_tablename)
     virtual_table_column_infos = DB_MAP.get_virtual_table_column_infos(entity_tablename)
     table_column_infos.extend(virtual_table_column_infos)
@@ -73,7 +73,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
 
     # Build foreign array column preselects
     for foreign_tablename, columns in foreign_array_map.items():
-        if qnode.EXPAND_RESULTS:
+        if request_body.EXPAND_RESULTS:
             foreign_join, preselect_columns = build_foreign_json_preselect(
                 db, entity_tablename, foreign_tablename, columns, filter_preselect_query
             )
@@ -97,7 +97,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, qnode, filter_preselect
             hanging_table_join = get_hanging_table_join(entity_tablename, col)
             if hanging_table_join != None:
                 foreign_joins.append(hanging_table_join)
-            if qnode.EXPAND_RESULTS:
+            if request_body.EXPAND_RESULTS:
                 select_columns.append(col.label(col.name))
             else:
                 select_columns.append(func.coalesce(col, []).label(col.name))

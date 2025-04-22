@@ -10,7 +10,7 @@ from sqlalchemy.exc import OperationalError
 from cda_api import get_logger, CDABaseException
 # from cda_api.handlers import database_dropout_handler
 from cda_api.application_utilities import database_connection_drop_handler
-from cda_api.routers import columns, data, release_metadata, summary, unique_values
+from cda_api.routers import column_values, columns, data, release_metadata, summary
 from cda_api.models import ClientError, InternalError
 
 # Establish FastAPI "app" used for decorators on api endpoint functions
@@ -34,7 +34,7 @@ app.include_router(router=data.router,
                 })
 
 app.include_router(router=summary.router)
-app.include_router(router=unique_values.router)
+app.include_router(router=column_values.router)
 app.include_router(router=release_metadata.router)
 app.include_router(router=columns.router)
 

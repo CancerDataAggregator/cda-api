@@ -4,47 +4,43 @@ from sqlalchemy.orm import Session
 from cda_api import get_logger, get_query_id
 from cda_api.application_utilities import handle_router_errors
 from cda_api.db import get_db
-from cda_api.db.query_builders import unique_value_query
-from cda_api.models import UniqueValueResponseObj
+from cda_api.db.query_builders import column_values_query
+from cda_api.models import ColumnValuesResponseObj
 
-router = APIRouter(prefix="/unique_values", tags=["unique_values"])
+router = APIRouter(prefix="/column_values", tags=["column_values"])
 
 
-@router.post("/{columnname}")
-def unique_values_endpoint(
+@router.post("/{column}")
+def column_values_endpoint(
     request: Request,
-    columnname: str,
-    system: str = "",
-    count: bool = False,
-    totalCount: bool = False,
+    column: str,
+    data_source: str = "",
     limit: int = None,
     offset: int = None,
     db: Session = Depends(get_db),
-) -> UniqueValueResponseObj:
+) -> ColumnValuesResponseObj:
     """_summary_
 
     Args:
         request (Request): _description_
-        column_name (str): _description_
-        qnode (QNode): _description_
+        column (str): _description_
+        data_source (str): _description_
         db (Session, optional): _description_. Defaults to Depends(get_db).
 
     Returns:
-        FrequencyResponseObj: _description_
+        ColumnValuesResponseObj: _description_
     """
     qid = get_query_id()
     log = get_logger(qid)
-    log.info(f"unique_values endpoint hit: {request.client}")
+    log.info(f"column_values endpoint hit: {request.client}")
     log.info(f"{request.url}")
 
     try:
         # Get paged query result
-        result = unique_value_query(
+        result = column_values_query(
             db,
-            columnname=columnname,
-            system=system,
-            countOpt=count,
-            totalCount=totalCount,
+            column=column,
+            data_source=data_source,
             limit=limit,
             offset=offset,
             log=log,
@@ -57,8 +53,6 @@ def unique_values_endpoint(
                 next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")
                 result["next_url"] = next_url
 
-        if not totalCount:
-            result["total_row_count"] = None
 
     except Exception as e:
         handle_router_errors(e, log)

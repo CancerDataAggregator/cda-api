@@ -48,7 +48,7 @@ class ParsingError(ClientErrorException):
 
 
 class EmptyQueryError(ClientErrorException):
-    """Custom exception for when the QNode is empty"""
+    """Custom exception for when the RequestBody is empty"""
     pass
 
 class DatabaseConnectionDrop(InternalErrorException):
