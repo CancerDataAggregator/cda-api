@@ -153,7 +153,8 @@ def summary_query(db, endpoint_tablename, request_body, log):
     sub_file_count = entity_count(db=db,
                                 endpoint_tablename=endpoint_tablename, 
                                 preselect_query=preselect_query,
-                                entity_to_count=entity_to_count)
+                                entity_to_count=entity_to_count,
+                                filter_table_map=filter_table_map)
     
     summary_select_clause.append(sub_file_count.label(f'{entity_to_count}_count'))
 
@@ -180,7 +181,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
                         log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
                         pass
         else:
-            add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, [column_info.uniquename], preselect_query, filter_table_map, log)
+            add_columns_selects, _ = get_foreign_array_summary_selects(db, endpoint_tablename, [column_info.uniquename], preselect_query, filter_table_map, log)
             for select in add_columns_selects:
                 summary_select_clause.append(db.query(select).label(select.name))
 
@@ -195,9 +196,14 @@ def summary_query(db, endpoint_tablename, request_body, log):
     summary_select_clause.append(data_source_count_select.label('data_source'))
 
     if request_body.ADD_COLUMNS != None:
-        add_columns_selects = get_foreign_array_summary_selects(db, endpoint_tablename, request_body.ADD_COLUMNS, preselect_query, filter_table_map, log)
+        print('hello')
+        add_columns_selects, entity_total_count_select = get_foreign_array_summary_selects(db, endpoint_tablename, request_body.ADD_COLUMNS, preselect_query, filter_table_map, log)
         for select in add_columns_selects:
             summary_select_clause.append(db.query(select).label(select.name))
+        print('hello')
+        if not isinstance(entity_total_count_select, type(None)):
+            print('CHANGING??????')
+            summary_select_clause[1] = entity_total_count_select
         
 
     # Wrap everything in a subquery

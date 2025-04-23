@@ -184,7 +184,7 @@ def get_entity_count_components(db, endpoint_tablename, preselect_query, entity_
     return subquery, column_to_count, column_to_filter_on
 
 # Gets the total count of an entity's related files and subjects by only counting from the mapping table (ie. observation_of_subject)
-def entity_count(db, endpoint_tablename, preselect_query, entity_to_count):
+def entity_count(db, endpoint_tablename, preselect_query, entity_to_count, filter_table_map):
     subquery, column_to_count, column_to_filter_on = get_entity_count_components(db, endpoint_tablename, preselect_query, entity_to_count)
 
     # Get count subquery
@@ -499,6 +499,19 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     foreign_table_preselect = foreign_table_preselect.cte(f'{foreign_tablename}_preselect')
     foreign_preselect_id = get_cte_column(foreign_table_preselect, foreign_id_common_name)
 
+    # Get file or subject count
+    if endpoint_tablename != 'subject':
+        entity_to_count = 'subject'
+    else:
+        entity_to_count = 'file'
+    
+    print(f'ft: {foreign_tablename}, etc: {entity_to_count}')
+    entity_total_count_select = None
+    if foreign_tablename == entity_to_count:
+        print('counting?????')
+        entity_total_count_select = db.query(func.count(distinct(foreign_preselect_id))).scalar_subquery().label(f'{entity_to_count}_count')
+    
+    print(entity_total_count_select)
     foreign_selects = []
     for column in columns:
         column_info = DB_MAP.get_column_info(column.name)
@@ -516,7 +529,7 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
                     pass
 
     foreign_array_preselect = db.query(*foreign_selects).cte(f'{foreign_tablename}_columns')
-    return foreign_array_preselect.c
+    return foreign_array_preselect.c, entity_total_count_select
     
 def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, preselect_query, filter_table_map, log):
     summary_selects = []
@@ -528,13 +541,16 @@ def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, prese
                 foreign_array_map[column_info.tablename] = [column_info.metadata_column.label(column_info.uniquename)]
             else:
                 foreign_array_map[column_info.tablename].append(column_info.metadata_column.label(column_info.uniquename))
-
+    entity_total_count_select = None
     for foreign_tablename, columns in foreign_array_map.items():
         # build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map)
-        preselect_columns = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map)
+        preselect_columns, possible_entity_total_count_select = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map)
+        if not isinstance(possible_entity_total_count_select, type(None)):
+            print('FLAGGED')
+            entity_total_count_select = possible_entity_total_count_select
         for column in preselect_columns:
             summary_selects.append(db.query(column).label(column.name))
-    return summary_selects
+    return summary_selects, entity_total_count_select
 
 
 
