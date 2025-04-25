@@ -21,7 +21,7 @@ from .query_utilities import (
     total_column_count_subquery,
     print_query
 )
-from .select_builder import build_fetch_rows_select_clause
+from .select_builder import build_data_select_clause
 
 
 def data_query(db, endpoint_tablename, request_body, limit, offset, log):
@@ -57,7 +57,7 @@ def data_query(db, endpoint_tablename, request_body, limit, offset, log):
     )
 
     # Build the select columns and joins to foreign column array preselects
-    select_columns, foreign_joins = build_fetch_rows_select_clause(
+    select_columns, foreign_joins = build_data_select_clause(
         db, endpoint_tablename, request_body, filter_preselect_query, filter_table_map, log
     )
     

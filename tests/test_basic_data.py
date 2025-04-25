@@ -15,14 +15,14 @@ def test_data_subject_endpoint_query_generation():
 
 
 def test_data_subject_endpoint_limit():
-    response = client.post("/data/subject", json={"MATCH_ALL": ["subject_id_alias >= 0"]}, params={"limit": 10})
+    response = client.post("/data/subject", json={"MATCH_ALL": ["subject_id_alias < 100"]}, params={"limit": 10})
     assert response.status_code == 200
     assert len(response.json()["result"]) == 10
 
 
 def test_data_subject_endpoint_offset_and_limit():
     response = client.post(
-        "/data/subject", json={"MATCH_ALL": ["subject_id_alias >= 0"]}, params={"offset": 10, "limit": 10}
+        "/data/subject", json={"MATCH_ALL": ["subject_id_alias < 100"]}, params={"offset": 10, "limit": 10}
     )
     assert response.status_code == 200
     assert len(response.json()["result"]) == 10
@@ -39,8 +39,8 @@ def test_data_subject_endpoint_column_not_found():
         "/data/subject",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"detail": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
-    assert response.status_code == 404
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    assert response.status_code == 400
     assert response.json() == expected_response_json
 
 
@@ -55,13 +55,13 @@ def test_data_file_endpoint_query_generation():
 
 
 def test_data_file_endpoint_limit():
-    response = client.post("/data/file", json={"MATCH_ALL": ["file_id_alias >= 0"]}, params={"limit": 10})
+    response = client.post("/data/file", json={"MATCH_ALL": ["file_id_alias < 100"]}, params={"limit": 10})
     assert response.status_code == 200
     assert len(response.json()["result"]) == 10
 
 
 def test_data_file_endpoint_offset_and_limit():
-    response = client.post("/data/file", json={"MATCH_ALL": ["file_id_alias >= 0"]}, params={"offset": 10, "limit": 10})
+    response = client.post("/data/file", json={"MATCH_ALL": ["file_id_alias < 100"]}, params={"offset": 10, "limit": 10})
     assert response.status_code == 200
     assert len(response.json()["result"]) == 10
 
@@ -77,6 +77,6 @@ def test_data_file_endpoint_column_not_found():
         "/data/file",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"detail": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
-    assert response.status_code == 404
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    assert response.status_code == 400
     assert response.json() == expected_response_json

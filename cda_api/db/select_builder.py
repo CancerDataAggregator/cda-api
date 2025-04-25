@@ -7,15 +7,15 @@ from cda_api.classes.exceptions import TableNotFound
 from .query_utilities import build_foreign_array_preselect, build_foreign_json_preselect, get_identifiers_preselect_columns, get_hanging_table_join
 
 
-def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_preselect_query, filter_table_map, log):
+def build_data_select_clause(db, endpoint_tablename, request_body, filter_preselect_query, filter_table_map, log):
     log.info("Building SELECT clause")
     add_columns = []
     if request_body.ADD_COLUMNS:
         add_columns.extend(request_body.ADD_COLUMNS)
     exclude_columns = request_body.EXCLUDE_COLUMNS
-    table_column_infos = DB_MAP.get_table_column_infos(entity_tablename)
-    virtual_table_column_infos = DB_MAP.get_virtual_table_column_infos(entity_tablename)
-    table_column_infos.extend(virtual_table_column_infos)
+    table_column_infos = DB_MAP.get_table_column_infos(endpoint_tablename)
+    virtual_table_column_infos = DB_MAP.get_virtual_table_column_infos(endpoint_tablename)
+    table_column_infos.extend([column_info for column_info in virtual_table_column_infos if column_info.uniquename not in add_columns])
     select_columns = [
         column_info.metadata_column.label(column_info.uniquename)
         for column_info in table_column_infos
@@ -29,7 +29,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
     # Add additional columns to select list
     if add_columns:
         for add_columnname in add_columns:
-            if add_columnname == f'{entity_tablename}_identifier':
+            if add_columnname == f'{endpoint_tablename}_identifier':
                 identifiers = True
                 continue
             elif add_columnname.endswith('.*'):
@@ -65,7 +65,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
         unique_name = column.name
         if isinstance(column, Label):
             column = column.element
-        if column.table.name != entity_tablename:
+        if column.table.name != endpoint_tablename:
             if column.table.name not in foreign_array_map.keys():
                 foreign_array_map[column.table.name] = [column.label(unique_name)]
             else:
@@ -75,12 +75,12 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
     for foreign_tablename, columns in foreign_array_map.items():
         if request_body.EXPAND_RESULTS:
             foreign_join, preselect_columns = build_foreign_json_preselect(
-                db, entity_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log
+                db, endpoint_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log
             )
             foreign_joins.append(foreign_join)
         else:
             foreign_join, preselect_columns = build_foreign_array_preselect(
-                db, entity_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log
+                db, endpoint_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log
             )
             foreign_joins.append(foreign_join)
 
@@ -94,7 +94,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
         select_columns = [col for col in select_columns if col not in to_remove]
 
         for col in preselect_columns:
-            hanging_table_join = get_hanging_table_join(entity_tablename, col)
+            hanging_table_join = get_hanging_table_join(endpoint_tablename, col)
             if hanging_table_join != None:
                 foreign_joins.append(hanging_table_join)
             if request_body.EXPAND_RESULTS:
@@ -103,7 +103,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
                 select_columns.append(func.coalesce(col, []).label(col.name))
 
     if identifiers:
-        foreign_join, preselect_columns = get_identifiers_preselect_columns(db, entity_tablename, filter_preselect_query)
+        foreign_join, preselect_columns = get_identifiers_preselect_columns(db, endpoint_tablename, filter_preselect_query)
         foreign_joins.append(foreign_join)
         for col in preselect_columns:
             select_columns.append(col.label(col.name))

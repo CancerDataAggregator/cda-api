@@ -12,7 +12,7 @@ def test_bad_endpoint():
 def test_data_subject_endpoint():
     response = client.post(
         "/data/subject",
-        json={"MATCH_ALL": ["subject_id_alias < 0"]},
+        json={"MATCH_ALL": ["subject_id_alias < 1"]},
     )
     assert response.status_code == 200
 
@@ -20,7 +20,7 @@ def test_data_subject_endpoint():
 def test_data_file_endpoint():
     response = client.post(
         "/data/file",
-        json={"MATCH_ALL": ["file_id_alias < 0"]},
+        json={"MATCH_ALL": ["file_id_alias < 1"]}
     )
     assert response.status_code == 200
 
@@ -28,7 +28,7 @@ def test_data_file_endpoint():
 def test_summary_subject_endpoint():
     response = client.post(
         "/summary/subject",
-        json={"MATCH_ALL": ["subject_id_alias < 0"]},
+        json={"MATCH_ALL": ["subject_id_alias < 1"]},
     )
     assert response.status_code == 200
 
@@ -36,7 +36,7 @@ def test_summary_subject_endpoint():
 def test_summary_file_endpoint():
     response = client.post(
         "/summary/file",
-        json={"MATCH_ALL": ["file_id_alias < 0"]},
+        json={"MATCH_ALL": ["file_id_alias < 1"]},
     )
     assert response.status_code == 200
 
