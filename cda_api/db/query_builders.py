@@ -8,7 +8,6 @@ from cda_api.db.schema import Base
 
 from .filter_builder import build_match_conditons
 from .query_utilities import (
-    add_hanging_table_joins,
     normalize_add_exclude_columns,
     build_filter_preselect,
     get_foreign_array_summary_selects,
@@ -162,7 +161,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
     ## Step through each column in the endpoint table
     for column_info in endpoint_column_infos:
         column_summary = None
-        if not column_info.summary_display:
+        if not column_info.summary_returns:
             log.debug(f'Skipping column: {column_info.uniquename} because it is not supposed to be displayed')
             continue
         if column_info.virtual_table == None:
@@ -247,7 +246,7 @@ def columns_query(db, log):
         virtual_columns = DB_MAP.get_virtual_table_column_infos(tablename)
         columns.extend(virtual_columns)
         for column_info in columns:
-            if column_info.fetch_rows_returns:
+            if column_info.data_returns:
                 column = column_info.metadata_column
                 # if column.name != "id_alias":
                 col = dict()

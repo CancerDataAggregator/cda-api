@@ -145,52 +145,52 @@ class DatabaseMap:
                 connecting_table = fk.column.table
                 connecting_tablename = connecting_table.name
 
-                for entity_tablename in ["subject", "file"]:
-                    if connecting_tablename == entity_tablename:
-                        self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = {
+                for endpoint_tablename in ["subject", "file"]:
+                    if connecting_tablename == endpoint_tablename:
+                        self.hanging_table_relationship_map[hanging_tablename][endpoint_tablename] = {
                             "join_table": hanging_table,
                             "statement": hanging_table_alias == connecting_table_alias,
                             "hanging_fk_parent": hanging_table_alias
                         }
                     else:
                         entity_connecting_relationship = self.get_relationship(
-                            entity_tablename=entity_tablename, foreign_tablename=connecting_tablename
+                            entity_tablename=endpoint_tablename, foreign_tablename=connecting_tablename
                         )
                         mapping_table_to_hanging_table_join = {
                             "join_table": entity_connecting_relationship.mapping_table,
                             "statement": entity_connecting_relationship.foreign_mapping_column == hanging_table_alias,
                             "hanging_fk_parent": hanging_table_alias,
                             "foreign_mapping_column": entity_connecting_relationship.foreign_mapping_column,
-                            "entity_mapping_columnname": entity_connecting_relationship.entity_mapping_column.name,
-                            "entity_mapping_column": entity_connecting_relationship.entity_mapping_column,
-                            "entity_column": entity_connecting_relationship.entity_column,
-                            "entity_mapping_join": entity_connecting_relationship.entity_column
+                            "local_mapping_columnname": entity_connecting_relationship.entity_mapping_column.name,
+                            "local_mapping_column": entity_connecting_relationship.entity_mapping_column,
+                            "local_column": entity_connecting_relationship.entity_column,
+                            "mapping_table_join_clause": entity_connecting_relationship.entity_column
                             == entity_connecting_relationship.entity_mapping_column,
 
                         }
-                        self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = (
+                        self.hanging_table_relationship_map[hanging_tablename][endpoint_tablename] = (
                             mapping_table_to_hanging_table_join
                         )
             else:
                 hanging_table_alias = self.get_meta_column('upstream_identifiers_id_alias')
-                for entity_tablename in ["subject", "file"]:
-                    self.hanging_table_relationship_map[hanging_tablename][entity_tablename] = {
+                for endpoint_tablename in ["subject", "file"]:
+                    self.hanging_table_relationship_map[hanging_tablename][endpoint_tablename] = {
                         "join_table": hanging_table,
-                        "statement": hanging_table_alias == self.get_meta_column(f'{entity_tablename}_id_alias'),
+                        "statement": hanging_table_alias == self.get_meta_column(f'{endpoint_tablename}_id_alias'),
                         "hanging_fk_parent": hanging_table_alias
                     }
     
-    def relationship_exists(self, entity_tablename, foreign_tablename):
-        if entity_tablename not in self.relationship_map.keys():
-            error_message = f"Unable to find entity table {entity_tablename}"
+    def relationship_exists(self, local_tablename, foreign_tablename):
+        if local_tablename not in self.relationship_map.keys():
+            error_message = f"Unable to find entity table {local_tablename}"
             raise TableNotFound(error_message)
-        return foreign_tablename in self.relationship_map[entity_tablename].keys()
+        return foreign_tablename in self.relationship_map[local_tablename].keys()
     
-    def hanging_table_join_exists(self, hanging_tablename, entity_tablename):
+    def hanging_table_join_exists(self, hanging_tablename, local_tablename):
         if hanging_tablename not in self.hanging_table_relationship_map.keys():
             error_message = f"Unable to find entity table {hanging_tablename}"
             raise TableNotFound(error_message)
-        return entity_tablename in self.hanging_table_relationship_map[hanging_tablename].keys()
+        return local_tablename in self.hanging_table_relationship_map[hanging_tablename].keys()
 
     def get_column_not_found_message(self, columnname, e = None):
         possible_cols = [k for k in self.column_map.keys() if k.endswith(columnname)]
@@ -222,12 +222,12 @@ class DatabaseMap:
             error_message = f"Unable to find relationship between {entity_tablename} and {foreign_tablename}\n{e}"
             raise RelationshipNotFound(error_message)
 
-    def get_hanging_table_join(self, hanging_tablename, entity_tablename):
+    def get_hanging_table_join(self, hanging_tablename, local_tablename):
         try:
-            return self.hanging_table_relationship_map[hanging_tablename][entity_tablename]
+            return self.hanging_table_relationship_map[hanging_tablename][local_tablename]
         except Exception as e:
             error_message = (
-                f"Unable to find relationship between hanging table {hanging_tablename} and {entity_tablename}\n{e}"
+                f"Unable to find relationship between hanging table {hanging_tablename} and {local_tablename}\n{e}"
             )
             raise RelationshipNotFound(error_message)
 
@@ -310,10 +310,10 @@ class DatabaseMap:
         if tablename not in self.entity_tablenames:
             raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
         column_infos = self.get_table_column_infos(tablename)
-        return [col_info for col_info in column_infos if col_info.fetch_rows_returns]
+        return [col_info for col_info in column_infos if col_info.data_returns]
     
     def get_table_summary_column_infos(self, tablename):
         if tablename not in self.entity_tablenames:
             raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
         column_infos = self.get_table_column_infos(tablename)
-        return [col_info for col_info in column_infos if col_info.summary_display]
+        return [col_info for col_info in column_infos if col_info.summary_returns]

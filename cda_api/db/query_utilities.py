@@ -199,11 +199,11 @@ def entity_count(db, endpoint_tablename, preselect_query, entity_to_count, filte
 def unique_column_array_agg(column):
     return func.array_remove(func.array_agg(distinct(column)), None).label(column.name)
 
-def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
+def get_foreign_array_columns_and_join(endpoint_tablename, foreign_tablename):
     foreign_array_join = None
     # If there is direct relationship defined
-    if DB_MAP.relationship_exists(entity_tablename, foreign_tablename):
-        relation = DB_MAP.get_relationship(entity_tablename, foreign_tablename)
+    if DB_MAP.relationship_exists(endpoint_tablename, foreign_tablename):
+        relation = DB_MAP.get_relationship(endpoint_tablename, foreign_tablename)
         entity_column = relation.entity_column
         # If there is a mapping table (ie. file_describes subject)
         if relation.has_mapping_table:
@@ -218,14 +218,14 @@ def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
             foreign_column = relation.foreign_column
 
     # If there is a "hanging table" join defined, (file_tumor_vs_normal is a "hanging table" to file and there is a join defined to subject through file_describes_subject)
-    elif DB_MAP.hanging_table_join_exists(foreign_tablename, entity_tablename):
+    elif DB_MAP.hanging_table_join_exists(foreign_tablename, endpoint_tablename):
         hanging_table_join = DB_MAP.get_hanging_table_join(
-            hanging_tablename=foreign_tablename, entity_tablename=entity_tablename
+            hanging_tablename=foreign_tablename, local_tablename=endpoint_tablename
         )
         # If there is a mapping table involved (ie. file_tumor_vs_normal -> "file_describes_subject" -> subject)
         if "entity_mapping_column" in hanging_table_join.keys():
-            entity_column = hanging_table_join["entity_column"]
-            foreign_column = hanging_table_join["entity_mapping_column"]
+            entity_column = hanging_table_join["local_column"]
+            foreign_column = hanging_table_join["local_mapping_column"]
             foreign_array_join = {
                 'target': hanging_table_join["join_table"], 
                 'onclause': hanging_table_join["statement"]
@@ -234,7 +234,7 @@ def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
         # If there is a direct connection (ie. file_tumor_vs_normal -> file)
         else:
             if foreign_tablename == 'upstream_identifiers':
-                entity_column = DB_MAP.get_meta_column(f'{entity_tablename}_id_alias')
+                entity_column = DB_MAP.get_meta_column(f'{endpoint_tablename}_id_alias')
                 foreign_column = hanging_table_join["hanging_fk_parent"]
                 # foreign_array_join = {
                 #     'target': hanging_table_join["join_table"], 
@@ -245,17 +245,17 @@ def get_foreign_array_columns_and_join(entity_tablename, foreign_tablename):
                 foreign_column = hanging_table_join["hanging_fk_parent"]
 
     else:
-        error_message = f'Unable to build foreign array preselect between {entity_tablename} and {foreign_tablename}'
+        error_message = f'Unable to build foreign array preselect between {endpoint_tablename} and {foreign_tablename}'
         raise RelationshipNotFound(error_message)
     return entity_column, foreign_column, foreign_array_join
 
 
 # Build the preselects of arrays when adding foreign columns
-def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, columns, preselect_query, filter_table_map, log):
-    cte_name = f"{foreign_tablename}_{entity_tablename}_columns"
-    entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(entity_tablename, foreign_tablename)
+def build_foreign_array_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map, log):
+    cte_name = f"{foreign_tablename}_{endpoint_tablename}_columns"
+    entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(endpoint_tablename, foreign_tablename)
     
-    select_cols = [unique_column_array_agg(column) for column in columns] + [foreign_column]
+    select_cols = [unique_column_array_agg(column).label(column.name) for column in columns] + [foreign_column]
     foreign_array_preselect = (
                     db.query(*select_cols)
                     .filter(foreign_column.in_(preselect_query))
@@ -267,7 +267,7 @@ def build_foreign_array_preselect(db, entity_tablename, foreign_tablename, colum
         foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some)
     
     if foreign_tablename == 'upstream_identifiers':
-        foreign_array_preselect = foreign_array_preselect.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == entity_tablename)
+        foreign_array_preselect = foreign_array_preselect.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == endpoint_tablename)
 
     if foreign_array_join:
         foreign_array_preselect = foreign_array_preselect.join(**foreign_array_join)
@@ -401,12 +401,12 @@ def get_foreign_array_summary_columns(entity_tablename, foreign_tablename):
     # (file_tumor_vs_normal is a "hanging table" to file and there is a join defined to subject through file_describes_subject)
     elif DB_MAP.hanging_table_join_exists(foreign_tablename, entity_tablename):
         hanging_table_join = DB_MAP.get_hanging_table_join(
-            hanging_tablename=foreign_tablename, entity_tablename=entity_tablename
+            hanging_tablename=foreign_tablename, local_tablename=entity_tablename
         )
         # If there is a mapping table involved (ie. file_tumor_vs_normal -> "file_describes_subject" -> subject)
-        if "entity_mapping_column" in hanging_table_join.keys():
-            entity_column = hanging_table_join["entity_column"]
-            entity_mapping_column = hanging_table_join["entity_mapping_column"]
+        if "local_mapping_column" in hanging_table_join.keys():
+            entity_column = hanging_table_join["local_column"]
+            entity_mapping_column = hanging_table_join["local_mapping_column"]
             foreign_column = hanging_table_join["hanging_fk_parent"]
             foreign_mapping_column = hanging_table_join["foreign_mapping_column"]
             foreign_array_join = {
@@ -597,7 +597,7 @@ def get_hanging_table_join(endpoint_tablename, select_column):
             if column_tablename in DB_MAP.hanging_table_relationship_map.keys():
                 if endpoint_tablename in DB_MAP.hanging_table_relationship_map[column_tablename].keys():
                     hanging_table_join = DB_MAP.get_hanging_table_join(
-                        hanging_tablename=column_tablename, entity_tablename=endpoint_tablename
+                        hanging_tablename=column_tablename, local_tablename=endpoint_tablename
                     )
                     return {'target': hanging_table_join["join_table"], 'onclause': hanging_table_join["statement"]}
     return None
@@ -619,7 +619,7 @@ def add_hanging_table_joins(endpoint_tablename, select_columns, query):
     for hanging_tablename in hanging_tablenames:
         if endpoint_tablename in DB_MAP.hanging_table_relationship_map[hanging_tablename].keys():
             hanging_table_join = DB_MAP.get_hanging_table_join(
-                hanging_tablename=hanging_tablename, entity_tablename=endpoint_tablename
+                hanging_tablename=hanging_tablename, local_tablename=endpoint_tablename
             )
             query = query.join(hanging_table_join["join_table"], hanging_table_join["statement"])
         else:

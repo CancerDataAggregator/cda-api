@@ -17,8 +17,8 @@ class ColumnInfo:
     table_columnname: str = field(init=False)
     entity_column: InstrumentedAttribute = field(init=False)
     column_type: str = field(init=False)
-    summary_display: bool = field(init=False)
-    fetch_rows_returns: bool = field(init=False)
+    summary_returns: bool = field(init=False)
+    data_returns: bool = field(init=False)
     process_before_display: str = field(init=False)
     virtual_table: str = field(init=False)
 
@@ -30,8 +30,8 @@ class ColumnInfo:
 
         # Set metadata
         self.column_type = None
-        self.summary_display = None
-        self.fetch_rows_returns = None
+        self.summary_returns = None
+        self.data_returns = None
         self.process_before_display = None
         self.virtual_table = None
 
@@ -44,8 +44,8 @@ class ColumnInfo:
             if self.columnname in self.column_metadata_map[self.tablename].keys():
                 column_metadata = self.column_metadata_map[self.tablename][self.columnname]
                 self.column_type = column_metadata["column_type"]
-                self.summary_display = column_metadata["summary_display"]
-                self.fetch_rows_returns = column_metadata["fetch_rows_returns"]
+                self.summary_returns = column_metadata["summary_returns"]
+                self.data_returns = column_metadata["data_returns"]
                 self.process_before_display = column_metadata["process_before_display"]
                 self.virtual_table = column_metadata["virtual_table"]
 

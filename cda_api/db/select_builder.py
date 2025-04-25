@@ -19,12 +19,12 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
     select_columns = [
         column_info.metadata_column.label(column_info.uniquename)
         for column_info in table_column_infos
-        if column_info.fetch_rows_returns
+        if column_info.data_returns
     ]
     foreign_array_map = {}
     foreign_joins = []
     identifiers = False
-    added_columns = [column_info.uniquename for column_info in table_column_infos if column_info.fetch_rows_returns]
+    added_columns = [column_info.uniquename for column_info in table_column_infos if column_info.data_returns]
 
     # Add additional columns to select list
     if add_columns:
@@ -38,7 +38,7 @@ def build_fetch_rows_select_clause(db, entity_tablename, request_body, filter_pr
                     raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
                 link_to_table_column_infos = DB_MAP.get_table_column_infos(tablename)
                 for column_info in link_to_table_column_infos:
-                    if column_info.fetch_rows_returns:
+                    if column_info.data_returns:
                         add_column = column_info.metadata_column
                         if column_info.uniquename not in added_columns:
                             select_columns.append(add_column.label(column_info.uniquename))

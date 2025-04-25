@@ -105,14 +105,14 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
             filter_clause = mapping_column.any(filter_clause)
         except RelationshipNotFound:
             hanging_table_join = DB_MAP.get_hanging_table_join(
-                hanging_tablename=filter_column_info.tablename, entity_tablename=endpoint_tablename
+                hanging_tablename=filter_column_info.tablename, local_tablename=endpoint_tablename
             )
             if "entity_mapping_join" in hanging_table_join.keys():
                 filter_clause = exists(
                     select(1)
                     .select_from(hanging_table_join["join_table"])
                     .filter(hanging_table_join["statement"])
-                    .filter(hanging_table_join["entity_mapping_join"])
+                    .filter(hanging_table_join["mapping_table_join_clause"])
                     .filter(filter_clause)
                 )
                 pass
