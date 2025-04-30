@@ -2,9 +2,10 @@ import time
 
 from sqlalchemy import distinct, func, union_all, union, SelectLabelStyle
 
-from cda_api import SystemNotFound, ColumnNotFound
+from cda_api import SystemNotFound, ColumnNotFound, InvalidFilterError
 from cda_api.db import DB_MAP
 from cda_api.db.schema import Base
+from psycopg2.errors import UndefinedFunction
 
 from .filter_builder import build_match_conditons
 from .query_utilities import (
@@ -46,17 +47,21 @@ def data_query(db, endpoint_tablename, request_body, limit, offset, log):
     log.info("Building fetch_rows query")
 
     # Get match_all and match_some filters
+    log.debug("Building match conditions")
     match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map = build_match_conditons(endpoint_tablename, request_body, log)
 
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
+    log.debug("Normalizing ADD_COLUMNS and EXCLUDE_COLUMNS")
     request_body = normalize_add_exclude_columns(request_body, 'data', filter_columnnames)
 
     # Build the preselect query
+    log.debug("Building the filter preselect")
     filter_preselect_query, endpoint_id_alias = build_filter_preselect(
         db, endpoint_tablename, match_all_conditions, match_some_conditions
     )
 
     # Build the select columns and joins to foreign column array preselects
+    log.debug("Building the select clause")
     select_columns, foreign_joins = build_data_select_clause(
         db, endpoint_tablename, request_body, filter_preselect_query, filter_table_map, log
     )
@@ -76,6 +81,7 @@ def data_query(db, endpoint_tablename, request_body, limit, offset, log):
     count_query = db.query(func.count()).select_from(count_subquery)
 
     subquery = query.subquery("json_result")
+    log.debug("Running Query")
     query = db.query(func.row_to_json(subquery.table_valued()))
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
 

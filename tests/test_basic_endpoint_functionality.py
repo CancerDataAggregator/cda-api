@@ -3,6 +3,55 @@ from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
+################################ baic functionality test ################################
+def test_bad_endpoint():
+    response = client.get("/FAKE_ENDPOINT")
+    assert response.status_code == 404
+
+
+def test_data_subject_endpoint():
+    response = client.post(
+        "/data/subject",
+        json={"MATCH_ALL": ["subject_id_alias < 1"]},
+    )
+    assert response.status_code == 200
+
+
+def test_data_file_endpoint():
+    response = client.post(
+        "/data/file",
+        json={"MATCH_ALL": ["file_id_alias < 1"]}
+    )
+    assert response.status_code == 200
+
+
+def test_summary_subject_endpoint():
+    response = client.post(
+        "/summary/subject",
+        json={"MATCH_ALL": ["subject_id_alias < 1"]},
+    )
+    assert response.status_code == 200
+
+
+def test_summary_file_endpoint():
+    response = client.post(
+        "/summary/file",
+        json={"MATCH_ALL": ["file_id_alias < 1"]},
+    )
+    assert response.status_code == 200
+
+
+def test_release_metadata_endpoint():
+    response = client.get("/release_metadata")
+    assert response.status_code == 200
+
+
+def test_columns_endpoint():
+    response = client.get("/columns")
+    assert response.status_code == 200
+
+
+
 
 ################################ data/subject testing ################################
 def test_data_subject_endpoint_query_generation():
@@ -75,6 +124,48 @@ def test_data_file_endpoint_offset_too_big():
 def test_data_file_endpoint_column_not_found():
     response = client.post(
         "/data/file",
+        json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
+    )
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    assert response.status_code == 400
+    assert response.json() == expected_response_json
+
+
+
+
+################################ summary/subject testing ################################
+def test_summary_subject_endpoint_query_generation():
+    response = client.post(
+        "/summary/subject",
+        json={"MATCH_ALL": ["subject_id_alias < 10"]},
+    )
+    assert response.status_code == 200
+    assert response.json()["query_sql"].startswith("WITH")
+
+
+def test_summary_subject_endpoint_column_not_found():
+    response = client.post(
+        "/summary/subject",
+        json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
+    )
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    assert response.status_code == 400
+    assert response.json() == expected_response_json
+
+
+################################ summary/file testing ################################
+def test_summary_file_endpoint_query_generation():
+    response = client.post(
+        "/summary/file",
+        json={"MATCH_ALL": ["file_id_alias < 10"]},
+    )
+    assert response.status_code == 200
+    assert response.json()["query_sql"].startswith("WITH")
+
+
+def test_summary_file_endpoint_column_not_found():
+    response = client.post(
+        "/summary/file",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
     expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}

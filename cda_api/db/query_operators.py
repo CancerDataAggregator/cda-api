@@ -1,5 +1,5 @@
 from sqlalchemy import func
-
+from cda_api import ParsingError
 
 def apply_filter_operator(filter_column, filter_value, filter_operator, log):
     log.debug(f"Applying filter {filter_column} {filter_operator} {filter_value}")
@@ -31,19 +31,19 @@ def apply_filter_operator(filter_column, filter_value, filter_operator, log):
         case ">=":
             return filter_column >= filter_value
         case "is":
-            if filter_value not in [None, True, False]:
-                raise ValueError(
+            if type(filter_value) not in [type(None), bool]:
+                raise ParsingError(
                     f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator."
                 )
             return filter_column.is_(filter_value)
         case "is not":
-            if filter_value not in [None, True, False]:
-                raise ValueError(
+            if type(filter_value) not in [type(None), bool]:
+                raise ParsingError(
                     f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator."
                 )
             return filter_column.is_not(filter_value)
         case _:
-            raise ValueError(f"Unexpected operator: {filter_operator}")
+            raise ParsingError(f"Unexpected operator: {filter_operator}")
 
 
 # Returns a case insensitive like filter conditional object
