@@ -41,8 +41,8 @@ RUN pipx install poetry==${POETRY_VERSION} --global
 # Change to app directory
 WORKDIR /app
 
-# copy only pyproject.toml and poetry.lock file nothing else here
-COPY poetry.lock pyproject.toml ./
+# copy only pyproject.toml nothing else here
+COPY pyproject.toml ./
 
 # This will create the folder /app/.venv
 RUN poetry install --no-root
