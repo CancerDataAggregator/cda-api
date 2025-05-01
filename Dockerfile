@@ -1,13 +1,8 @@
 # syntax=docker/dockerfile:1
 
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
+ARG ALPINE_VERSION="3.21.3"
 
-# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
-
-ARG PYTHON_VERSION=3.12.5
-FROM python:${PYTHON_VERSION}-slim as python-base
+FROM alpine:${ALPINE_VERSION}
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -16,6 +11,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
+# Install Python
+ARG PYTHON_VERSION="3.12"
+RUN apk add --update --no-cache python3=~${PYTHON_VERSION} py3-pip py3-setuptools pipx
+
+# Install prereqs for python packages
+RUN apk add gcc python3-dev musl-dev linux-headers
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
@@ -29,29 +30,22 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-FROM python-base AS poetry-base
+# Set environment variables for poetry and install with pipx
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_HOME='/usr/local' \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VERSION="1.8.3"
+RUN pipx install poetry==${POETRY_VERSION} --global
 
-ENV POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_NO_INTERACTION=1
-
-# to run poetry directly as soon as it's installed
-ENV PATH="$POETRY_HOME/bin:$PATH"
-
-ENV POETRY_VERSION="1.7.1"
-
-RUN pip install -U pip setuptools && \
-    pip install poetry==${POETRY_VERSION} && \
-    pip install fastapi[standard]
-
+# Change to app directory
 WORKDIR /app
 
 # copy only pyproject.toml and poetry.lock file nothing else here
 COPY poetry.lock pyproject.toml ./
 
-# this will create the folder /app/.venv (might need adjustment depending on which poetry version you are using)
-RUN poetry config virtualenvs.create false && \
-    poetry install --no-root
+# This will create the folder /app/.venv
+RUN poetry install --no-root
 
 # Switch to the non-privileged user to run the application.
 USER appuser
@@ -66,5 +60,6 @@ EXPOSE 5432
 # Set up environment variable to indicate the app is running in docker
 ENV DOCKER_DEPLOYED=1
 
-# Run the application.
-CMD ["fastapi", "run", "cda_api/main.py", "--port", "8000"]
+# Run the application within the poetry virtual environment
+CMD ["poetry", "run", "fastapi", "run", "cda_api/main.py", "--port", "8000"]
+
