@@ -170,6 +170,9 @@ def summary_query(db, endpoint_tablename, request_body, log):
         if not column_info.summary_returns:
             log.debug(f'Skipping column: {column_info.uniquename} because it is not supposed to be displayed')
             continue
+        elif column_info.uniquename in request_body.EXCLUDE_COLUMNS:
+            log.debug(f'Skipping column: {column_info.uniquename} because it is in the EXCLUDE_COLUMNS list')
+            continue
         if column_info.virtual_table == None:
             ## Get the preselect column
             preselect_column = get_cte_column(preselect_query, column_info.uniquename)
@@ -201,13 +204,11 @@ def summary_query(db, endpoint_tablename, request_body, log):
     summary_select_clause.append(data_source_count_select.label('data_source'))
 
     if request_body.ADD_COLUMNS != None:
-        print('hello')
-        add_columns_selects, entity_total_count_select = get_foreign_array_summary_selects(db, endpoint_tablename, request_body.ADD_COLUMNS, preselect_query, filter_table_map, log)
+        columns_to_add =  [columnname for columnname in request_body.ADD_COLUMNS if columnname not in request_body.EXCLUDE_COLUMNS]
+        add_columns_selects, entity_total_count_select = get_foreign_array_summary_selects(db, endpoint_tablename, columns_to_add, preselect_query, filter_table_map, log)
         for select in add_columns_selects:
             summary_select_clause.append(db.query(select).label(select.name))
-        print('hello')
         if not isinstance(entity_total_count_select, type(None)):
-            print('CHANGING??????')
             summary_select_clause[1] = entity_total_count_select
         
 

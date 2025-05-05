@@ -300,7 +300,7 @@ def test_add_and_exclude_columns_different_columns():
 
 
 
-################################ EXAND_RESULTS ################################
+################################ EXPAND_RESULTS ################################
 def test_expand_results_single_add_column():
     response = client.post(
         "/data/subject",
@@ -423,8 +423,8 @@ def test_request_body_data_subject():
     response = client.post(
         "/data/subject",
         json={
-              "MATCH_ALL": ["subject_id_alias < 500", "sex like f*"],
-              "MATCH_SOME": ["diagnosis like a*", "species is not null"],
+              "MATCH_ALL": ["subject_id_alias < 500", "species is not null"],
+              "MATCH_SOME": ["diagnosis like a*", "sex like f*"],
               "ADD_COLUMNS": ["observation.*", "file.*"],
               "EXCLUDE_COLUMNS": ["ethnicity", "diagnosis"],
               "EXPAND_RESULTS": True
