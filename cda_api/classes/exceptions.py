@@ -54,3 +54,7 @@ class EmptyQueryError(ClientErrorException):
 class DatabaseConnectionDrop(InternalErrorException):
     """Error raised when there is a drop in the API's connection to the database"""
     pass
+
+class InvalidFilterError(ClientErrorException):
+    """Custom exception for when the RequestBody is empty"""
+    pass

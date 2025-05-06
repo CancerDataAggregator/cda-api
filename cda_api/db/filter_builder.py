@@ -56,8 +56,13 @@ def parse_filter_string(filter_string, log):
     if isinstance(value, str):
         if value.lower() == "null":
             value = None
-        # Replace wildcards 
-        value = value.replace('*', '%')
+        elif value.lower() == "true":
+            value = True
+        elif value.lower() == "false":
+            value = False
+        # Replace wildcards
+        else:
+            value = value.replace('*', '%')
 
     elif isinstance(value, set) or isinstance(value, tuple):
         value = list(value)

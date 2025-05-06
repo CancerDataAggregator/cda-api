@@ -491,7 +491,6 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     foreign_table_preselect = db.query(*foreign_columns).filter(foreign_column.in_(foreign_table_id_cte_column))
 
     if foreign_tablename in filter_table_map.keys():
-        print(filter_table_map)
         match_all = filter_table_map[foreign_tablename]['match_all']
         match_some = filter_table_map[foreign_tablename]['match_some']
         foreign_table_preselect = apply_match_all_some_filters(foreign_table_preselect, match_all, match_some)
@@ -505,13 +504,10 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     else:
         entity_to_count = 'file'
     
-    print(f'ft: {foreign_tablename}, etc: {entity_to_count}')
     entity_total_count_select = None
     if foreign_tablename == entity_to_count:
-        print('counting?????')
         entity_total_count_select = db.query(func.count(distinct(foreign_preselect_id))).scalar_subquery().label(f'{entity_to_count}_count')
     
-    print(entity_total_count_select)
     foreign_selects = []
     for column in columns:
         column_info = DB_MAP.get_column_info(column.name)
@@ -546,10 +542,9 @@ def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, prese
         # build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map)
         preselect_columns, possible_entity_total_count_select = build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map)
         if not isinstance(possible_entity_total_count_select, type(None)):
-            print('FLAGGED')
             entity_total_count_select = possible_entity_total_count_select
         for column in preselect_columns:
-            summary_selects.append(db.query(column).label(column.name))
+            summary_selects.append(db.query(column).label(f'{column.name}_summary'))
     return summary_selects, entity_total_count_select
 
 
