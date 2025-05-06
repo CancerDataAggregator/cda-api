@@ -96,7 +96,10 @@ def subject_fetch_rows_endpoint(
     try:
         # Get paged query result
         result = data_query(db, endpoint_tablename="subject", request_body=request_body, limit=limit, offset=offset, log=log)
-        if (offset != None) and (limit != None):
+        print(request.url.components.geturl())
+        if limit != None:
+            if offset == None:
+                offset = 0
             if result["total_row_count"] > offset + limit:
                 next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")
                 result["next_url"] = next_url

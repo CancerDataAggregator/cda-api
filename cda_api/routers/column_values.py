@@ -45,13 +45,17 @@ def column_values_endpoint(
             offset=offset,
             log=log,
         )
-
-        # TODO need to figure out better way to handle limit and offset
-        result["next_url"] = None
-        if (offset != None) and (limit != None):
+        if limit != None:
+            if offset == None:
+                offset = 0
             if result["total_row_count"] > offset + limit:
-                next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")
+                if 'offset' in request.url.components.geturl():
+                    next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")
+                else:
+                    next_url = request.url.components.geturl() + f"&offset={offset+limit}"
                 result["next_url"] = next_url
+        else:
+            result["next_url"] = None
 
 
     except Exception as e:
