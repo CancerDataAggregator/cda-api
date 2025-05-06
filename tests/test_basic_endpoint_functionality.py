@@ -40,6 +40,12 @@ def test_summary_file_endpoint():
     )
     assert response.status_code == 200
 
+def test_column_values_endpoint():
+    column = 'subject_id_alias'
+    response = client.post(
+        f"/column_values/{column}",
+    )
+    assert response.status_code == 200
 
 def test_release_metadata_endpoint():
     response = client.get("/release_metadata")
@@ -171,3 +177,91 @@ def test_summary_file_endpoint_column_not_found():
     expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
     assert response.status_code == 400
     assert response.json() == expected_response_json
+
+
+################################ column_values/column testing ################################
+def test_column_values_endpoint_column_not_found():
+    column = 'FAKE_COLUMN'
+    response = client.post(
+        f"/column_values/{column}",
+    )
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    assert response.status_code == 400
+    assert response.json() == expected_response_json
+
+def test_column_values_endpoint_return_structure():
+    column = 'diagnosis'
+    response = client.post(
+        f"/column_values/{column}",
+    )
+    assert response.status_code == 200
+    assert "result" in response.json().keys()
+    assert "query_sql" in response.json().keys()
+    assert "total_row_count" in response.json().keys()
+    assert "next_url" in response.json().keys()
+    assert isinstance(response.json()["result"], list)
+    assert len(response.json()["result"]) > 1
+    assert isinstance(response.json()["result"][0], dict)
+    assert isinstance(response.json()["query_sql"], str)
+    assert isinstance(response.json()["total_row_count"], int)
+    assert isinstance(response.json()["next_url"], int) or isinstance(response.json()["next_url"], type(None))
+
+def test_column_values_endpoint_limit():
+    column = 'diagnosis'
+    response = client.post(
+        f"/column_values/{column}",
+        params={"limit": 1}
+    )
+    assert response.status_code == 200
+    assert len(response.json()["result"]) == 1
+    assert response.json()["next_url"] != None
+
+def test_column_values_endpoint_offset_and_limit():
+    column = 'diagnosis'
+    response_limit = client.post(
+        f"/column_values/{column}",
+        params={"limit": 1}
+    )
+    response_limit_offset = client.post(
+        f"/column_values/{column}",
+        params={"limit": 1, "offset": 1}
+    )
+    assert response_limit.status_code == 200
+    assert response_limit_offset.status_code == 200
+    assert len(response_limit_offset.json()["result"]) == 1
+    assert response_limit_offset.json()["result"] != response_limit.json()["result"] # Should be different results given the offset
+
+def test_column_values_endpoint_offset_too_big():
+    column = 'sex'
+    response = client.post(
+        f"/column_values/{column}",
+        params={"offset": 100}
+    )
+    assert response.status_code == 200
+    assert len(response.json()["result"]) == 0 # There should be less than 100 values for sex in the data which should the yield no data
+
+
+################################ /release_metadata testing ################################
+def test_release_metadata_endpoint_return_structure(): # Should be a dictionary containing one key "result" which is a list of dictionaries
+    response = client.get(
+        f"/release_metadata",
+    )
+    assert response.status_code == 200
+    assert "result" in response.json().keys()
+    assert len(response.json().keys()) == 1
+    assert isinstance(response.json()["result"], list)
+    assert len(response.json()["result"]) > 1
+    assert isinstance(response.json()["result"][0], dict)
+
+
+################################ /columns testing ################################
+def test_columns_endpoint_return_structure(): # Should be a dictionary containing one key "result" which is a list of dictionaries
+    response = client.get(
+        f"/columns",
+    )
+    assert response.status_code == 200
+    assert "result" in response.json().keys()
+    assert len(response.json().keys()) == 1
+    assert isinstance(response.json()["result"], list)
+    assert len(response.json()["result"]) > 1
+    assert isinstance(response.json()["result"][0], dict)
