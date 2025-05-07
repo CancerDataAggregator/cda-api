@@ -74,6 +74,11 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
     # Build foreign array column preselects
     for foreign_tablename, columns in foreign_array_map.items():
         if request_body.EXPAND_RESULTS:
+            # Need to add data_at columns here
+            data_at_column_infos = [column_info for column_info in DB_MAP.get_table_column_infos(foreign_tablename) if column_info.process_before_display in ['data_source', 'data_source_count']]
+            for data_at_col_info in data_at_column_infos:
+                if data_at_col_info.labeled_column not in columns:
+                    columns.append(data_at_col_info.labeled_column)
             foreign_join, preselect_columns = build_foreign_json_preselect(
                 db, endpoint_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log
             )
