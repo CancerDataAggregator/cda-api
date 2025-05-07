@@ -50,9 +50,11 @@ def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnname
             if columnname.endswith('.*'):
                 tablename = columnname.replace('.*', '')
                 if endpoint_type == 'data':
-                    table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_data_column_infos(tablename) if col_info.uniquename not in new_add_columns]
+                    data_col_infos = DB_MAP.get_table_data_column_infos(tablename) + [col_info for col_info in DB_MAP.get_virtual_table_column_infos(tablename) if col_info.data_returns]
+                    table_columnnames = [col_info.uniquename for col_info in data_col_infos if col_info.uniquename not in new_add_columns]
                 elif endpoint_type == 'summary':
-                    table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_summary_column_infos(tablename) if col_info.uniquename not in new_add_columns]
+                    summary_col_infos = DB_MAP.get_table_data_column_infos(tablename) + [col_info for col_info in DB_MAP.get_virtual_table_column_infos(tablename) if col_info.summary_returns]
+                    table_columnnames = [col_info.uniquename for col_info in summary_col_infos if col_info.uniquename not in new_add_columns]
                 else:
                     raise Exception(f'Unknown endpoint type: "{endpoint_type}". Could not build column list for table: "{tablename}"')
                 new_add_columns = new_add_columns + table_columnnames

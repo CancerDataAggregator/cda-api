@@ -35,13 +35,17 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
                 tablename = add_columnname.replace('.*', '')
                 if tablename not in DB_MAP.entity_tablenames:
                     raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
+                
                 link_to_table_column_infos = DB_MAP.get_table_column_infos(tablename)
+                link_to_table_column_infos.extend(DB_MAP.get_virtual_table_column_infos(tablename))
+                print([col_info.uniquename for col_info in link_to_table_column_infos])
                 for column_info in link_to_table_column_infos:
                     if column_info.data_returns:
                         add_column = column_info.metadata_column
                         if column_info.uniquename not in added_columns:
                             select_columns.append(add_column.label(column_info.uniquename))
                             added_columns.append(column_info.uniquename)
+
             else:
                 add_column = DB_MAP.get_meta_column(add_columnname)
                 if add_column not in added_columns:
