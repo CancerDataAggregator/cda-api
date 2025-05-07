@@ -29,9 +29,8 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
     # Add additional columns to select list
     if add_columns:
         for add_columnname in add_columns:
-            if add_columnname == f'{endpoint_tablename}_identifier':
+            if add_columnname == f'{endpoint_tablename}_identifiers':
                 identifiers = True
-                continue
             elif add_columnname.endswith('.*'):
                 tablename = add_columnname.replace('.*', '')
                 if tablename not in DB_MAP.entity_tablenames:
@@ -77,7 +76,7 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
             # Need to add data_at columns here
             data_at_column_infos = [column_info for column_info in DB_MAP.get_table_column_infos(foreign_tablename) if column_info.process_before_display in ['data_source', 'data_source_count']]
             for data_at_col_info in data_at_column_infos:
-                if data_at_col_info.labeled_column not in columns:
+                if data_at_col_info.uniquename not in [col.name for col in columns]:
                     columns.append(data_at_col_info.labeled_column)
             foreign_join, preselect_columns = build_foreign_json_preselect(
                 db, endpoint_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log

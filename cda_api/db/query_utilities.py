@@ -60,7 +60,7 @@ def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnname
                 new_add_columns.append(columnname)
 
     new_exclude_columns = []
-    if request_body.ADD_COLUMNS != None:
+    if request_body.EXCLUDE_COLUMNS != None:
         for columnname in request_body.EXCLUDE_COLUMNS:
             if columnname.endswith('.*'):
                 tablename = columnname.replace('.*', '')
@@ -652,12 +652,12 @@ def get_identifiers_preselect_columns(db, entity_tablename, preselect_query):
     ui_preselect = (
         db.query(
             ui_json_subquery.c['id_alias'].label('id_alias'),
-            func.array_agg(ui_json_subquery.c['json_results']).label(f'{entity_tablename}_identifier')
+            func.array_agg(ui_json_subquery.c['json_results']).label(f'{entity_tablename}_identifiers')
         )
         .group_by(ui_json_subquery.c['id_alias'])
     )
     ui_preselect = ui_preselect.cte(f'{entity_tablename}_identifiers_preselect')
-    preselect_columns = [get_cte_column(ui_preselect, f'{entity_tablename}_identifier')]
+    preselect_columns = [get_cte_column(ui_preselect, f'{entity_tablename}_identifiers')]
     onclause = get_cte_column(ui_preselect, f'id_alias') == DB_MAP.get_meta_column(f'{entity_tablename}_id_alias')
     foreign_join = {"target": ui_preselect, "onclause": onclause}
 
