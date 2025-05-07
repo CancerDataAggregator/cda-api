@@ -77,15 +77,31 @@ def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnname
 
     return request_body
 
-def apply_match_all_some_filters(query, match_all_filters, match_some_filters):
-    # Apply filter conditionals
-    if match_all_filters and match_some_filters:
-        query = query.filter(and_(*match_all_filters)).filter(or_(*match_some_filters))
-    elif match_all_filters:
-        query = query.filter(and_(*match_all_filters))
-    elif match_some_filters:
-        query = query.filter(or_(*match_some_filters))
-    return query
+def apply_match_all_some_filters(query, match_all_filters, match_some_filters, virtual_table = None, foreign_tablename = None, db=None):
+    if virtual_table == None:
+        # Apply filter conditionals
+        if match_all_filters and match_some_filters:
+            query = query.filter(and_(*match_all_filters)).filter(or_(*match_some_filters))
+        elif match_all_filters:
+            query = query.filter(and_(*match_all_filters))
+        elif match_some_filters:
+            query = query.filter(or_(*match_some_filters))
+        return query
+    else:
+        hanging_table_join = DB_MAP.get_hanging_table_join(
+            hanging_tablename=foreign_tablename, local_tablename=virtual_table
+        )
+        entity_column = list(hanging_table_join["join_table"].foreign_keys)[0].column
+        foreign_column = hanging_table_join["hanging_fk_parent"]
+        # Apply filter conditionals
+        if match_all_filters and match_some_filters:
+            filter_query = db.query(entity_column).filter(and_(*match_all_filters)).filter(or_(*match_some_filters))
+        elif match_all_filters:
+            filter_query = db.query(entity_column).filter(and_(*match_all_filters))
+        elif match_some_filters:
+            filter_query = db.query(entity_column).filter(or_(*match_some_filters))
+        query = query.filter(foreign_column.in_(filter_query))
+        return query
 
 
 # Gets the total distinct counts of a column as a subquery
@@ -223,13 +239,13 @@ def get_foreign_array_columns_and_join(endpoint_tablename, foreign_tablename):
             hanging_tablename=foreign_tablename, local_tablename=endpoint_tablename
         )
         # If there is a mapping table involved (ie. file_tumor_vs_normal -> "file_describes_subject" -> subject)
-        if "entity_mapping_column" in hanging_table_join.keys():
+        if "mapping_table_join_clause" in hanging_table_join.keys():
             entity_column = hanging_table_join["local_column"]
             foreign_column = hanging_table_join["local_mapping_column"]
             foreign_array_join = {
                 'target': hanging_table_join["join_table"], 
                 'onclause': hanging_table_join["statement"]
-                }
+                }   
             
         # If there is a direct connection (ie. file_tumor_vs_normal -> file)
         else:
@@ -265,6 +281,14 @@ def build_foreign_array_preselect(db, endpoint_tablename, foreign_tablename, col
         match_all = filter_table_map[foreign_tablename]['match_all']
         match_some = filter_table_map[foreign_tablename]['match_some']
         foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some)
+
+    # Check if haning table and apply filter
+    virtual_tables = [DB_MAP.get_column_info(col.name).virtual_table for col in columns]
+    if any(virtual_tables):
+        virtual_table = [table for table in virtual_tables if table != None][0]
+        match_all = filter_table_map[virtual_table]['match_all']
+        match_some = filter_table_map[virtual_table]['match_some']
+        foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some, virtual_table, foreign_tablename, db)
     
     if foreign_tablename == 'upstream_identifiers':
         foreign_array_preselect = foreign_array_preselect.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == endpoint_tablename)
@@ -305,6 +329,14 @@ def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, column
         match_all = filter_table_map[foreign_tablename]['match_all']
         match_some = filter_table_map[foreign_tablename]['match_some']
         foreign_table_subquery = apply_match_all_some_filters(foreign_table_subquery, match_all, match_some)
+
+    # Check if haning table and apply filter
+    virtual_tables = [DB_MAP.get_column_info(col.name).virtual_table for col in columns]
+    if any(virtual_tables):
+        virtual_table = [table for table in virtual_tables if table != None][0]
+        match_all = filter_table_map[virtual_table]['match_all']
+        match_some = filter_table_map[virtual_table]['match_some']
+        foreign_table_subquery = apply_match_all_some_filters(foreign_table_subquery, match_all, match_some, virtual_table, foreign_tablename, db)
 
     foreign_table_subquery = foreign_table_subquery.subquery('subquery')
     
@@ -404,7 +436,7 @@ def get_foreign_array_summary_columns(entity_tablename, foreign_tablename):
             hanging_tablename=foreign_tablename, local_tablename=entity_tablename
         )
         # If there is a mapping table involved (ie. file_tumor_vs_normal -> "file_describes_subject" -> subject)
-        if "local_mapping_column" in hanging_table_join.keys():
+        if "mapping_table_join_clause" in hanging_table_join.keys():
             entity_column = hanging_table_join["local_column"]
             entity_mapping_column = hanging_table_join["local_mapping_column"]
             foreign_column = hanging_table_join["hanging_fk_parent"]

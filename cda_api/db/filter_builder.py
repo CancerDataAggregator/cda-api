@@ -112,7 +112,7 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
             hanging_table_join = DB_MAP.get_hanging_table_join(
                 hanging_tablename=filter_column_info.tablename, local_tablename=endpoint_tablename
             )
-            if "entity_mapping_join" in hanging_table_join.keys():
+            if "mapping_table_join_clause" in hanging_table_join.keys():
                 filter_clause = exists(
                     select(1)
                     .select_from(hanging_table_join["join_table"])
