@@ -282,6 +282,7 @@ def get_foreign_array_columns_and_join(endpoint_tablename, foreign_tablename):
 # Build the preselects of arrays when adding foreign columns
 def build_foreign_array_preselect(db, endpoint_tablename, foreign_tablename, columns, preselect_query, filter_table_map, log):
     cte_name = f"{foreign_tablename}_{endpoint_tablename}_columns"
+    log.debug(f"Building {cte_name}")
     entity_column, foreign_column, foreign_array_join = get_foreign_array_columns_and_join(endpoint_tablename, foreign_tablename)
     
     select_cols = [unique_column_array_agg(column).label(column.name) for column in columns] + [foreign_column]
@@ -299,9 +300,10 @@ def build_foreign_array_preselect(db, endpoint_tablename, foreign_tablename, col
     virtual_tables = [DB_MAP.get_column_info(col.name).virtual_table for col in columns]
     if any(virtual_tables):
         virtual_table = [table for table in virtual_tables if table != None][0]
-        match_all = filter_table_map[virtual_table]['match_all']
-        match_some = filter_table_map[virtual_table]['match_some']
-        foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some, foreign_tablename, virtual_table, db)
+        if virtual_table in filter_table_map.keys():
+            match_all = filter_table_map[virtual_table]['match_all']
+            match_some = filter_table_map[virtual_table]['match_some']
+            foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some, foreign_tablename, virtual_table, db)
     
     if foreign_tablename == 'upstream_identifiers':
         foreign_array_preselect = foreign_array_preselect.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == endpoint_tablename)
