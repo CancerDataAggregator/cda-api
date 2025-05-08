@@ -39,10 +39,6 @@ def file_fetch_rows_endpoint(
     log.info(f"data/file endpoint hit: {request.client}")
     log.info(f"DataRequestBody: {request_body.as_string()}")
     log.info(f"{request.url}")
-    if request_body.is_empty():
-        e = EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
 
     try:
         # Get paged query result
@@ -88,15 +84,10 @@ def subject_fetch_rows_endpoint(
     log.info(f"data/subject endpoint hit: {request.client}")
     log.info(f"DataRequestBody: {request_body.as_string()}")
     log.info(f"{request.url}")
-    if request_body.is_empty():
-        e = EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
-        log.exception(e)
-        raise HTTPException(status_code=404, detail=str(e))
 
     try:
         # Get paged query result
         result = data_query(db, endpoint_tablename="subject", request_body=request_body, limit=limit, offset=offset, log=log)
-        print(request.url.components.geturl())
         if limit != None:
             if offset == None:
                 offset = 0

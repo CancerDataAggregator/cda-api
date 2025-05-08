@@ -2,7 +2,7 @@ from sqlalchemy import func
 from cda_api import ParsingError
 
 def apply_filter_operator(filter_column, filter_value, filter_operator, log):
-    log.debug(f"Applying filter {filter_column} {filter_operator} {filter_value}")
+    log.debug(f"Building SQLAlchemy filter: {filter_column} {filter_operator} {filter_value}")
     match filter_operator.lower():
         case "like":
             return case_insensitive_like(filter_column, filter_value)

@@ -47,34 +47,32 @@ def data_query(db, endpoint_tablename, request_body, limit, offset, log):
     log.info("Building fetch_rows query")
 
     # Get match_all and match_some filters
-    log.debug("Building match conditions")
     match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map = build_match_conditons(endpoint_tablename, request_body, log)
-
+    
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
-    log.debug("Normalizing ADD_COLUMNS and EXCLUDE_COLUMNS")
-    request_body = normalize_add_exclude_columns(request_body, 'data', filter_columnnames)
+    request_body = normalize_add_exclude_columns(request_body, 'data', filter_columnnames, log)
 
     # Build the preselect query
-    log.debug("Building the filter preselect")
     filter_preselect_query, endpoint_id_alias = build_filter_preselect(
-        db, endpoint_tablename, match_all_conditions, match_some_conditions
+        db, endpoint_tablename, match_all_conditions, match_some_conditions, log
     )
 
     # Build the select columns and joins to foreign column array preselects
-    log.debug("Building the select clause")
     select_columns, foreign_joins = build_data_select_clause(
         db, endpoint_tablename, request_body, filter_preselect_query, filter_table_map, log
     )
     
+    log.debug(f"Constructing data query")
     query = db.query(*select_columns)
     query = query.filter(endpoint_id_alias.in_(filter_preselect_query))
     # Add joins to foreign table preselects
     if foreign_joins:
+        log.debug(f"Adding joins")
         for foreign_join in foreign_joins:
-            print(foreign_join)
             query = query.join(**foreign_join, isouter=True)
     # query = add_hanging_table_joins(endpoint_tablename, select_columns, query)
     # Optimize Count query by only counting the id_alias column based on the preselect filter
+    log.debug(f"Constructing count query")
     count_subquery = (
         db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query)).subquery("rows_to_count")
     )
@@ -126,7 +124,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
     match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map  = build_match_conditons(endpoint_tablename, request_body, log)
 
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
-    request_body = normalize_add_exclude_columns(request_body, 'summary', filter_columnnames)
+    request_body = normalize_add_exclude_columns(request_body, 'summary', filter_columnnames, log)
 
     # Build preselect query
     endpoint_columns = DB_MAP.get_uniquename_metadata_table_columns(endpoint_tablename)
@@ -186,7 +184,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
                         column_summary = categorical_summary(db, preselect_column)
                         summary_select_clause.append(column_summary.label(f'{column_info.uniquename}_summary'))
                     case _:
-                        log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
+                        log.warning(f'Unexpectedly skipping {column_info.uniquename} for summary - column_type: {column_info.column_type}')
                         pass
         else:
             add_columns_selects, _ = get_foreign_array_summary_selects(db, endpoint_tablename, [column_info.uniquename], preselect_query, filter_table_map, log)

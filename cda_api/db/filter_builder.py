@@ -87,7 +87,7 @@ def parse_filter_string(filter_string, log):
 
 # Generate preselect filter conditional
 def get_preselect_filter(endpoint_tablename, filter_string, log):
-    log.debug(f'Constructing filter "{filter_string}"')
+    log.debug(f'Constructing filter from "{filter_string}"')
     # get the components of the filter string
     filter_columnname, filter_operator, filter_value = parse_filter_string(filter_string, log)
 
@@ -154,6 +154,7 @@ def build_match_conditons(endpoint_tablename, request_body, log):
     filter_table_map = {}
     # match_all_conditions will be all AND'd together
     if request_body.MATCH_ALL:
+        log.debug("Building MATCH_ALL conditions")
         for filter_string in request_body.MATCH_ALL:
             filter_clause, local_filter_clause, filter_columnname, filter_tablename = get_preselect_filter(endpoint_tablename, filter_string, log) 
             match_all_conditions.append(filter_clause)
@@ -165,6 +166,7 @@ def build_match_conditons(endpoint_tablename, request_body, log):
                 filter_table_map[filter_tablename] = {'match_all': [local_filter_clause], 'match_some': []}
     # match_some_conditions will be all OR'd together
     if request_body.MATCH_SOME:
+        log.debug("Building_MATCH_SOME conditions")
         for filter_string in request_body.MATCH_SOME:
             filter_clause, local_filter_clause, filter_columnname, filter_tablename = get_preselect_filter(endpoint_tablename, filter_string, log) 
             match_some_conditions.append(filter_clause)
@@ -174,4 +176,5 @@ def build_match_conditons(endpoint_tablename, request_body, log):
                 filter_table_map[filter_tablename]['match_some'].append(local_filter_clause)
             else:
                 filter_table_map[filter_tablename] = {'match_all': [], 'match_some': [local_filter_clause]}
+    log.debug("Finished Building MATCH conditions")
     return match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map

@@ -43,22 +43,27 @@ def get_cte_column(cte, columnname):
 def distinct_count(column):
     return func.count(distinct(column))
 
-def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnnames):
+def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnnames, log):
+    log.debug("Normalizing [ADD|EXCLUDE]_columns")
     new_add_columns = filter_columnnames
     if request_body.ADD_COLUMNS != None:
         for columnname in request_body.ADD_COLUMNS:
             if columnname.endswith('.*'):
                 tablename = columnname.replace('.*', '')
+                log.debug(f"{tablename}.* found in ADD_COLUMNS")
                 if endpoint_type == 'data':
+                    log.debug(f"Adding data columns from {tablename} to ADD_COLUMNS")
                     data_col_infos = DB_MAP.get_table_data_column_infos(tablename) + [col_info for col_info in DB_MAP.get_virtual_table_column_infos(tablename) if col_info.data_returns]
                     table_columnnames = [col_info.uniquename for col_info in data_col_infos if col_info.uniquename not in new_add_columns]
                 elif endpoint_type == 'summary':
+                    log.debug(f"Adding summary columns from {tablename} to ADD_COLUMNS")
                     summary_col_infos = DB_MAP.get_table_data_column_infos(tablename) + [col_info for col_info in DB_MAP.get_virtual_table_column_infos(tablename) if col_info.summary_returns]
                     table_columnnames = [col_info.uniquename for col_info in summary_col_infos if col_info.uniquename not in new_add_columns]
                 else:
                     raise Exception(f'Unknown endpoint type: "{endpoint_type}". Could not build column list for table: "{tablename}"')
                 new_add_columns = new_add_columns + table_columnnames
             elif columnname not in new_add_columns:
+                log.debug(f"Adding {columnname} to ADD_COLUMNS")
                 new_add_columns.append(columnname)
 
     new_exclude_columns = []
@@ -66,12 +71,16 @@ def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnname
         for columnname in request_body.EXCLUDE_COLUMNS:
             if columnname.endswith('.*'):
                 tablename = columnname.replace('.*', '')
+                log.debug(f"{tablename}.* found in EXCLUDE_COLUMNS")
                 if endpoint_type == 'data':
+                    log.debug(f"Adding data columns from {tablename} to EXCLUDE_COLUMNS")
                     table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_data_column_infos(tablename) if col_info.uniquename not in new_exclude_columns]
                 else:
+                    log.debug(f"Adding summary columns from {tablename} to EXCLUDE_COLUMNS")
                     table_columnnames = [col_info.uniquename for col_info in DB_MAP.get_table_summary_column_infos(tablename) if col_info.uniquename not in new_exclude_columns]
                 new_exclude_columns = new_exclude_columns + table_columnnames
             elif columnname not in new_exclude_columns:
+                log.debug(f"Adding {columnname} to EXCLUDE_COLUMNS")
                 new_exclude_columns.append(columnname)
 
     request_body.ADD_COLUMNS = new_add_columns
@@ -79,8 +88,9 @@ def normalize_add_exclude_columns(request_body, endpoint_type, filter_columnname
 
     return request_body
 
-def apply_match_all_some_filters(query, match_all_filters, match_some_filters, virtual_table = None, foreign_tablename = None, db=None):
+def apply_match_all_some_filters(query, match_all_filters, match_some_filters, foreign_tablename, virtual_table = None, db=None):
     if virtual_table == None:
+        log.debug(f"Applying all '{foreign_tablename}' related MATCH_[ALL|SOME] filters to the {foreign_tablename} preselect")
         # Apply filter conditionals
         if match_all_filters and match_some_filters:
             query = query.filter(and_(*match_all_filters)).filter(or_(*match_some_filters))
@@ -90,6 +100,7 @@ def apply_match_all_some_filters(query, match_all_filters, match_some_filters, v
             query = query.filter(or_(*match_some_filters))
         return query
     else:
+        log.debug(f"Applying all '{virtual_table}' related MATCH_[ALL|SOME] filters to the {foreign_tablename}_[subject|file]_preselect")
         hanging_table_join = DB_MAP.get_hanging_table_join(
             hanging_tablename=foreign_tablename, local_tablename=virtual_table
         )
@@ -282,7 +293,7 @@ def build_foreign_array_preselect(db, endpoint_tablename, foreign_tablename, col
     if foreign_tablename in filter_table_map.keys():
         match_all = filter_table_map[foreign_tablename]['match_all']
         match_some = filter_table_map[foreign_tablename]['match_some']
-        foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some)
+        foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some, foreign_tablename)
 
     # Check if haning table and apply filter
     virtual_tables = [DB_MAP.get_column_info(col.name).virtual_table for col in columns]
@@ -290,7 +301,7 @@ def build_foreign_array_preselect(db, endpoint_tablename, foreign_tablename, col
         virtual_table = [table for table in virtual_tables if table != None][0]
         match_all = filter_table_map[virtual_table]['match_all']
         match_some = filter_table_map[virtual_table]['match_some']
-        foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some, virtual_table, foreign_tablename, db)
+        foreign_array_preselect = apply_match_all_some_filters(foreign_array_preselect, match_all, match_some, foreign_tablename, virtual_table, db)
     
     if foreign_tablename == 'upstream_identifiers':
         foreign_array_preselect = foreign_array_preselect.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == endpoint_tablename)
@@ -306,10 +317,12 @@ def build_foreign_array_preselect(db, endpoint_tablename, foreign_tablename, col
 
 def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, columns, filter_preselect_query, filter_table_map, log):
     cte_name = f"{foreign_tablename}_expanded_preselect"
+    log.debug(f"Building {cte_name}")
     entity_column, entity_mapping_column, foreign_column, foreign_mapping_column, foreign_array_join = get_foreign_array_summary_columns(entity_tablename, foreign_tablename)
     foreign_column_info = DB_MAP.get_table_column_info(foreign_tablename, foreign_column.name)
     
     if (not isinstance(entity_mapping_column, type(None))) and (not isinstance(foreign_mapping_column, type(None))):
+        log.debug(f"Constructing preselect utilizing mapping table")
         foreign_id_common_name = entity_mapping_column.name
         foreign_table_filter = foreign_column.in_(db.query(foreign_mapping_column).filter(entity_mapping_column.in_(filter_preselect_query)))
         foreign_table_columns = [entity_mapping_column.label(entity_mapping_column.name)] + columns
@@ -320,31 +333,37 @@ def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, column
         if foreign_array_join:
             foreign_table_subquery = foreign_table_subquery.join(**foreign_array_join)
     else:
+        log.debug(f"Constructing preselect without a mapping table")
         foreign_id_common_name = foreign_column_info.columnname
         foreign_table_columns = [foreign_column.label(foreign_id_common_name)] + columns
         foreign_table_subquery = (
             db.query(*foreign_table_columns)
             .filter(foreign_column.in_(filter_preselect_query))
         )
-
+    
     if foreign_tablename in filter_table_map.keys():
+        log.debug(f"Applying appropriate '{foreign_tablename}' filters to the {foreign_tablename} preselect")
         match_all = filter_table_map[foreign_tablename]['match_all']
         match_some = filter_table_map[foreign_tablename]['match_some']
-        foreign_table_subquery = apply_match_all_some_filters(foreign_table_subquery, match_all, match_some)
-
-    # Check if haning table and apply filter
+        foreign_table_subquery = apply_match_all_some_filters(foreign_table_subquery, match_all, match_some, foreign_tablename)
+    
+    # Check if hanging table and apply filter
     virtual_tables = [DB_MAP.get_column_info(col.name).virtual_table for col in columns]
     if any(virtual_tables):
         virtual_table = [table for table in virtual_tables if table != None][0]
-        match_all = filter_table_map[virtual_table]['match_all']
-        match_some = filter_table_map[virtual_table]['match_some']
-        foreign_table_subquery = apply_match_all_some_filters(foreign_table_subquery, match_all, match_some, virtual_table, foreign_tablename, db)
+        if virtual_table in filter_table_map.keys():
+            log.debug(f"Applying appropriate '{virtual_table}' filters to the {foreign_tablename} preselect")
+            match_all = filter_table_map[virtual_table]['match_all']
+            match_some = filter_table_map[virtual_table]['match_some']
+            foreign_table_subquery = apply_match_all_some_filters(foreign_table_subquery, match_all, match_some, foreign_tablename, virtual_table, db)
 
     foreign_table_subquery = foreign_table_subquery.subquery('subquery')
     
     if foreign_tablename == 'foreign_json_columns':
+        log.debug(f"Checking if this procs")
         foreign_table_subquery = foreign_table_subquery.filter(DB_MAP.get_meta_column('upstream_identifiers_cda_table') == entity_tablename)
 
+    log.debug(f"Constructing json_build_object")
     foreign_json_columns = []
     subquery_id_column = None
     for column in foreign_table_subquery.c:
@@ -361,6 +380,7 @@ def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, column
     
     json_subquery_id_column = json_subquery.c[foreign_id_common_name]
 
+    log.debug(f"Aggregating rows")
     foreign_json_preselect = (
         db.query(
             json_subquery_id_column.label(foreign_id_common_name),
@@ -373,6 +393,8 @@ def build_foreign_json_preselect(db, entity_tablename, foreign_tablename, column
     onclause = get_cte_column(foreign_json_preselect, foreign_id_common_name) == entity_column
     preselect_columns = [foreign_json_preselect.c[f'{foreign_tablename}_columns'].label(f'{foreign_tablename}_columns')]
     foreign_join = {"target": foreign_json_preselect, "onclause": onclause}
+
+    log.debug(f"Finished building {cte_name}")
     return foreign_join, preselect_columns
 
 
@@ -527,7 +549,7 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     if foreign_tablename in filter_table_map.keys():
         match_all = filter_table_map[foreign_tablename]['match_all']
         match_some = filter_table_map[foreign_tablename]['match_some']
-        foreign_table_preselect = apply_match_all_some_filters(foreign_table_preselect, match_all, match_some)
+        foreign_table_preselect = apply_match_all_some_filters(foreign_table_preselect, match_all, match_some, foreign_tablename)
     
     foreign_table_preselect = foreign_table_preselect.cte(f'{foreign_tablename}_preselect')
     foreign_preselect_id = get_cte_column(foreign_table_preselect, foreign_id_common_name)
@@ -546,6 +568,9 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
     for column in columns:
         column_info = DB_MAP.get_column_info(column.name)
         preselect_column = get_cte_column(foreign_table_preselect, column.name)
+        if not column_info.summary_returns:
+            log.debug(f'Skipping column: {column_info.uniquename} because it is not supposed to be displayed')
+            continue
         if column_info.process_before_display != 'data_source':  
             match column_info.column_type:
                 case 'numeric':
@@ -555,7 +580,7 @@ def build_foreign_array_summary_preselect(db, endpoint_tablename, foreign_tablen
                     column_summary = foreign_column_categorical_summary(db, preselect_column, foreign_preselect_id)
                     foreign_selects.append(column_summary.label(column_info.uniquename))
                 case _:
-                    log.warning(f'Unexpectedly skipping {column_info.column_name} for summary - column_type: {column_info.column_type}')
+                    log.warning(f'Unexpectedly skipping {column_info.uniquename} for summary - column_type: {column_info.column_type}')
                     pass
 
     foreign_array_preselect = db.query(*foreign_selects).cte(f'{foreign_tablename}_columns')
@@ -583,14 +608,15 @@ def get_foreign_array_summary_selects(db, endpoint_tablename, add_columns, prese
 
 
 
-def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions):
+def build_filter_preselect(db, endpoint_tablename, match_all_conditions, match_some_conditions, log):
+    log.debug(f"Building filter preselect")
     # Get the id_alias column
     endpoint_id_alias = DB_MAP.get_meta_column(f"{endpoint_tablename}_id_alias")
 
     # Set up the CTE preselect by selecting the id_alias column from it
     preselect_cte = db.query(endpoint_id_alias.label("id_alias"))
 
-    preselect_cte = apply_match_all_some_filters(preselect_cte, match_all_conditions, match_some_conditions)
+    preselect_cte = apply_match_all_some_filters(preselect_cte, match_all_conditions, match_some_conditions, endpoint_tablename)
 
     preselect_cte = preselect_cte.cte(f"{endpoint_tablename}_preselect")
     preselect_query = db.query(preselect_cte.c.id_alias)
@@ -656,7 +682,8 @@ def add_hanging_table_joins(endpoint_tablename, select_columns, query):
     return query
 
 
-def get_identifiers_preselect_columns(db, entity_tablename, preselect_query):
+def get_identifiers_preselect_columns(db, entity_tablename, preselect_query, log):
+    log.debug(f"Building {entity_tablename}_identifiers select")
     ui_cda_table_info = DB_MAP.get_column_info('upstream_identifiers_cda_table')
     ui_id_alias_info = DB_MAP.get_column_info('upstream_identifiers_id_alias')
     ui_data_source_info = DB_MAP.get_column_info('upstream_identifiers_data_source')

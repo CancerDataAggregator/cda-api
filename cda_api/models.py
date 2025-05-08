@@ -23,12 +23,9 @@ class DataRequestBody(BaseModel):
         return str(self.to_dict()).replace("'", '"')
 
     def is_empty(self):
-        print("CHECKING")
         if (self.MATCH_ALL is None) and (self.MATCH_SOME is None):
-            print("TRUE")
             return True
         else:
-            print("FALSE")
             return False
 
     def replace(self, attribute: str, values: list):
@@ -58,12 +55,9 @@ class SummaryRequestBody(BaseModel):
         return str(self.to_dict()).replace("'", '"')
 
     def is_empty(self):
-        print("CHECKING")
         if (self.MATCH_ALL is None) and (self.MATCH_SOME is None):
-            print("TRUE")
             return True
         else:
-            print("FALSE")
             return False
 
     def replace(self, attribute: str, values: list):
