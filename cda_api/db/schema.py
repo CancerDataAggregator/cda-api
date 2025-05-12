@@ -80,7 +80,48 @@ try:
         viewonly=True,
     )
 
-    # Map entitity tables with subject_alias and from project
+    Base.classes.file.observation_nulls = relationship(
+        "observation_nulls",
+        secondary=file_describes_subject,
+        primaryjoin=Base.classes.file.id_alias == file_describes_subject.columns["file_alias"],
+        secondaryjoin=Base.classes.observation_nulls.subject_alias == file_describes_subject.columns["subject_alias"],
+        viewonly=True,
+    )
+
+    Base.classes.file.mutation_nulls = relationship(
+        "mutation_nulls",
+        secondary=file_describes_subject,
+        primaryjoin=Base.classes.file.id_alias == file_describes_subject.columns["file_alias"],
+        secondaryjoin=Base.classes.mutation_nulls.subject_alias == file_describes_subject.columns["subject_alias"],
+        viewonly=True,
+    )
+
+    Base.classes.file.treatment_nulls = relationship(
+        "treatment_nulls",
+        secondary=file_describes_subject,
+        primaryjoin=Base.classes.file.id_alias == file_describes_subject.columns["file_alias"],
+        secondaryjoin=Base.classes.treatment_nulls.subject_alias == file_describes_subject.columns["subject_alias"],
+        viewonly=True,
+    )
+
+    Base.classes.subject.file_anatomic_site_nulls = relationship(
+        "file_anatomic_site_nulls",
+        secondary=file_describes_subject,
+        primaryjoin=Base.classes.subject.id_alias == file_describes_subject.columns["subject_alias"],
+        secondaryjoin=Base.classes.file_anatomic_site_nulls.file_alias == file_describes_subject.columns["file_alias"],
+        viewonly=True,
+    )
+
+    Base.classes.subject.file_tumor_vs_normal_nulls = relationship(
+        "file_tumor_vs_normal_nulls",
+        secondary=file_describes_subject,
+        primaryjoin=Base.classes.subject.id_alias == file_describes_subject.columns["subject_alias"],
+        secondaryjoin=Base.classes.file_tumor_vs_normal_nulls.file_alias == file_describes_subject.columns["file_alias"],
+        viewonly=True,
+    )
+
+
+    # Map entity tables with subject_alias and from project
     log.info("Adding relationships to project table")
 
     subject_in_project = Base.metadata.tables["subject_in_project"]
