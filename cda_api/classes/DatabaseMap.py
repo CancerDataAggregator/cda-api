@@ -5,6 +5,7 @@ from sqlalchemy import Column, func, inspect
 
 from .ColumnInfo import ColumnInfo
 from .EntityRelationship import EntityRelationship
+from .TableRelationship import TableRelationship
 
 setup_log = get_logger("Setup: DatabaseMap.py")
 log = get_logger("Util: DatabaseMap.py")
@@ -38,6 +39,7 @@ class DatabaseMap:
         self._build_column_map()
         self._build_relationship_map()
         self._build_hanging_table_relationship_map()
+        self._build_table_relationship_map()
 
     def _build_metadata_variables(self):
         setup_log.info("Building metadata variables from automapped Base")
@@ -179,6 +181,87 @@ class DatabaseMap:
                         "statement": hanging_table_alias == self.get_meta_column(f'{endpoint_tablename}_id_alias'),
                         "hanging_fk_parent": hanging_table_alias
                     }
+    def _build_table_relationship_map(self):
+        standalone_tables = [Base.metadata.tables['release_metadata'], Base.metadata.tables['column_metadata']]
+        secondary_tables = [table for table in Base.metadata.tables.values() 
+                    if table not in standalone_tables and len(table.foreign_keys) < 2]
+
+        mapping_tables = [table for table in Base.metadata.tables.values()
+                        if table not in standalone_tables and table not in secondary_tables]
+
+        self.table_relationship_map = {}
+        for primary_table in [Base.metadata.tables['subject'], Base.metadata.tables['file']]:
+            self.table_relationship_map[primary_table.name] = {}
+            for secondary_table in secondary_tables:
+                primary_column = None
+                primary_mapping_column = None
+                secondary_column = None
+                secondary_mapping_column = None
+
+                if secondary_table == primary_table:
+                    continue
+
+                if primary_table in [foreign_key.column.table for foreign_key in secondary_table.foreign_keys]: # Direct connection between tables
+                    foreign_key = list(secondary_table.foreign_keys)[0]
+                    primary_column = foreign_key.column
+                    secondary_column = foreign_key.parent
+
+                elif secondary_table.name == 'upstream_identifiers': # Direct connection but requires additional filter
+                    upstream_identifiers_table = Base.metadata.tables['upstream_identifiers']
+                    primary_column = primary_table.primary_key.c[0]
+                    secondary_column = upstream_identifiers_table.c['id_alias']
+                    
+                
+
+                else: # Mapping required to connect tables
+                    potential_primary_foreign_keys = []
+                    potential_secondary_foreign_keys = []
+                    potential_secondary_columns = []
+                    for mapping_table in mapping_tables:
+                        potential_primary_fk = None
+                        potential_secondary_fk = None
+                        for foreign_key in mapping_table.foreign_keys:
+                            if primary_table == foreign_key.column.table:
+                                potential_primary_fk = foreign_key
+                            if secondary_table == foreign_key.column.table:
+                                potential_secondary_fk = foreign_key
+                            elif foreign_key.column in [secondary_foreign_key.column for secondary_foreign_key in secondary_table.foreign_keys]:
+                                potential_secondary_columns.append(list(secondary_table.foreign_keys)[0].parent)
+                                potential_secondary_fk = foreign_key
+                        if potential_primary_fk and potential_secondary_fk:
+                            potential_primary_foreign_keys.append(potential_primary_fk)
+                            potential_secondary_foreign_keys.append(potential_secondary_fk)
+
+                    potential_primary_foreign_keys = list(set(potential_primary_foreign_keys))
+                    potential_secondary_foreign_keys = list(set(potential_secondary_foreign_keys))
+                    potential_secondary_columns = list(set(potential_secondary_columns))
+
+                    if potential_primary_foreign_keys and potential_secondary_foreign_keys:
+                        if len(potential_primary_foreign_keys) > 1 or len(potential_secondary_foreign_keys) > 1:
+                            raise Exception(f'Unexpectedly found more than one path between {primary_table.name}, {secondary_table.name}')
+                        
+                        primary_foreign_key = potential_primary_foreign_keys[0]
+                        secondary_foreign_key = potential_secondary_foreign_keys[0]
+                        if primary_foreign_key == secondary_foreign_key:
+                            raise Exception(f'Unexpectedly found relationship path where {primary_table.name}, {secondary_table.name} relate via the same foreign key')
+                        
+                        primary_column = primary_foreign_key.column
+                        primary_mapping_column = primary_foreign_key.parent
+
+                        if potential_secondary_columns:
+                            if len(potential_secondary_columns) > 1:
+                                raise Exception(f'Unexpectedly found more than one potential secondary column {primary_table.name}, {secondary_table.name}')
+                            secondary_column = potential_secondary_columns[0]
+                        else:
+                            secondary_column = secondary_foreign_key.column
+                        secondary_mapping_column = secondary_foreign_key.parent
+                                
+
+                if primary_column is None or secondary_column is None:
+                    raise Exception(f'Unable to find a path between {primary_table.name}, {secondary_table.name}')
+                
+                table_relationship = TableRelationship(self, primary_column, secondary_column, primary_mapping_column, secondary_mapping_column)
+                self.table_relationship_map[primary_table.name][secondary_table.name] = table_relationship
     
     def relationship_exists(self, local_tablename, foreign_tablename):
         if local_tablename not in self.relationship_map.keys():
@@ -263,8 +346,7 @@ class DatabaseMap:
         
     def get_table_column_info(self, tablename, columnname) -> ColumnInfo:
         try:
-            col_infos = [column_info for column_info in self.column_map.values() if column_info.tablename == tablename]
-            col_info = [column_info for column_info in col_infos if column_info.columnname == columnname]
+            col_info = [column_info for column_info in self.get_table_column_infos(tablename) if column_info.columnname == columnname]
             if col_info:
                 return col_info[0]
             else:
@@ -317,3 +399,4 @@ class DatabaseMap:
             raise TableNotFound(f'Cannot add columns from {tablename}.* because {tablename} is not a known table')
         column_infos = self.get_table_column_infos(tablename)
         return [col_info for col_info in column_infos if col_info.summary_returns]
+    

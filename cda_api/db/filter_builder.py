@@ -3,8 +3,9 @@ import re
 
 from sqlalchemy.sql import exists, select
 
-from cda_api import ParsingError, RelationshipNotFound, RelationshipError
+from cda_api import ParsingError, RelationshipNotFound, RelationshipError, TableNotFound
 from cda_api.db import DB_MAP
+from cda_api.db import DB_INFO
 
 from .query_operators import apply_filter_operator
 
@@ -84,6 +85,17 @@ def parse_filter_string(filter_string, log):
 
     return columnname, operator, value
 
+    
+def get_endpoint_preselect_foreign_filter(endpoint_tablename, foreign_tablename, filter_clause):
+    if endpoint_tablename == foreign_tablename:
+        return filter_clause
+    if endpoint_tablename not in DB_MAP.table_relationship_map.keys():
+        raise TableNotFound(f'Cannot apply preselect from {foreign_tablename} on {endpoint_tablename} because a path was not esablished')
+    elif foreign_tablename not in DB_MAP.table_relationship_map[endpoint_tablename].keys():
+        raise TableNotFound(f'Cannot apply preselect from {foreign_tablename} on {endpoint_tablename} because a path was not esablished')
+    table_relationship = DB_MAP.table_relationship_map[endpoint_tablename][foreign_tablename]
+    return table_relationship.get_preselect_filter_clause(filter_clause)
+
 
 # Generate preselect filter conditional
 def get_preselect_filter(endpoint_tablename, filter_string, log):
@@ -94,75 +106,28 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
     # ensure the unique column name exists in mapping and assign variables
     filter_column_info = DB_MAP.get_column_info(filter_columnname)
 
-    filter_tablename = filter_column_info.tablename
-
-    # build the sqlalachemy orm filter with the components
-    filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)
-
-    local_filter_clause = filter_clause
     # if the filter applies to a foreign table, preselect on the mapping column
-    if filter_column_info.tablename.lower() != endpoint_tablename.lower():
-        if (filter_operator == 'is') and (filter_value is None) and filter_column_info.tablename == "project":
-            raise RelationshipError(f'Cannot properly filter "project" columns as being null: "{filter_column_info.uniquename} =/is/== null" is not valid')
-        if (filter_operator == 'is') and (filter_value is None) and (f'{filter_column_info.tablename}_nulls' in [table for table in DB_MAP.metadata_tables]):
-            if filter_columnname not in ['tumor_vs_normal', 'anatomic_site']:
-                null_filter_column_info = DB_MAP.get_table_column_info(f'{filter_column_info.tablename}_nulls', f'{filter_column_info.columnname}_null')
-                relationship = DB_MAP.get_relationship(
-                        entity_tablename=endpoint_tablename, foreign_tablename=null_filter_column_info.tablename
-                    )
-                mapping_column = relationship.entity_collection
-                filter_clause = mapping_column.any(filter_column_info.metadata_column.is_(True))
-            else:
-                null_table = DB_MAP.get_metadata_table(f'{filter_column_info.tablename}_nulls')
-                null_filter_column_info = DB_MAP.get_table_column_info(null_table.name, null_table.c[0].name)
-                relationship = DB_MAP.get_relationship(
-                        entity_tablename=endpoint_tablename, foreign_tablename=null_filter_column_info.tablename
-                    )
-                mapping_column = relationship.entity_collection
-                filter_clause = mapping_column.any()
+    if (filter_operator == 'is') and (filter_value is None) and filter_column_info.tablename == "project":
+        raise RelationshipError(f'Cannot properly filter "project" columns as being null: "{filter_column_info.uniquename} =/is/== null" is not valid')
+    
+    if (filter_operator == 'is') and (filter_value is None) and (f'{filter_column_info.tablename}_nulls' in [table for table in DB_MAP.metadata_tables]):
+        if filter_columnname not in ['tumor_vs_normal', 'anatomic_site']:
+            null_filter_column_info = DB_MAP.get_table_column_info(f'{filter_column_info.tablename}_nulls', f'{filter_column_info.columnname}_null')
+            filter_tablename = null_filter_column_info.tablename
+            base_filter_clause = null_filter_column_info.metadata_column.is_(True)
         else:
-            try:
-                relationship = DB_MAP.get_relationship(
-                    entity_tablename=endpoint_tablename, foreign_tablename=filter_column_info.tablename
-                )
-                mapping_column = relationship.entity_collection
-                filter_clause = mapping_column.any(filter_clause)
-                
-            except RelationshipNotFound:
-                hanging_table_join = DB_MAP.get_hanging_table_join(
-                    hanging_tablename=filter_column_info.tablename, local_tablename=endpoint_tablename
-                )
-                if "mapping_table_join_clause" in hanging_table_join.keys():
-                    filter_clause = exists(
-                        select(1)
-                        .select_from(hanging_table_join["join_table"])
-                        .filter(hanging_table_join["statement"])
-                        .filter(hanging_table_join["mapping_table_join_clause"])
-                        .filter(filter_clause)
-                    )
-                    pass
-                else:
-                    if filter_column_info.tablename == 'upstream_identifiers':
-                        upstream_identifiers_cda_table = DB_MAP.get_column_info('upstream_identifiers_cda_table')
-                        filter_clause = exists(
-                            select(1)
-                            .select_from(hanging_table_join["join_table"])
-                            .filter(hanging_table_join["statement"])
-                            .filter(filter_clause)
-                            .filter(upstream_identifiers_cda_table.metadata_column == endpoint_tablename)
-                        )
-                    else:
-                        filter_clause = exists(
-                            select(1)
-                            .select_from(hanging_table_join["join_table"])
-                            .filter(hanging_table_join["statement"])
-                            .filter(filter_clause)
-                        )
+            filter_tablename = f'file_{filter_columnname}'
+            base_filter_clause = None
+    else:
+        # build the sqlalachemy orm filter with the components
+        base_filter_clause = apply_filter_operator(filter_column_info.metadata_column, filter_value, filter_operator, log)
+        filter_tablename = filter_column_info.tablename
 
-            except Exception as e:
-                raise e
+    local_filter_clause = base_filter_clause
 
-    return filter_clause, local_filter_clause, filter_columnname, filter_tablename
+    preselect_filter_clause = get_endpoint_preselect_foreign_filter(endpoint_tablename, filter_tablename, base_filter_clause)
+
+    return preselect_filter_clause, local_filter_clause, filter_column_info.uniquename, filter_column_info.tablename
 
 
 # Build match_all and match_some filter conditional lists
