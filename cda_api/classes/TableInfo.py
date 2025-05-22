@@ -12,6 +12,9 @@ class TableInfo:
         self._build_column_info_list(table_column_metadata, table_duplicate_column_names)
         self.relationship_map = {}
         self.virtual_column_infos = []
+
+    def __repr__(self):
+        return f"TableInfo({self.name})"
     
     def _build_column_info_list(self, table_column_metadata, table_duplicate_column_names):
         self.column_infos = []
