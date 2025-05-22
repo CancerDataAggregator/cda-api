@@ -20,8 +20,8 @@ def parse_filter_string(filter_string, log):
     operator = split_filter_string[1]
     value_string = ' '.join(split_filter_string[2:])
     if len(split_filter_string) > 3:
-        if split_filter_string[2] in ['in', 'like', 'not']:
-            operator =  f'{operator} {split_filter_string[2]}'
+        if split_filter_string[2].lower() in ['in', 'like', 'not']:
+            operator =  f'{operator} {split_filter_string[2].lower()}'
             value_string = ' '.join(split_filter_string[3:])
 
     # Verify the matched operator is valid
