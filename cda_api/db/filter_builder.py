@@ -82,7 +82,7 @@ def parse_filter_string(filter_string, log):
 
     log.debug(f"columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}")
 
-    return columnname, operator, value
+    return columnname.lower(), operator.lower(), value
 
 
 # Generate preselect filter conditional
