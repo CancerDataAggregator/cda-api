@@ -111,7 +111,7 @@ def get_preselect_filter(endpoint_tablename, filter_string, log):
                         entity_tablename=endpoint_tablename, foreign_tablename=null_filter_column_info.tablename
                     )
                 mapping_column = relationship.entity_collection
-                filter_clause = mapping_column.any(filter_column_info.metadata_column.is_(True))
+                filter_clause = mapping_column.any(null_filter_column_info.metadata_column.is_(True))
             else:
                 null_table = DB_MAP.get_metadata_table(f'{filter_column_info.tablename}_nulls')
                 null_filter_column_info = DB_MAP.get_table_column_info(null_table.name, null_table.c[0].name)
