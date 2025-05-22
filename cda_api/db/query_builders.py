@@ -186,7 +186,7 @@ def summary_query(db, endpoint_tablename, request_body, log):
                     case _:
                         log.warning(f'Unexpectedly skipping {column_info.uniquename} for summary - column_type: {column_info.column_type}')
                         pass
-        else:
+        elif column_info.uniquename not in request_body.ADD_COLUMNS:
             add_columns_selects, _ = get_foreign_array_summary_selects(db, endpoint_tablename, [column_info.uniquename], preselect_query, filter_table_map, log)
             for select in add_columns_selects:
                 summary_select_clause.append(db.query(select).label(select.name))
