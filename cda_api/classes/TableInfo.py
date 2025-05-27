@@ -9,6 +9,7 @@ class TableInfo:
         self.name = self.db_table.name
         self.db_columns = [column for column in db_table.columns]
         self.foreign_key_map = {foreign_key.column.table.name: foreign_key for foreign_key in db_table.foreign_keys}
+        self.primary_key_column_info = None
         self._build_column_info_list(table_column_metadata, table_duplicate_column_names)
         self.relationship_map = {}
         self.virtual_column_infos = []
@@ -27,6 +28,9 @@ class TableInfo:
                 column_metadata = table_column_metadata[db_column.name]
             
             column_info = ColumnInfo(self, unique_name, db_column, column_metadata)
+            if len(self.db_table.primary_key.columns) > 0:
+                if db_column == self.db_table.primary_key.columns[0]:
+                    self.primary_key_column_info = column_info
             self.column_infos.append(column_info)
     
     def build_table_relationship(self, foreign_table_info):
