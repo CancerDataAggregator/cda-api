@@ -21,8 +21,8 @@ def parse_filter_string(filter_string, log):
     operator = split_filter_string[1]
     value_string = ' '.join(split_filter_string[2:])
     if len(split_filter_string) > 3:
-        if split_filter_string[2] in ['in', 'like', 'not']:
-            operator =  f'{operator} {split_filter_string[2]}'
+        if split_filter_string[2].lower() in ['in', 'like', 'not']:
+            operator =  f'{operator} {split_filter_string[2].lower()}'
             value_string = ' '.join(split_filter_string[3:])
 
     # Verify the matched operator is valid
@@ -83,7 +83,18 @@ def parse_filter_string(filter_string, log):
 
     log.debug(f"columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}")
 
-    return columnname, operator, value
+    return columnname.lower(), operator.lower(), value
+
+    
+def get_endpoint_preselect_foreign_filter(endpoint_tablename, foreign_tablename, filter_clause):
+    if endpoint_tablename == foreign_tablename:
+        return filter_clause
+    if endpoint_tablename not in DB_MAP.table_relationship_map.keys():
+        raise TableNotFound(f'Cannot apply preselect from {foreign_tablename} on {endpoint_tablename} because a path was not esablished')
+    elif foreign_tablename not in DB_MAP.table_relationship_map[endpoint_tablename].keys():
+        raise TableNotFound(f'Cannot apply preselect from {foreign_tablename} on {endpoint_tablename} because a path was not esablished')
+    table_relationship = DB_MAP.table_relationship_map[endpoint_tablename][foreign_tablename]
+    return table_relationship.get_preselect_filter_clause(filter_clause)
 
     
 def get_endpoint_preselect_foreign_filter(endpoint_tablename, foreign_tablename, filter_clause):
