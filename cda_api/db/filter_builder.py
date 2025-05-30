@@ -96,17 +96,6 @@ def get_endpoint_preselect_foreign_filter(endpoint_tablename, foreign_tablename,
     table_relationship = DB_MAP.table_relationship_map[endpoint_tablename][foreign_tablename]
     return table_relationship.get_preselect_filter_clause(filter_clause)
 
-    
-def get_endpoint_preselect_foreign_filter(endpoint_tablename, foreign_tablename, filter_clause):
-    if endpoint_tablename == foreign_tablename:
-        return filter_clause
-    if endpoint_tablename not in DB_MAP.table_relationship_map.keys():
-        raise TableNotFound(f'Cannot apply preselect from {foreign_tablename} on {endpoint_tablename} because a path was not esablished')
-    elif foreign_tablename not in DB_MAP.table_relationship_map[endpoint_tablename].keys():
-        raise TableNotFound(f'Cannot apply preselect from {foreign_tablename} on {endpoint_tablename} because a path was not esablished')
-    table_relationship = DB_MAP.table_relationship_map[endpoint_tablename][foreign_tablename]
-    return table_relationship.get_preselect_filter_clause(filter_clause)
-
 
 # Generate preselect filter conditional
 def get_preselect_filter(endpoint_tablename, filter_string, log):
@@ -153,6 +142,7 @@ def build_match_conditons(endpoint_tablename, request_body, log):
         log.debug("Building MATCH_ALL conditions")
         for filter_string in request_body.MATCH_ALL:
             filter_clause, local_filter_clause, filter_columnname, filter_tablename = get_preselect_filter(endpoint_tablename, filter_string, log) 
+            print('got preselect filter')
             match_all_conditions.append(filter_clause)
             if filter_columnname not in filter_columnnames:
                 filter_columnnames.append(filter_columnname)

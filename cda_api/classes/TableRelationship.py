@@ -42,6 +42,6 @@ class TableRelationship():
                                 .filter(self.primary_column_info.metadata_column == self.secondary_column_info.metadata_column)
         for additional_filter in self.additional_filters:
             subquery = subquery.filter(additional_filter)
-        if secondary_filter_clause:
+        if secondary_filter_clause is not None:
             subquery = subquery.filter(secondary_filter_clause)
         return exists(subquery)

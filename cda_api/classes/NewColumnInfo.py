@@ -4,6 +4,7 @@ class ColumnInfo:
         self.selectable_table_info = parent_table_info
         self.name = name
         self.db_column = db_column
+        self.labeled_db_column = self.db_column.label(self.name)
         self.table_column_name = f"{self.db_column.table.name}.{self.db_column.name}"
         self.column_type = None
         self.summary_returns = False

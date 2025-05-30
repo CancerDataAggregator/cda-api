@@ -22,3 +22,13 @@ class TableRelationship():
             self.additional_filters = [cda_table_column_info.db_column == self.local_column_info.parent_table_info.name]
         else:
             self.additional_filters = []
+
+    def get_foreign_table_join_clause(self):
+        if self.requires_mapping_table:
+            mapping_table = self.local_mapping_column_info.parent_table_info.db_table
+            onclause = self.foreign_column_info.db_column == self.foreign_mapping_column_info.db_column
+            return {'target': mapping_table, 'onclause': onclause}
+        else:
+            mapping_table = self.foreign_column_info.parent_table_info.db_table
+            onclause = self.local_column_info.db_column == self.foreign_column_info.db_column
+            return {'target': mapping_table, 'onclause': onclause}
