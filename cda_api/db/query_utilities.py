@@ -726,3 +726,189 @@ def get_identifiers_preselect_columns(db, entity_tablename, preselect_query, log
 
     return foreign_join, preselect_columns
     
+    
+def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_filters):
+    if match_all_db_filters and match_some_db_filters:
+        query = query.filter(and_(*match_all_db_filters)).filter(or_(*match_some_db_filters))
+    elif match_all_db_filters:
+        query = query.filter(and_(*match_all_db_filters))
+    elif match_some_db_filters:
+        query = query.filter(or_(*match_some_db_filters))
+    return query
+
+
+def build_virtual_foreign_arrays(db,foreign_table_info, virtual_table_info, virtual_column_infos, filtered_preselect, log):
+    virtual_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
+    if virtual_table_relationship.requires_mapping_table:
+        relating_column = virtual_table_relationship.local_mapping_column_info.db_column
+    else:
+        relating_column = virtual_table_relationship.foreign_column_info.db_column
+    cte_name = f'{foreign_table_info.name}_{virtual_table_info.name}_columns'
+    select_columns = [relating_column] + [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in virtual_column_infos]
+    virtual_preselect = (
+        db.query(*select_columns)
+        .filter(relating_column.in_(filtered_preselect))
+    )
+    virtual_preselect = virtual_preselect.group_by(relating_column)
+    virtual_preselect_cte = virtual_preselect.cte(cte_name)
+    preselect_onclause = get_cte_column(virtual_preselect_cte, relating_column.name) == virtual_table_relationship.local_column_info.db_column
+    preselect_join = {'target': virtual_preselect_cte, 'onclause': preselect_onclause}
+    preselect_columns = [db_column for db_column in virtual_preselect_cte.c if db_column.name != relating_column.name]
+    return preselect_columns, [preselect_join]
+
+
+
+
+def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_table_info, filtered_preselect, foreign_table_info, column_infos, foreign_filter_infos, log):
+    log.debug(f'Building foreign array or {foreign_table_info} connecting to {endpoint_table_info} through {relating_table_info}')
+    # Get relationship info
+    if relating_table_info != foreign_table_info:
+        filter_relationship = relating_table_info.get_table_relationship(foreign_table_info)
+        if filter_relationship.requires_mapping_table:
+            filtered_preselect_relating_column = filter_relationship.local_mapping_column_info.db_column
+        else:
+            filtered_preselect_relating_column = filter_relationship.foreign_column_info.db_column
+    else:
+        filtered_preselect_relating_column = relating_table_info.primary_key_column_info.db_column
+
+    endpoint_relationship = endpoint_table_info.get_table_relationship(foreign_table_info)
+    if endpoint_relationship.requires_mapping_table:
+        endpoint_relating_column = endpoint_relationship.local_mapping_column_info.db_column
+    else:
+        endpoint_relating_column = endpoint_relationship.foreign_column_info.db_column
+
+    virtual_column_info_map = {}
+    foreign_column_infos = []
+    for column_info in column_infos:
+        print(column_info)
+        if column_info.parent_table_info != foreign_table_info:
+            virtual_table_info = column_info.parent_table_info
+            if virtual_table_info not in virtual_column_info_map.keys():
+                virtual_column_info_map[virtual_table_info] = []
+            virtual_column_info_map[virtual_table_info].append(column_info)
+        else:
+            foreign_column_infos.append(column_info)
+
+    # Name and select columns slightly differ between json & array
+    if construct_type == 'json':
+        cte_name = f"{foreign_table_info.name}_expanded_preselect"
+        select_columns = [endpoint_relating_column] + [column_info.labeled_db_column for column_info in foreign_column_infos]
+    elif construct_type == 'array':
+        cte_name = f'{foreign_table_info.name}_{endpoint_table_info.name}_columns'
+        select_columns = [endpoint_relating_column] + [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in foreign_column_infos]
+    elif construct_type == 'provenance':
+        cte_name = f'{relating_table_info.name}_identifiers_preselect'
+        select_columns = [endpoint_relating_column] + [column_info.original_labeled_column for column_info in foreign_column_infos]
+    else:
+        raise Exception(f'Unexpected foreign preselect contruct_type {construct_type}. Please use "json", or "array"')
+    
+    virtual_table_joins = []
+    if construct_type == 'array':
+        for virtual_table_info, virtual_column_infos in virtual_column_info_map.items():
+            select_columns += [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in virtual_column_infos]
+            virtual_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
+            virtual_table_joins.append(virtual_table_relationship.get_foreign_table_join_clause())
+    else:
+        for virtual_table_info, virtual_column_infos in virtual_column_info_map.items():
+            columns, joins = build_virtual_foreign_arrays(db, foreign_table_info, virtual_table_info, virtual_column_infos, filtered_preselect, log)
+            if construct_type == 'json':
+                for col in columns:
+                    select_columns.append(func.coalesce(col, []).label(col.name))
+            else:
+                select_columns.extend(columns)
+            virtual_table_joins.extend(joins)
+
+    log.debug(f"Building {cte_name}")
+
+
+    # Set up base preselect
+    foreign_preselect = (
+        db.query(*select_columns)
+        .filter(filtered_preselect_relating_column.in_(filtered_preselect))
+    )
+
+    for virtual_table_join in virtual_table_joins:
+        foreign_preselect = foreign_preselect.join(**virtual_table_join, isouter=True)
+
+    # Join on the mapping table if required
+    if endpoint_relationship.requires_mapping_table:
+        foreign_preselect = foreign_preselect.join(**endpoint_relationship.get_foreign_table_join_clause())
+    
+    # Apply additional filters if required
+    for additional_filter in endpoint_relationship.additional_filters:
+        foreign_preselect = foreign_preselect.filter(additional_filter)
+
+    # Add filters if the current foreign table is file or subject
+    for filter_info in foreign_filter_infos:
+        if filter_info.filter_column_info.parent_table_info in relating_table_info.database_info.local_table_infos:
+            foreign_preselect = foreign_preselect.filter(filter_info.get_db_filter_for_table(foreign_table_info))
+
+
+    # Build individual column arrays
+    if construct_type == 'array': 
+        foreign_preselect = foreign_preselect.group_by(endpoint_relating_column)
+        foreign_array_preselect_cte = foreign_preselect.cte(cte_name)
+        preselect_onclause = get_cte_column(foreign_array_preselect_cte, endpoint_relating_column.name) == endpoint_relationship.local_column_info.db_column
+        preselect_join = {'target': foreign_array_preselect_cte, 'onclause': preselect_onclause}
+        preselect_columns = [db_column for db_column in foreign_array_preselect_cte.c if db_column.name != endpoint_relating_column.name]
+        
+    # Build json for all columns
+    elif construct_type == 'json': 
+        # Need to auto add data_at and data_source columns
+        foreign_table_subquery = foreign_preselect.subquery('subquery')
+        foreign_json_columns = []
+        subquery_id_column = None
+        for column in foreign_table_subquery.c:
+            if column.name != endpoint_relating_column.name:
+                foreign_json_columns.append(column.name)
+                foreign_json_columns.append(column)
+            else:
+                subquery_id_column = column
+        
+        json_subquery = db.query(
+                            subquery_id_column.label(endpoint_relating_column.name),
+                            func.json_build_object(*foreign_json_columns).label('json_results')
+                        ).subquery('json_subquery')
+        
+        json_subquery_id_column = json_subquery.c[endpoint_relating_column.name]
+
+        log.debug(f"Aggregating rows")
+        foreign_json_preselect = (
+            db.query(
+                json_subquery_id_column.label(endpoint_relating_column.name),
+                func.array_agg(json_subquery.c['json_results']).label(f'{foreign_table_info.name}_columns')
+            )
+            .group_by(json_subquery_id_column)
+        )
+        foreign_json_preselect = foreign_json_preselect.cte(cte_name)
+
+        onclause = get_cte_column(foreign_json_preselect, endpoint_relating_column.name) == endpoint_relationship.local_column_info.db_column
+        preselect_columns = [foreign_json_preselect.c[f'{foreign_table_info.name}_columns'].label(f'{foreign_table_info.name}_columns')]
+        preselect_join = {"target": foreign_json_preselect, "onclause": onclause}
+
+    else:
+        ui_subquery = foreign_preselect.subquery('subquery')
+        ui_json_subquery = (
+            db.query(
+                ui_subquery.c[endpoint_relating_column.name].label('id_alias'),
+                func.json_build_object(
+                    'data_source', ui_subquery.c['data_source'],
+                    ui_subquery.c['data_source_id_field_name'], ui_subquery.c['data_source_id_value']
+                ).label('json_results')
+            )
+            .subquery('json_subquery')
+        )
+        ui_preselect = (
+            db.query(
+                ui_json_subquery.c['id_alias'].label('id_alias'),
+                func.array_agg(ui_json_subquery.c['json_results']).label(f'{relating_table_info.name}_identifiers')
+            )
+            .group_by(ui_json_subquery.c['id_alias'])
+        )
+        ui_preselect = ui_preselect.cte(cte_name)
+        preselect_columns = [get_cte_column(ui_preselect, f'{relating_table_info.name}_identifiers')]
+        onclause = get_cte_column(ui_preselect, f'id_alias') == relating_table_info.primary_key_column_info.db_column
+        preselect_join = {"target": ui_preselect, "onclause": onclause}
+
+    log.debug(f"Finished building {cte_name}")
+    return preselect_columns, [preselect_join]

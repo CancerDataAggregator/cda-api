@@ -42,7 +42,7 @@ def file_fetch_rows_endpoint(
 
     try:
         # Get paged query result
-        result = data_query(db, endpoint_tablename="file", request_body=request_body, limit=limit, offset=offset, log=log)
+        result = data_query(db, endpoint_table_name="file", request_body=request_body, limit=limit, offset=offset, log=log)
         if (offset != None) and (limit != None):
             if result["total_row_count"] > offset + limit:
                 next_url = request.url.components.geturl().replace(f"offset={offset}", f"offset={offset+limit}")
@@ -87,7 +87,7 @@ def subject_fetch_rows_endpoint(
 
     try:
         # Get paged query result
-        result = data_query(db, endpoint_tablename="subject", request_body=request_body, limit=limit, offset=offset, log=log)
+        result = data_query(db, endpoint_table_name="subject", request_body=request_body, limit=limit, offset=offset, log=log)
         if limit != None:
             if offset == None:
                 offset = 0

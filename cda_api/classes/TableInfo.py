@@ -13,17 +13,23 @@ class TableInfo:
         self._build_column_info_list(table_column_metadata, table_duplicate_column_names)
         self.relationship_map = {}
         self.virtual_column_infos = []
+        self.primary_table_info = None
 
     def __repr__(self):
         return f"TableInfo({self.name})"
     
     def _build_column_info_list(self, table_column_metadata, table_duplicate_column_names):
+        unique_name_overwrite = {
+            'file_anatomic_site_anatomic_site': 'file_anatomic_site',
+        }
         self.column_infos = []
         for db_column in self.db_columns:
             unique_name = db_column.name
             column_metadata = None
             if db_column.name in table_duplicate_column_names:
                 unique_name = f'{self.name}_{db_column.name}'
+            if unique_name in unique_name_overwrite.keys():
+                unique_name = unique_name_overwrite[unique_name]
             if db_column.name in table_column_metadata.keys():
                 column_metadata = table_column_metadata[db_column.name]
             
@@ -32,29 +38,44 @@ class TableInfo:
                 if db_column == self.db_table.primary_key.columns[0]:
                     self.primary_key_column_info = column_info
             self.column_infos.append(column_info)
+
+    def set_primary_table_info(self):
+        if self.foreign_key_map:
+            if len(self.foreign_key_map.keys()) == 1:
+                self.primary_table_info = self.database_info.get_table_info(list(self.foreign_key_map.keys())[0])
+        else:
+            self.primary_table_info = self
+        
     
     def build_table_relationship(self, foreign_table_info):
         local_column_info = None
         foreign_column_info = None
         local_mapping_column_info = None
-        foreign_table_mapping_column_info = None
+        foreign_mapping_column_info = None
         # Direct connection
         if self.name in foreign_table_info.foreign_key_map.keys():
             foreign_key = foreign_table_info.foreign_key_map[self.name]
             local_column_info = self.get_column_info(foreign_key.column.name)
-            foreign_column_info = self.database_info.get_column_info(foreign_key.parent) 
+            foreign_column_info = self.database_info.get_column_info(foreign_key.parent)
+
+        elif foreign_table_info in self.database_info.mapping_table_infos:
+            if self.name in foreign_table_info.foreign_key_map.keys():
+                foreign_key = foreign_table_info.foreign_key_map[foreign_table_info.name]
+                local_column_info = self.get_column_info(foreign_key.column)
+                foreign_column_info = self.database_info.get_column_info(foreign_key.parent)
         
         # Direct connection but doesn't show in foreign_keys
         elif foreign_table_info.name == 'upstream_identifiers': 
             local_column_info = self.get_column_info(self.db_table.primary_key.c[0].name)
             foreign_column_info = self.database_info.get_column_info('id_alias', foreign_table_info.name)
-        
+ 
         # Mapping columns required
-        else:
+        if local_column_info is None or foreign_column_info is None:
             # Find all potential paths through the mapping tables
             potential_local_fks = []
             potential_foreign_table_fks = []
             potential_foreign_table_columns = []
+
             for mapping_table_info in self.database_info.mapping_table_infos:
                 potential_local_fk = None
                 potential_foreign_table_fk = None
@@ -73,11 +94,10 @@ class TableInfo:
                 if potential_local_fk and potential_foreign_table_fk:
                     potential_local_fks.append(potential_local_fk)
                     potential_foreign_table_fks.append(potential_foreign_table_fk)
-            
+                
             potential_local_fks = list(set(potential_local_fks))
             potential_foreign_table_fks = list(set(potential_foreign_table_fks))
             potential_foreign_table_columns = list(set(potential_foreign_table_columns))
-
             # Check 
             if potential_local_fks and potential_foreign_table_fks:
                 if len(potential_local_fks) > 1 or len(potential_foreign_table_fks) > 1:
@@ -99,13 +119,13 @@ class TableInfo:
                     foreign_column_info = self.database_info.get_column_info(foreign_column)
                 else:
                     foreign_column_info = self.database_info.get_column_info(foreign_table_fk.column)
-                foreign_table_mapping_column_info = self.database_info.get_column_info(foreign_table_fk.parent)
+                foreign_mapping_column_info = self.database_info.get_column_info(foreign_table_fk.parent)
                         
 
         if local_column_info is None or foreign_column_info is None:
             raise Exception(f'Unable to find a path between {self.name}, {foreign_table_info.name}')
 
-        table_relationship = TableRelationship(local_column_info, foreign_column_info, local_mapping_column_info, foreign_table_mapping_column_info)
+        table_relationship = TableRelationship(local_column_info, foreign_column_info, local_mapping_column_info, foreign_mapping_column_info)
         self.relationship_map[foreign_table_info.name] = table_relationship
 
     def add_virtual_table_columns(self, virtual_table_column_info):
@@ -158,4 +178,14 @@ class TableInfo:
     def get_summary_db_columns(self):
         data_db_columns = [column_info.db_column for column_info in self.column_infos if column_info.summary_returns]
         data_db_columns.extend([column_info.db_column for column_info in self.virtual_column_infos if column_info.summary_returns])
+        return data_db_columns
+    
+    def get_summary_process_before_display_column_infos(self):
+        data_db_columns = [column_info for column_info in self.column_infos if column_info.process_before_display is not None]
+        data_db_columns.extend([column_info for column_info in self.virtual_column_infos if column_info.process_before_display is not None])
+        return data_db_columns
+    
+    def get_summary_process_before_display_db_columns(self):
+        data_db_columns = [column_info.db_column for column_info in self.column_infos if column_info.process_before_display is not None]
+        data_db_columns.extend([column_info.db_column for column_info in self.virtual_column_infos if column_info.process_before_display is not None])
         return data_db_columns

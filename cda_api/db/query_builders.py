@@ -3,9 +3,10 @@ import time
 from sqlalchemy import distinct, func, union_all, union, SelectLabelStyle
 
 from cda_api import SystemNotFound, ColumnNotFound, InvalidFilterError
-from cda_api.db import DB_MAP
+from cda_api.db import DB_MAP, DB_INFO
 from cda_api.db.schema import Base
 from psycopg2.errors import UndefinedFunction
+from cda_api.classes.DataQuery import DataQuery
 
 from .filter_builder import build_match_conditons
 from .query_utilities import (
@@ -25,12 +26,12 @@ from .query_utilities import (
 from .select_builder import build_data_select_clause
 
 
-def data_query(db, endpoint_tablename, request_body, limit, offset, log):
+def data_query(db, endpoint_table_name, request_body, limit, offset, log):
     """Generates json formatted row data based on input query
 
     Args:
         db (Session): Database session object
-        endpoint_tablename (str): Name of the endpoint table
+        endpoint_table_name (str): Name of the endpoint table
         request_body (request_body): JSON input query
         limit (int): Offset for paged results
         offset (int): Offset for paged results.
@@ -44,22 +45,22 @@ def data_query(db, endpoint_tablename, request_body, limit, offset, log):
             'next_url': 'URL to acquire next paged result'
         }
     """
-    log.info("Building fetch_rows query")
+    log.info("Building data query")
 
     # Get match_all and match_some filters
-    match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map = build_match_conditons(endpoint_tablename, request_body, log)
+    match_all_conditions, match_some_conditions, filter_columnnames, filter_table_map = build_match_conditons(endpoint_table_name, request_body, log)
     
     # normalize the add and exclude columns with the new filter columns as well as breaking out the table.* columns:
     request_body = normalize_add_exclude_columns(request_body, 'data', filter_columnnames, log)
 
     # Build the preselect query
     filter_preselect_query, endpoint_id_alias = build_filter_preselect(
-        db, endpoint_tablename, match_all_conditions, match_some_conditions, log
+        db, endpoint_table_name, match_all_conditions, match_some_conditions, log
     )
 
     # Build the select columns and joins to foreign column array preselects
     select_columns, foreign_joins = build_data_select_clause(
-        db, endpoint_tablename, request_body, filter_preselect_query, filter_table_map, log
+        db, endpoint_table_name, request_body, filter_preselect_query, filter_table_map, log
     )
     
     log.debug(f"Constructing data query")
@@ -81,6 +82,12 @@ def data_query(db, endpoint_tablename, request_body, limit, offset, log):
     subquery = query.subquery("json_result")
     log.debug("Running Query")
     query = db.query(func.row_to_json(subquery.table_valued()))
+
+    # data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
+    # log.debug(data_query)
+    # query = data_query.get_query()
+    # count_query = data_query.get_count_query()
+
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
 
     log.debug(f'Count Query:\n{"-"*100}\n{query_to_string(count_query, indented = True)}\n{"-"*100}')

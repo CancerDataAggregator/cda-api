@@ -18,6 +18,8 @@ class DatabaseInfo:
         self._build_table_relationships()
         self._assign_virtual_table_columns()
         self._assign_null_columns()
+        self._assign_foreign_key_column_infos()
+        self._assign_primary_table_infos()
         
     def _build_sqlalchemy_components(self):
         setup_log.info("Building variables from automapped Base")
@@ -88,6 +90,14 @@ class DatabaseInfo:
             if column_info.name.endswith('null') and column_info.parent_table_info.name.endswith('nulls'):
                 column_info_to_assign = self.get_column_info(column_info.name.replace('_null', ''), column_info.parent_table_info.name.replace('_nulls', ''))
                 column_info_to_assign.assign_null_column(column_info)
+    
+    def _assign_foreign_key_column_infos(self):
+        for column_info in self.all_column_infos:
+            column_info.assign_foreign_key_column_infos()
+
+    def _assign_primary_table_infos(self):
+        for table_info in self.table_infos:
+            table_info.set_primary_table_info()
     
     def get_column_info(self, column, table = None) -> ColumnInfo:
         if table is None:
