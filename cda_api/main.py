@@ -33,7 +33,15 @@ app.include_router(router=data.router,
                         }
                 })
 
-app.include_router(router=summary.router)
+app.include_router(router=summary.router,
+                   responses={
+                        400: {
+                            "model": ClientError
+                        },
+                        500: {
+                            "model": InternalError
+                        }
+                })
 app.include_router(router=column_values.router)
 app.include_router(router=release_metadata.router)
 app.include_router(router=columns.router)
