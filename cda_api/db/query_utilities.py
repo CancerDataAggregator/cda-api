@@ -780,7 +780,6 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
     virtual_column_info_map = {}
     foreign_column_infos = []
     for column_info in column_infos:
-        print(column_info)
         if column_info.parent_table_info != foreign_table_info:
             virtual_table_info = column_info.parent_table_info
             if virtual_table_info not in virtual_column_info_map.keys():

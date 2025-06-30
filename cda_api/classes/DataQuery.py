@@ -1,21 +1,27 @@
 from cda_api.models import DataRequestBody
-from cda_api.db.query_utilities import apply_match_all_and_some_filters, get_cte_column, build_foreign_preselect
+from cda_api.db.query_utilities import build_foreign_preselect
 from .DatabaseInfo import DatabaseInfo
-from .FilterInfo import FilterInfo
+from .shared_class_functions import get_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
 from sqlalchemy import func, Label
 
 class DataQuery:
     def __init__(self, db, db_info: DatabaseInfo, endpoint_table_name, request_body: DataRequestBody, log):
+        # Initailize arguments
         self.db = db
         self.db_info = db_info
         self.endpoint_table_info = self.db_info.get_table_info(endpoint_table_name)
         self.request_body = request_body
         self.log = log
-        self.filter_infos = []
 
-        self._build_filter_infos()
-        self._build_table_column_and_filter_map()
-        self._build_filtered_preselect()
+        # Set useful variables
+        self.endpoint_alias = self.endpoint_table_info.primary_key_column_info
+
+        # Construct filter preselect
+        self.filter_infos = get_filter_infos(self)
+        self.table_column_and_filter_map, self.identifiers_bool = get_table_column_and_filter_map(self, 'data')
+        self.filtered_preselect, self.filtered_preselect_cte_query_map, self.filtered_preselect_column_map = get_filtered_preselect(self)
+
+        # Build select columns and joins
         self._build_select_columns_and_joins()
 
     def __repr__(self):
@@ -49,120 +55,6 @@ class DataQuery:
         ]
         return '\n'.join(repr_components)
 
-
-    def _build_filter_infos(self):
-        for filter_string in self.request_body.MATCH_ALL:
-            self.filter_infos.append(FilterInfo(filter_string, 'match_all', self.db_info, self.log))
-        for filter_string in self.request_body.MATCH_SOME:
-            self.filter_infos.append(FilterInfo(filter_string, 'match_some', self.db_info, self.log))
-    
-
-    def _build_table_column_and_filter_map(self):
-        self.table_column_and_filter_map = {
-            self.endpoint_table_info: {
-                'column_infos': self.endpoint_table_info.get_data_column_infos(),
-                'filter_infos': []
-            }
-        }
-        self.all_column_infos = self.endpoint_table_info.get_data_column_infos()
-        self.add_identifiers = False
-
-        # Adding filter columns
-        for filter_info in self.get_filter_infos():
-            filter_column_info = filter_info.selectable_column_info
-            filter_table_info = filter_column_info.selectable_table_info
-            if filter_table_info not in self.table_column_and_filter_map.keys():
-                self.table_column_and_filter_map[filter_table_info] = {'column_infos': [], 'filter_infos': []}
-            if filter_column_info not in self.all_column_infos:
-                self.table_column_and_filter_map[filter_table_info]['column_infos'].append(filter_column_info)
-                self.all_column_infos.append(filter_column_info)
-            self.table_column_and_filter_map[filter_table_info]['filter_infos'].append(filter_info)
-
-        # Adding from ADD_COLUMNS
-        for column_to_add in self.request_body.ADD_COLUMNS:
-            self.log.debug(f'Adding {column_to_add}')
-            if column_to_add.endswith('.*'):
-                table_name = column_to_add.replace('.*', '')
-                table_info = self.db_info.get_table_info(table_name)
-                column_infos_to_add = table_info.get_data_column_infos()
-            elif column_to_add == f'{self.endpoint_table_info.name}_identifiers':
-                self.add_identifiers = True
-                table_name = 'upstream_identifiers'
-                table_info = self.db_info.get_table_info(table_name)
-                column_infos_to_add = table_info.get_summary_process_before_display_column_infos()
-            else:
-                column_info = self.db_info.get_column_info(column_to_add)
-                table_info = column_info.selectable_table_info
-                column_infos_to_add = [column_info]
-
-            if table_info not in self.table_column_and_filter_map.keys():
-                self.table_column_and_filter_map[table_info] = {'column_infos': [], 'filter_infos': []}
-            column_infos_to_add = [column_info for column_info in column_infos_to_add if column_info not in self.all_column_infos]
-            self.table_column_and_filter_map[table_info]['column_infos'].extend(column_infos_to_add)
-            self.all_column_infos.extend(column_infos_to_add)
-
-        # Excluding from EXCLUDE_COLUMNS
-        for column_to_exclude in self.request_body.EXCLUDE_COLUMNS:
-            if column_to_exclude.endswith('.*'):
-                table_name = column_to_exclude.replace('.*', '')
-                table_info = self.db_info.get_table_info(table_name)
-                column_infos_to_exclude = table_info.get_data_column_infos()
-            else:
-                column_info = self.db_info.get_column_info(column_to_exclude)
-                table_info = column_info.parent_table_info
-                column_infos_to_exclude = [column_info]
-
-            if table_info.name == 'upstream_identifiers' and self.add_identifiers:
-                continue
-            
-            if table_info in self.table_column_and_filter_map.keys():
-                new_columns = [column_info for column_info in self.table_column_and_filter_map[table_info]['column_infos'] if column_info not in column_infos_to_exclude]
-                self.table_column_and_filter_map[table_info]['column_infos'] = new_columns
-
-    def _build_filtered_preselect(self):
-        self.endpoint_alias = self.endpoint_table_info.primary_key_column_info
-        mapping_table_infos = []
-        for table_info in self.table_column_and_filter_map.keys():
-            if table_info != self.endpoint_table_info:
-                table_relationship = self.db_info.get_table_relationship(self.endpoint_table_info, table_info)
-                if table_relationship.requires_mapping_table:
-                    mapping_table_infos.append(table_relationship.local_mapping_column_info.parent_table_info)
-        mapping_table_infos = list(set(mapping_table_infos))
-
-        self.filter_preselect_map = {}
-        filtered_preselect_joins = []
-        if len(mapping_table_infos) < 1:
-            self.filter_preselect_map[self.endpoint_table_info] = self.endpoint_table_info.primary_key_column_info
-        else:
-            for mapping_table_info in mapping_table_infos:
-                mapping_table_columns = mapping_table_info.column_infos
-                for column_info in mapping_table_columns:
-                    mapping_fk_column_info = column_info.foreign_key_column_info
-                    if mapping_fk_column_info is None:
-                        raise Exception('Only expected mapping columns which have foreign keys')
-                    if mapping_fk_column_info.parent_table_info not in self.filter_preselect_map.keys():
-                        self.filter_preselect_map[mapping_fk_column_info.parent_table_info] = column_info
-                    else:
-                        column_info_to_join = self.filter_preselect_map[mapping_fk_column_info.parent_table_info]
-                        filtered_preselect_joins.append({'target': mapping_table_info.db_table, 'onclause': column_info.db_column == column_info_to_join.db_column})
-
-        preselect_columns = [column_info.labeled_db_column for column_info in self.filter_preselect_map.values()]
-        filtered_preselect = self.db.query(*preselect_columns)
-        for mapping_join in filtered_preselect_joins:
-            filtered_preselect = filtered_preselect.join(**mapping_join)
-
-        match_all_db_filters  = [filter_info.get_filterable_preselect(self.filter_preselect_map) for filter_info in self.get_filter_infos('match_all')]
-        match_some_db_filters = [filter_info.get_filterable_preselect(self.filter_preselect_map) for filter_info in self.get_filter_infos('match_some')]
-
-        preselect_cte = apply_match_all_and_some_filters(filtered_preselect, match_all_db_filters, match_some_db_filters)
-        preselect_cte_name = f'filtered_preselect'
-        preselect_cte = preselect_cte.cte(preselect_cte_name)
-        self.filtered_preselect = self.db.query(preselect_cte.c)
-        self.filtered_preselect_cte_query_map = {}
-        for table_info, column_info in self.filter_preselect_map.items():
-            cte_column = get_cte_column(preselect_cte, column_info.name)
-            self.filtered_preselect_cte_query_map[table_info] = self.db.query(cte_column)
-
     def _build_select_columns_and_joins(self):
         self.select_map = {}
         self.select_joins = []
@@ -170,47 +62,73 @@ class DataQuery:
             column_infos = value['column_infos']
             filter_infos = value['filter_infos']
             self.select_map[table_info] = {}
-
             if len(column_infos) == 0:
                 self.log.debug(f'Skipping {table_info} because there were no columns to select from after applying EXCLUDE_COLUMNS')
                 continue
             
+            select_columns = []
+            select_joins = []
+
+            # Add endpoint table select columns:
             if table_info == self.endpoint_table_info:
-                self.select_map[table_info][table_info.name] = [column_info.labeled_db_column for column_info in column_infos]
-                continue
+                virtual_column_map = {}
+                table_virtual_column_infos = table_info.virtual_column_infos
+                local_select_columns = [column_info.labeled_db_column for column_info in column_infos if column_info not in table_virtual_column_infos]
+                self.select_map[table_info][table_info.name] = local_select_columns
 
-            if table_info.name == 'upstream_identifiers' and self.add_identifiers:
-                construct_type = 'provenance'
-            elif self.request_body.EXPAND_RESULTS is False:
-                construct_type = 'array'
-            else:
-                construct_type = 'json'
+                # Need to build mapping of virtual_tables to their respective columns
+                for column_info in column_infos:
+                    if column_info not in table_virtual_column_infos:
+                        continue
+                    virtual_table_info = column_info.parent_table_info
+                    if virtual_table_info not in virtual_column_map.keys():
+                        virtual_column_map[virtual_table_info] = []
+                    virtual_column_map[virtual_table_info].append(column_info)
 
+                # Using the virtual table mapping we need to add the distince array columns to the select statement and include their joins
+                if virtual_column_map:
+                    for virtual_table_info, v_column_infos in virtual_column_map.items():
+                        construct_type = 'array'
+                        related_filtered_preselect_query = self.filtered_preselect_cte_query_map[self.endpoint_table_info]
+                        virtual_select_columns, virtual_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, self.endpoint_table_info, related_filtered_preselect_query, virtual_table_info, v_column_infos, filter_infos, self.log)
+                        select_columns.extend(virtual_select_columns)
+                        select_joins.extend(virtual_select_joins)
             
-            if table_info.name == 'upstream_identifiers':
-                relating_table_info = self.endpoint_table_info
+            # Add foreign table select columns:
             else:
-                relating_table_info = table_info.primary_table_info
-            related_filtered_preselect_query = self.filtered_preselect_cte_query_map[relating_table_info]
+                if table_info.name == 'upstream_identifiers' and self.identifiers_bool:
+                    construct_type = 'provenance'
+                elif self.request_body.EXPAND_RESULTS is False:
+                    construct_type = 'array'
+                else:
+                    construct_type = 'json'
 
-            select_columns, select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, relating_table_info, related_filtered_preselect_query, table_info, column_infos, filter_infos, self.log)
+                if table_info.name == 'upstream_identifiers':
+                    relating_table_info = self.endpoint_table_info
+                else:
+                    relating_table_info = table_info.primary_table_info
+                related_filtered_preselect_query = self.filtered_preselect_cte_query_map[relating_table_info]
 
+                foreign_select_columns, foreign_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, relating_table_info, related_filtered_preselect_query, table_info, column_infos, filter_infos, self.log)
+                select_columns.extend(foreign_select_columns)
+                select_joins.extend(foreign_select_joins)
+            
+            # Add the select columns where they belong in the select_map
             for select_column in select_columns:
                 if isinstance(select_column, Label):
                     preselect_name = select_column.element.table.name
                 else:
                     preselect_name = select_column.table.name
                 if preselect_name not in self.select_map[table_info].keys():
-                    print(table_info, preselect_name)
                     self.select_map[table_info][preselect_name] = []
-                if construct_type == 'array':
+                if construct_type == 'array': # Need to coalesce to an empty list in place of Null
                     select_column = func.coalesce(select_column, []).label(select_column.name)
                 self.select_map[table_info][preselect_name].append(select_column)
 
             self.select_joins.extend(select_joins)
 
         endpoint_columns = []
-        provenance_column = []
+        provenance_columns = []
         filter_columns = []
         add_columns = []
         for table_info, select_table_map in self.select_map.items():
@@ -219,13 +137,13 @@ class DataQuery:
                     if table_info == self.endpoint_table_info:
                         endpoint_columns.append(select_column)
                     elif select_column.name.endswith('identifiers'):
-                        provenance_column.append(select_column)
+                        provenance_columns.append(select_column)
                     elif select_column.name in [filter_info.selectable_column_info.name for filter_info in self.table_column_and_filter_map[table_info]['filter_infos']]:
                         filter_columns.append(select_column)
                     else:
                         add_columns.append(select_column)
 
-        self.select_columns = endpoint_columns + provenance_column + filter_columns + add_columns  
+        self.select_columns = endpoint_columns + provenance_columns + filter_columns + add_columns  
 
 
     def get_query(self):

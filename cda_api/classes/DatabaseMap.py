@@ -70,7 +70,7 @@ class DatabaseMap:
             'file_format': 'format',
             'file_category': 'category',
             'file_tumor_vs_normal_tumor_vs_normal': 'tumor_vs_normal',
-            'file_anatomic_site_anatomic_site': 'file_anatomic_site',
+            'file_anatomic_site_anatomic_site': 'anatomic_site',
         }
 
         self.column_map = {}

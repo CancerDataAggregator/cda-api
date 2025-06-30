@@ -189,3 +189,9 @@ class TableInfo:
         data_db_columns = [column_info.db_column for column_info in self.column_infos if column_info.process_before_display is not None]
         data_db_columns.extend([column_info.db_column for column_info in self.virtual_column_infos if column_info.process_before_display is not None])
         return data_db_columns
+    
+    def get_column_infos(self, typ):
+        if typ == 'summary':
+            return self.get_summary_column_infos()
+        else:
+            return self.get_data_column_infos()
