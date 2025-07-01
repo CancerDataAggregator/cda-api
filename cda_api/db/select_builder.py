@@ -28,6 +28,7 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
     added_columns = [column_info.uniquename for column_info in table_column_infos if column_info.data_returns]
     
     # Add additional columns to select list
+    log.info("Adding ADD_COLUMNS")
     if add_columns:
         log.debug(f"Stepping through ADD_COLUMNS list")
         for add_columnname in add_columns:
@@ -43,6 +44,7 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
                     log.debug(f"Skipping {add_columnname} since it is already in the select clause list")
 
     # Remove columns from select list
+    log.info("Removing EXCLUDE_COLUMNS")
     to_remove = []
     if exclude_columns:
         log.debug(f"Stepping through EXCLUDE_COLUMNS list")
@@ -53,6 +55,7 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
                     to_remove.append(select_column)
     select_columns = [col for col in select_columns if col not in to_remove]
 
+    log.info("Building foreign table map")
     # Build foreign_array_map to build a single preselect the columns in each foreign table
     for column in select_columns:
         unique_name = column.name
@@ -66,6 +69,7 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
 
     # Build foreign array column preselects
     for foreign_tablename, columns in foreign_array_map.items():
+        log.info(f"Building foreign columns for {foreign_tablename}")
         if request_body.EXPAND_RESULTS:
             # Need to add data_at columns here
             data_at_column_infos = [column_info for column_info in DB_MAP.get_table_column_infos(foreign_tablename) if column_info.process_before_display in ['data_source', 'data_source_count']]
@@ -110,5 +114,5 @@ def build_data_select_clause(db, endpoint_tablename, request_body, filter_presel
         for col in preselect_columns:
             select_columns.append(col.label(col.name))
 
-    log.debug(f"Finished building select clause")
+    log.info(f"Finished building select clause")
     return select_columns, foreign_joins

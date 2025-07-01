@@ -62,39 +62,44 @@ def data_query(db, endpoint_tablename, request_body, limit, offset, log):
         db, endpoint_tablename, request_body, filter_preselect_query, filter_table_map, log
     )
     
-    log.debug(f"Constructing data query")
+    log.info(f"Constructing data query")
     query = db.query(*select_columns)
     query = query.filter(endpoint_id_alias.in_(filter_preselect_query))
     # Add joins to foreign table preselects
     if foreign_joins:
-        log.debug(f"Adding joins")
+        log.info(f"Adding joins")
         for foreign_join in foreign_joins:
             query = query.join(**foreign_join, isouter=True)
     # query = add_hanging_table_joins(endpoint_tablename, select_columns, query)
     # Optimize Count query by only counting the id_alias column based on the preselect filter
-    log.debug(f"Constructing count query")
+    log.info(f"Constructing count query")
     count_subquery = (
         db.query(endpoint_id_alias).filter(endpoint_id_alias.in_(filter_preselect_query)).subquery("rows_to_count")
     )
     count_query = db.query(func.count()).select_from(count_subquery)
 
     subquery = query.subquery("json_result")
-    log.debug("Running Query")
+    log.info("Finalizing query format")
     query = db.query(func.row_to_json(subquery.table_valued()))
-    log.debug(f'Query:\n{"-"*100}\n{query_to_string(query, indented = True)}\n{"-"*100}')
 
-    log.debug(f'Count Query:\n{"-"*100}\n{query_to_string(count_query, indented = True)}\n{"-"*100}')
+    log.debug(f'Query:\n{"-"*100}\n{query_to_string(query)}\n{"-"*100}')
+
+    log.debug(f'Count Query:\n{"-"*100}\n{query_to_string(count_query)}\n{"-"*100}')
 
     # Get results from the database
-    start_time = time.time()
+    log.info("Running the query")
+    q_start_time = time.time()
     result = query.offset(offset).limit(limit).all()
     row_count = count_query.scalar()
+    query_time = time.time() - q_start_time
+    log.info(f"Query execution time: {query_time}s")
 
 
     # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
+    f_start_time = time.time()
     result = [row for (row,) in result]
-    query_time = time.time() - start_time
-    log.info(f"Query execution time: {query_time}s")
+    format_time = time.time() - f_start_time
+    log.info(f"Row formatting time: {format_time}s")
     log.info(f"Returning {len(result)} rows out of {row_count} results | limit={limit} & offset={offset}")
 
     ret = {"result": result, "query_sql": query_to_string(query), "total_row_count": row_count, "next_url": ""}
