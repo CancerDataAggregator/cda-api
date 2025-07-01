@@ -42,7 +42,6 @@ app.include_router(router=summary.router,
                             "model": InternalError
                         }
                 })
-
 app.include_router(router=column_values.router)
 app.include_router(router=release_metadata.router)
 app.include_router(router=columns.router)
