@@ -45,7 +45,7 @@ class FilterInfo:
                 print(f'Could not build exclusive null filter for {self}')
                 self.exclusively_null = False
         
-
+    # TODO remove this function when transitioning to new class methods
     def get_db_filter_for_table(self, table_info):
         if table_info == self.filter_column_info.parent_table_info:
             return self.local_filter_clause
@@ -65,31 +65,9 @@ class FilterInfo:
             subquery = subquery.filter(self.local_filter_clause)
         return exists(subquery)
         
-    def get_db_filter_for_fds(self, table_info, fds_table_info):
-        fds_relationship = table_info.get_table_relationship(fds_table_info)
-
-        if table_info == self.filter_column_info.parent_table_info:
-            subquery = select(1).select_from(table_info.db_table)\
-                                .filter(fds_relationship.local_column_info.db_column == fds_relationship.foreign_column_info.db_column)
-        
-        else:
-            filter_table_relationship = table_info.get_table_relationship(self.filter_column_info.parent_table_info)
-            if filter_table_relationship.requires_mapping_table:
-                subquery = select(1).select_from(filter_table_relationship.foreign_mapping_column_info.parent_table_info.db_table)\
-                                    .filter(fds_relationship.foreign_column_info.db_column == filter_table_relationship.local_mapping_column_info.db_column)\
-                                    .filter(filter_table_relationship.foreign_mapping_column_info.db_column == filter_table_relationship.foreign_column_info.db_column)
-            else:
-                subquery = select(1).select_from(filter_table_relationship.foreign_column_info.parent_table_info.db_table)\
-                                    .filter(fds_relationship.foreign_column_info.db_column == filter_table_relationship.foreign_column_info.db_column)
-            for additional_filter in filter_table_relationship.additional_filters:
-                subquery = subquery.filter(additional_filter)
-            
-        if self.local_filter_clause is not None:
-            subquery = subquery.filter(self.local_filter_clause)
-        return exists(subquery)
     
     def get_filterable_preselect(self, filter_preselect_map):
-        filter_table_info = self.selectable_column_info.parent_table_info
+        filter_table_info = self.filter_column_info.parent_table_info
         filterable_table_info = filter_table_info.primary_table_info
         if filterable_table_info not in filter_preselect_map.keys():
             raise Exception(f'Expected to find {filterable_table_info} in filter map: {filter_preselect_map}')
