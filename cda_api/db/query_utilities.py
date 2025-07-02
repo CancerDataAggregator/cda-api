@@ -123,22 +123,22 @@ def total_column_count_subquery(db, preselect):
     # return db.query(distinct_count(column).label("count_result")).scalar_subquery()
 
 
-# Gets statistics of a row for numeric columns
-def numeric_summary(db, column):
-    column_subquery = db.query(
-        func.min(column).label("min"),
-        func.max(column).label("max"),
-        func.round(func.avg(column)).label("mean"),
-        func.percentile_disc(0.5).within_group(column).label("median"),
-        func.percentile_disc(0.25).within_group(column).label("lower_quartile"),
-        func.percentile_disc(0.75).within_group(column).label("upper_quartile"),
-    ).subquery("subquery")
-    # Get the row_to_json of the subquery
-    column_json = db.query(func.row_to_json(column_subquery.table_valued())
-                           .label(f"{column.name}_stats")).cte(f"json_{column.name}")
-    # Apply an array aggregation
-    numeric_array_agg = db.query(func.array_agg(get_cte_column(column_json, f"{column.name}_stats"))).scalar_subquery()
-    return numeric_array_agg
+# # Gets statistics of a row for numeric columns
+# def numeric_summary(db, column):
+#     column_subquery = db.query(
+#         func.min(column).label("min"),
+#         func.max(column).label("max"),
+#         func.round(func.avg(column)).label("mean"),
+#         func.percentile_disc(0.5).within_group(column).label("median"),
+#         func.percentile_disc(0.25).within_group(column).label("lower_quartile"),
+#         func.percentile_disc(0.75).within_group(column).label("upper_quartile"),
+#     ).subquery("subquery")
+#     # Get the row_to_json of the subquery
+#     column_json = db.query(func.row_to_json(column_subquery.table_valued())
+#                            .label(f"{column.name}_stats")).cte(f"json_{column.name}")
+#     # Apply an array aggregation
+#     numeric_array_agg = db.query(func.array_agg(get_cte_column(column_json, f"{column.name}_stats"))).scalar_subquery()
+#     return numeric_array_agg
 
 
 # Gets the categorical(grouped) json counts of a row
@@ -911,3 +911,116 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
 
     log.debug(f"Finished building {cte_name}")
     return preselect_columns, [preselect_join]
+
+
+
+# Gets the total distinct counts of a column as a subquery
+def column_distinct_count_subquery(db, column):
+    return db.query(func.count(distinct(column))).scalar_subquery()
+
+def foreign_table_distinct_count(db, endpoint_preselect, endpoint_table_info, foreign_table_info):
+    table_relationship = endpoint_table_info.get_table_relationship(foreign_table_info)
+    if table_relationship.requires_mapping_table:
+        column_to_count = table_relationship.foreign_mapping_column_info.db_column
+        column_to_filter = table_relationship.local_mapping_column_info.db_column
+    else:
+        column_to_count = table_relationship.foreign_column_info.db_column
+        column_to_filter = table_relationship.local_column_info
+
+
+    # Get count subquery
+    entity_count_select = (
+            db.query(func.count(distinct(column_to_count)).label("count_result"))
+            .filter(column_to_filter.in_(endpoint_preselect))
+            .scalar_subquery()
+    )
+    return entity_count_select
+
+
+# Gets statistics of a row for numeric columns
+def numeric_summary(db, column):
+    column_subquery = db.query(
+        func.min(column).label("min"),
+        func.max(column).label("max"),
+        func.round(func.avg(column)).label("mean"),
+        func.percentile_disc(0.5).within_group(column).label("median"),
+        func.percentile_disc(0.25).within_group(column).label("lower_quartile"),
+        func.percentile_disc(0.75).within_group(column).label("upper_quartile"),
+    ).subquery("subquery")
+    # Get the row_to_json of the subquery
+    column_json = db.query(func.row_to_json(column_subquery.table_valued())
+                           .label(f"{column.name}_stats")).cte(f"json_{column.name}")
+    # Apply an array aggregation
+    numeric_array_agg = db.query(func.array_agg(get_cte_column(column_json, f"{column.name}_stats"))).scalar_subquery()
+    return numeric_array_agg
+
+
+# Gets the categorical(grouped) json counts of a row
+def basic_categorical_summary(db, column):
+    column_preselect = db.query(column, func.count().label("count_result")).group_by(column).subquery("subquery")
+    # Get the row_to_json of the subquery
+    column_json = db.query(func.row_to_json(column_preselect.table_valued())
+                           .label(f"{column.name}_categories")).cte(f"json_{column.name}")
+    # Apply an array aggregation
+    categorical_array_agg = db.query(func.array_agg(get_cte_column(column_json, f"{column.name}_categories"))).scalar_subquery()
+    return categorical_array_agg
+
+def null_aware_categorical_summary(db, db_column, connecting_column):
+    non_null_cte = db.query(db_column, connecting_column) \
+                    .filter(db_column.is_not(None)) \
+                    .group_by(connecting_column, db_column) \
+                    .cte(f'{db_column.name}_non_nulls')
+    null_cte = db.query(db_column, connecting_column) \
+                    .filter(connecting_column.not_in(db.query(get_cte_column(non_null_cte, connecting_column.name)))) \
+                    .group_by(connecting_column, db_column) \
+                    .cte(f'{db_column.name}_nulls')
+    union_subquery = union_all(db.query(non_null_cte.c), db.query(null_cte.c)).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).subquery(f'{db_column.name}_union')
+    union_column = get_cte_column(union_subquery, db_column.name)
+    count_subquery = db.query(union_column,func.count().label('count_result')) \
+                        .group_by(union_column) \
+                        .subquery(f'{db_column.name}_count_subquery') 
+
+    categorical_array_agg = db.query(
+                        func.array_agg(
+                            func.row_to_json(count_subquery.table_valued().label(f'{db_column.name}_categories'))
+                        ).label(f'{db_column.name}_array_agg')).scalar_subquery()
+    return categorical_array_agg
+
+# # Gets all combinations of data_source columns
+# def get_data_source_combinations(data_source_columnnames):
+#     data_source_combinations = {}
+#     subsets = itertools.chain(
+#         *map(lambda x: itertools.combinations(data_source_columnnames, x), range(0, len(data_source_columnnames) + 1))
+#     )
+#     for subset in subsets:
+#         if len(subset) > 0:
+#             combo_boolean = {}
+#             name = ""
+#             for columnname in data_source_columnnames:
+#                 boolean = bool(columnname in subset)
+#                 combo_boolean[columnname] = boolean
+#             name = "_".join([name.split("_")[-1] for name, b in combo_boolean.items() if b])
+#             if len(subset) < len(data_source_columnnames):
+#                 name += "_exclusive"
+#             data_source_combinations[name] = combo_boolean
+#     return data_source_combinations
+
+
+# # Combines the counts of data source columns into a single json for use in summary endpoint
+# def data_source_counts(db, data_source_columns):
+#     data_source_counts = []
+#     data_source_columnnames = [column.name for column in data_source_columns]
+#     # Get mapping of all combinations of the data source columns
+#     data_source_combinations = get_data_source_combinations(data_source_columnnames)
+#     # Get list of queries for each combination of the data_source columns
+#     for name, data_source_boolean_map in data_source_combinations.items():
+#         filters = [
+#             data_source_column == data_source_boolean_map[data_source_column.name]
+#             for data_source_column in data_source_columns
+#         ]
+#         data_source_counts.append(db.query(func.count()).filter(*filters).label(name))
+
+#     data_source_preselect = db.query(*data_source_counts).subquery("subquery")
+#     # Get the row_to_json of the subquery
+#     data_source_json = db.query(func.row_to_json(data_source_preselect.table_valued()))
+#     return data_source_json
