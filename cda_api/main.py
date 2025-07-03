@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 from cda_api import get_logger, CDABaseException
 from cda_api.routers import column_values, columns, data, release_metadata, summary
-from cda_api.models import ClientError, InternalError
+from cda_api.classes.models import ClientError, InternalError
 
 # Establish FastAPI "app" used for decorators on api endpoint functions
 app = FastAPI()

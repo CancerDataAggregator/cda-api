@@ -5,7 +5,7 @@ from cda_api import EmptyQueryError, get_logger, get_query_id
 from cda_api.application_functions import handle_router_errors
 from cda_api.db import get_db
 from cda_api.db.query_builders import data_query
-from cda_api.models import PagedResponseObj, DataRequestBody
+from cda_api.classes.models import PagedResponseObj, DataRequestBody
 
 # API router object. Defines /data endpoint options
 router = APIRouter(prefix="/data", tags=["data"])

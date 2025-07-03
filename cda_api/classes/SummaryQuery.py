@@ -1,10 +1,8 @@
-from cda_api.models import SummaryRequestBody
 from cda_api.db.query_functions import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, basic_categorical_summary, null_aware_categorical_summary, numeric_summary
-from cda_api.classes.DatabaseInfo import DatabaseInfo
-from cda_api.classes.FilterInfo import FilterInfo
-# from cda_api.classes.BaseQuery import BaseQuery
-from cda_api.classes.shared_class_functions import get_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
-from sqlalchemy import func, Label
+from .models import SummaryRequestBody
+from .DatabaseInfo import DatabaseInfo
+from .shared_class_functions import get_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
+from sqlalchemy import func
 
 class SummaryQuery:
     def __init__(self, db, db_info: DatabaseInfo, endpoint_table_name, request_body: SummaryRequestBody, log):
@@ -21,7 +19,7 @@ class SummaryQuery:
 
         # Construct filter preselect
         self.filter_infos = get_filter_infos(self)
-        self.table_column_and_filter_map, self.identifiers_bool = get_table_column_and_filter_map(self, 'summary')
+        self.table_column_and_filter_map = get_table_column_and_filter_map(self, 'summary')
         self.filtered_preselect, self.filtered_preselect_cte_query_map, self.filtered_preselect_column_map = get_filtered_preselect(self)
 
         # Build select query

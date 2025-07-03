@@ -11,11 +11,12 @@ class TableInfo:
         self.log = log
         self.db_columns = [column for column in db_table.columns]
         self.foreign_key_map = {foreign_key.column.table.name: foreign_key for foreign_key in db_table.foreign_keys}
-        self.primary_key_column_info = None
-        self._build_column_info_list(table_column_metadata, table_duplicate_column_names)
+        self.primary_key_column_info = None 
         self.relationship_map = {}
         self.virtual_column_infos = []
         self.primary_table_info = None
+        
+        self._build_column_info_list(table_column_metadata, table_duplicate_column_names)
 
     def __repr__(self):
         return f"TableInfo({self.name})"
@@ -126,6 +127,8 @@ class TableInfo:
                         
 
         if local_column_info is None or foreign_column_info is None:
+            if self.name == 'file' and foreign_table_info.name == 'external_reference':
+                return
             raise RelationshipError(f'Unable to find a path between {self.name}, {foreign_table_info.name}')
 
         table_relationship = TableRelationship(local_column_info, foreign_column_info, local_mapping_column_info, foreign_mapping_column_info)

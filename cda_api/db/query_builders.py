@@ -142,7 +142,7 @@ def column_values_query(db, column_name, data_source_string, limit, offset, log)
     log.info("Building column_values query")
 
     column_values_query = ColumnValuesQuery(db, DB_INFO, column_name, data_source_string, log)
-
+    
     query = column_values_query.get_query()
     total_count_query = column_values_query.get_total_count_query()
 

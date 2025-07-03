@@ -19,7 +19,6 @@ def get_table_column_and_filter_map(query_object, query_type):
         }
     }
     all_column_infos = query_object.endpoint_table_info.get_column_infos(query_type)
-    identifiers_bool = False
 
     # Adding filter columns
     for filter_info in query_object.get_filter_infos():
@@ -28,10 +27,11 @@ def get_table_column_and_filter_map(query_object, query_type):
         if filter_table_info not in table_column_and_filter_map.keys():
             table_column_and_filter_map[filter_table_info] = {'column_infos': [], 'filter_infos': []}
         if filter_column_info not in all_column_infos:
+            query_object.log.debug(f'Adding filter column {filter_column_info} to table_map')
             table_column_and_filter_map[filter_table_info]['column_infos'].append(filter_column_info)
             all_column_infos.append(filter_column_info)
         table_column_and_filter_map[filter_table_info]['filter_infos'].append(filter_info)
-
+        
     # Adding from ADD_COLUMNS
     for column_to_add in query_object.request_body.ADD_COLUMNS:
         query_object.log.debug(f'Adding {column_to_add}')
@@ -39,11 +39,6 @@ def get_table_column_and_filter_map(query_object, query_type):
             table_name = column_to_add.replace('.*', '')
             table_info = query_object.db_info.get_table_info(table_name)
             column_infos_to_add = table_info.get_column_infos(query_type)
-        elif query_type == 'data' and column_to_add == f'{query_object.endpoint_table_info.name}_identifiers':
-                identifiers_bool = True
-                table_name = 'upstream_identifiers'
-                table_info = query_object.db_info.get_table_info(table_name)
-                column_infos_to_add = table_info.get_summary_process_before_display_column_infos()
         else:
             column_info = query_object.db_info.get_column_info(column_to_add)
             table_info = column_info.selectable_table_info
@@ -66,14 +61,12 @@ def get_table_column_and_filter_map(query_object, query_type):
             table_info = column_info.selectable_table_info
             column_infos_to_exclude = [column_info]
 
-        if query_type == 'data':
-            if table_info.name == 'upstream_identifiers' and identifiers_bool:
-                continue
+        
         if table_info in table_column_and_filter_map.keys():
             new_columns = [column_info for column_info in table_column_and_filter_map[table_info]['column_infos'] if column_info not in column_infos_to_exclude]
             table_column_and_filter_map[table_info]['column_infos'] = new_columns
 
-    return table_column_and_filter_map, identifiers_bool
+    return table_column_and_filter_map
 
 
 def get_filtered_preselect(query_object):
@@ -111,8 +104,8 @@ def get_filtered_preselect(query_object):
     for mapping_join in filtered_preselect_joins:
         filtered_preselect = filtered_preselect.join(**mapping_join)
 
-    match_all_db_filters  = [filter_info.get_filterable_preselect(filter_preselect_map) for filter_info in query_object.get_filter_infos('match_all')]
-    match_some_db_filters = [filter_info.get_filterable_preselect(filter_preselect_map) for filter_info in query_object.get_filter_infos('match_some')]
+    match_all_db_filters  = [filter_info.get_filterable_preselect(filter_preselect_map, query_object.endpoint_table_info) for filter_info in query_object.get_filter_infos('match_all')]
+    match_some_db_filters = [filter_info.get_filterable_preselect(filter_preselect_map, query_object.endpoint_table_info) for filter_info in query_object.get_filter_infos('match_some')]
 
     log.debug(f'Applying MATCH_ALL and MATCH_SOME filters to the filtered preselect')
     preselect_cte = apply_match_all_and_some_filters(filtered_preselect, match_all_db_filters, match_some_db_filters)

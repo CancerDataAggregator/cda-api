@@ -300,14 +300,14 @@ def test_add_and_exclude_columns_different_columns():
 
 
 
-################################ EXPAND_RESULTS ################################
-def test_expand_results_single_add_column():
+################################ COLLATE_RESULTS ################################
+def test_collate_results_single_add_column():
     response = client.post(
         "/data/subject",
         json={
               "MATCH_ALL": ["subject_id_alias < 10"],
               "ADD_COLUMNS": ["sex"],
-              "EXPAND_RESULTS": True
+              "COLLATE_RESULTS": True
               },
         params={'limit':10}
     )
@@ -318,12 +318,12 @@ def test_expand_results_single_add_column():
     assert isinstance(response.json()['result'][0]['observation_columns'][0], dict)
     assert 'sex' in response.json()['result'][0]['observation_columns'][0].keys()
 
-def test_expand_results_filter_column():
+def test_collate_results_filter_column():
     response = client.post(
         "/data/subject",
         json={
               "MATCH_ALL": ["subject_id_alias < 10", 'sex like m*'],
-              "EXPAND_RESULTS": True
+              "COLLATE_RESULTS": True
               },
         params={'limit':10}
     )
@@ -334,13 +334,13 @@ def test_expand_results_filter_column():
     assert isinstance(response.json()['result'][0]['observation_columns'][0], dict)
     assert 'sex' in response.json()['result'][0]['observation_columns'][0].keys()
 
-def test_expand_results_add_single_table():
+def test_collate_results_add_single_table():
     response = client.post(
         "/data/subject",
         json={
               "MATCH_ALL": ["subject_id_alias < 10"],
               "ADD_COLUMNS": ["observation.*"],
-              "EXPAND_RESULTS": True
+              "COLLATE_RESULTS": True
               },
         params={'limit':10}
     )
@@ -353,13 +353,13 @@ def test_expand_results_add_single_table():
     assert 'diagnosis' in response.json()['result'][0]['observation_columns'][0].keys()
     
 
-def test_expand_results_multiple_add_columns_from_same_table():
+def test_collate_results_multiple_add_columns_from_same_table():
     response = client.post(
         "/data/subject",
         json={
               "MATCH_ALL": ["subject_id_alias < 10"],
               "ADD_COLUMNS": ["sex", "diagnosis"],
-              "EXPAND_RESULTS": True
+              "COLLATE_RESULTS": True
               },
         params={'limit':10}
     )
@@ -371,13 +371,13 @@ def test_expand_results_multiple_add_columns_from_same_table():
     assert 'sex' in response.json()['result'][0]['observation_columns'][0].keys()
     assert 'diagnosis' in response.json()['result'][0]['observation_columns'][0].keys()
 
-def test_expand_results_multiple_add_columns_from_two_tables():
+def test_collate_results_multiple_add_columns_from_two_tables():
     response = client.post(
         "/data/subject",
         json={
               "MATCH_ALL": ["subject_id_alias < 10"],
               "ADD_COLUMNS": ["sex", "file_type"],
-              "EXPAND_RESULTS": True
+              "COLLATE_RESULTS": True
               },
         params={'limit':10}
     )
@@ -392,13 +392,13 @@ def test_expand_results_multiple_add_columns_from_two_tables():
     assert isinstance(response.json()['result'][0]['file_columns'][0], dict)
     assert 'file_type' in response.json()['result'][0]['file_columns'][0].keys()
 
-def test_expand_results_add_multiple_tables():
+def test_collate_results_add_multiple_tables():
     response = client.post(
         "/data/subject",
         json={
               "MATCH_ALL": ["subject_id_alias < 10"],
               "ADD_COLUMNS": ["observation.*", "file.*"],
-              "EXPAND_RESULTS": True
+              "COLLATE_RESULTS": True
               },
         params={'limit':10}
     )
@@ -427,7 +427,7 @@ def test_request_body_data_subject():
               "MATCH_SOME": ["diagnosis like a*", "sex like f*"],
               "ADD_COLUMNS": ["observation.*", "file.*"],
               "EXCLUDE_COLUMNS": ["ethnicity", "diagnosis"],
-              "EXPAND_RESULTS": True
+              "COLLATE_RESULTS": True
               },
         params={'limit':10}
     )

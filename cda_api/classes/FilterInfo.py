@@ -45,32 +45,13 @@ class FilterInfo:
                 self.log.warning(f'Could not build exclusive null filter for {self}')
                 self.exclusively_null = False
         
-    # TODO remove this function when transitioning to new class methods
-    def get_db_filter_for_table(self, table_info):
-        if table_info == self.filter_column_info.parent_table_info:
-            return self.local_filter_clause
-        
-        table_relationship = table_info.get_table_relationship(self.filter_column_info.parent_table_info)
-        if table_relationship.requires_mapping_table:
-            subquery = select(1).select_from(table_relationship.foreign_mapping_column_info.parent_table_info.db_table)\
-                                .filter(table_relationship.local_column_info.db_column == table_relationship.local_mapping_column_info.db_column)\
-                                .filter(table_relationship.foreign_mapping_column_info.db_column == table_relationship.foreign_column_info.db_column)
-        else:
-            subquery = select(1).select_from(table_relationship.foreign_column_info.parent_table_info.db_table)\
-                                .filter(table_relationship.local_column_info.db_column == table_relationship.foreign_column_info.db_column)
-        for additional_filter in table_relationship.additional_filters:
-            subquery = subquery.filter(additional_filter)
-        
-        if self.local_filter_clause is not None:
-            subquery = subquery.filter(self.local_filter_clause)
-        return exists(subquery)
-        
     
-    def get_filterable_preselect(self, filter_preselect_map):
+    def get_filterable_preselect(self, filter_preselect_map, endpoint_table_info):
         filter_table_info = self.filter_column_info.parent_table_info
         filterable_table_info = filter_table_info.primary_table_info
         if filterable_table_info not in filter_preselect_map.keys():
-            raise Exception(f'Expected to find {filterable_table_info} in filter map: {filter_preselect_map}')
+            # Default to endpoint table for cases like upstream_idenfiers
+            filterable_table_info = endpoint_table_info
         
         filterable_column_info = filter_preselect_map[filterable_table_info]
 

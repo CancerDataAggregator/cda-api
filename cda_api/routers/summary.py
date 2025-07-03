@@ -5,7 +5,7 @@ from cda_api import EmptyQueryError, get_logger, get_query_id
 from cda_api.application_functions import handle_router_errors
 from cda_api.db import get_db
 from cda_api.db.query_builders import summary_query
-from cda_api.models import SummaryResponseObj, SummaryRequestBody
+from cda_api.classes.models import SummaryResponseObj, SummaryRequestBody
 
 router = APIRouter(prefix="/summary", tags=["summary"])
 

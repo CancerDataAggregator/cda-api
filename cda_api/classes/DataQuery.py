@@ -1,5 +1,5 @@
-from cda_api.models import DataRequestBody
 from cda_api.db.query_functions import build_foreign_preselect
+from .models import DataRequestBody
 from .DatabaseInfo import DatabaseInfo
 from .shared_class_functions import get_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
 from sqlalchemy import func, Label
@@ -18,7 +18,7 @@ class DataQuery:
 
         # Construct filter preselect
         self.filter_infos = get_filter_infos(self)
-        self.table_column_and_filter_map, self.identifiers_bool = get_table_column_and_filter_map(self, 'data')
+        self.table_column_and_filter_map = get_table_column_and_filter_map(self, 'data')
         self.filtered_preselect, self.filtered_preselect_cte_query_map, self.filtered_preselect_column_map = get_filtered_preselect(self)
 
         # Build select columns and joins
@@ -96,9 +96,7 @@ class DataQuery:
             
             # Add foreign table select columns:
             else:
-                if table_info.name == 'upstream_identifiers' and self.identifiers_bool:
-                    construct_type = 'provenance'
-                elif self.request_body.EXPAND_RESULTS is False:
+                if self.request_body.COLLATE_RESULTS is False:
                     construct_type = 'array'
                 else:
                     construct_type = 'json'

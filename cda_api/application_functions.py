@@ -6,7 +6,7 @@ import yaml
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError, ProgrammingError, DataError, ArgumentError
-from cda_api.models import ClientError, InternalError
+from cda_api.classes.models import ClientError, InternalError
 from cda_api.classes.exceptions import CDABaseException, DatabaseConnectionDrop, InternalErrorException, InvalidFilterError
 
 

@@ -105,14 +105,11 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
 
     # Name and select columns slightly differ between json & array
     if construct_type == 'json':
-        cte_name = f"{foreign_table_info.name}_expanded_preselect"
+        cte_name = f"{foreign_table_info.name}_collated_preselect"
         select_columns = [endpoint_relating_column] + [column_info.labeled_db_column for column_info in foreign_column_infos]
     elif construct_type == 'array':
         cte_name = f'{foreign_table_info.name}_{endpoint_table_info.name}_columns'
         select_columns = [endpoint_relating_column] + [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in foreign_column_infos]
-    elif construct_type == 'provenance':
-        cte_name = f'{relating_table_info.name}_identifiers_preselect'
-        select_columns = [endpoint_relating_column] + [column_info.original_labeled_column for column_info in foreign_column_infos]
     else:
         raise Exception(f'Unexpected foreign preselect contruct_type {construct_type}. Please use "json", or "array"')
     
@@ -193,30 +190,6 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
         onclause = get_cte_column(foreign_json_preselect, endpoint_relating_column.name) == endpoint_relationship.local_column_info.db_column
         preselect_columns = [foreign_json_preselect.c[f'{foreign_table_info.name}_columns'].label(f'{foreign_table_info.name}_columns')]
         preselect_join = {"target": foreign_json_preselect, "onclause": onclause}
-
-    else:
-        ui_subquery = foreign_preselect.subquery('subquery')
-        ui_json_subquery = (
-            db.query(
-                ui_subquery.c[endpoint_relating_column.name].label('id_alias'),
-                func.json_build_object(
-                    'data_source', ui_subquery.c['data_source'],
-                    ui_subquery.c['data_source_id_field_name'], ui_subquery.c['data_source_id_value']
-                ).label('json_results')
-            )
-            .subquery('json_subquery')
-        )
-        ui_preselect = (
-            db.query(
-                ui_json_subquery.c['id_alias'].label('id_alias'),
-                func.array_agg(ui_json_subquery.c['json_results']).label(f'{relating_table_info.name}_identifiers')
-            )
-            .group_by(ui_json_subquery.c['id_alias'])
-        )
-        ui_preselect = ui_preselect.cte(cte_name)
-        preselect_columns = [get_cte_column(ui_preselect, f'{relating_table_info.name}_identifiers')]
-        onclause = get_cte_column(ui_preselect, f'id_alias') == relating_table_info.primary_key_column_info.db_column
-        preselect_join = {"target": ui_preselect, "onclause": onclause}
 
     log.debug(f"Finished building {cte_name}")
     return preselect_columns, [preselect_join]
