@@ -1,13 +1,17 @@
 from .FilterInfo import FilterInfo
-from cda_api.db.query_utilities import get_cte_column, apply_match_all_and_some_filters
+from cda_api.db.query_functions import get_cte_column, apply_match_all_and_some_filters
 
 def get_filter_infos(query_object):
+    log = query_object.log
+    log.debug("Constructing FilterInfo objects from MATCH_ALL and MATCH_SOME arguments")
     filter_infos = [FilterInfo(filter_string, 'match_all', query_object.db_info, query_object.log) for filter_string in query_object.request_body.MATCH_ALL]
     filter_infos.extend([FilterInfo(filter_string, 'match_some', query_object.db_info, query_object.log) for filter_string in query_object.request_body.MATCH_SOME])
     return filter_infos
     
 
 def get_table_column_and_filter_map(query_object, query_type):
+    log = query_object.log
+    log.debug(f"Constructing map between tables to their columns and filters for a {query_type} query")
     table_column_and_filter_map = {
         query_object.endpoint_table_info: {
             'column_infos': query_object.endpoint_table_info.get_column_infos(query_type),
@@ -34,7 +38,7 @@ def get_table_column_and_filter_map(query_object, query_type):
         if column_to_add.endswith('.*'):
             table_name = column_to_add.replace('.*', '')
             table_info = query_object.db_info.get_table_info(table_name)
-            column_infos_to_add = table_info.get_data_column_infos()
+            column_infos_to_add = table_info.get_column_infos(query_type)
         elif query_type == 'data' and column_to_add == f'{query_object.endpoint_table_info.name}_identifiers':
                 identifiers_bool = True
                 table_name = 'upstream_identifiers'
@@ -73,6 +77,8 @@ def get_table_column_and_filter_map(query_object, query_type):
 
 
 def get_filtered_preselect(query_object):
+    log = query_object.log
+    log.debug("Constructing filtered preselect")
     mapping_table_infos = []
     for table_info in query_object.table_column_and_filter_map.keys():
         if table_info != query_object.endpoint_table_info:
@@ -84,9 +90,11 @@ def get_filtered_preselect(query_object):
     filter_preselect_map = {}
     filtered_preselect_joins = []
     if len(mapping_table_infos) < 1:
+        log.debug(f'Only need to construct filtered preselect from {query_object.endpoint_table_info}')
         filter_preselect_map[query_object.endpoint_table_info] = query_object.endpoint_alias
     else:
         for mapping_table_info in mapping_table_infos:
+            log.debug(f'Including {mapping_table_info} in the filtered preselect')
             mapping_table_columns = mapping_table_info.column_infos
             for column_info in mapping_table_columns:
                 mapping_fk_column_info = column_info.foreign_key_column_info
@@ -106,6 +114,7 @@ def get_filtered_preselect(query_object):
     match_all_db_filters  = [filter_info.get_filterable_preselect(filter_preselect_map) for filter_info in query_object.get_filter_infos('match_all')]
     match_some_db_filters = [filter_info.get_filterable_preselect(filter_preselect_map) for filter_info in query_object.get_filter_infos('match_some')]
 
+    log.debug(f'Applying MATCH_ALL and MATCH_SOME filters to the filtered preselect')
     preselect_cte = apply_match_all_and_some_filters(filtered_preselect, match_all_db_filters, match_some_db_filters)
     preselect_cte_name = f'filtered_preselect'
     preselect_cte = preselect_cte.cte(preselect_cte_name)
@@ -116,5 +125,5 @@ def get_filtered_preselect(query_object):
         cte_column = get_cte_column(preselect_cte, column_info.name)
         filtered_preselect_cte_query_map[table_info] = query_object.db.query(cte_column)
         filtered_preselect_column_map[table_info] = cte_column
-    
+    log.debug('Filtered preselect construction complete')
     return filtered_preselect, filtered_preselect_cte_query_map, filtered_preselect_column_map

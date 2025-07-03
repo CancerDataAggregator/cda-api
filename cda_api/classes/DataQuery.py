@@ -1,5 +1,5 @@
 from cda_api.models import DataRequestBody
-from cda_api.db.query_utilities import build_foreign_preselect
+from cda_api.db.query_functions import build_foreign_preselect
 from .DatabaseInfo import DatabaseInfo
 from .shared_class_functions import get_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
 from sqlalchemy import func, Label

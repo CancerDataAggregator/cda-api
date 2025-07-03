@@ -1,5 +1,5 @@
 from cda_api.models import SummaryRequestBody
-from cda_api.db.query_utilities import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, basic_categorical_summary, null_aware_categorical_summary, numeric_summary
+from cda_api.db.query_functions import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, basic_categorical_summary, null_aware_categorical_summary, numeric_summary
 from cda_api.classes.DatabaseInfo import DatabaseInfo
 from cda_api.classes.FilterInfo import FilterInfo
 # from cda_api.classes.BaseQuery import BaseQuery
@@ -14,6 +14,7 @@ class SummaryQuery:
         self.endpoint_table_info = self.db_info.get_table_info(endpoint_table_name)
         self.request_body = request_body
         self.log = log
+        self.log.info("Constructing SummaryQuery object")
 
         # Set useful variables
         self.endpoint_alias = self.endpoint_table_info.primary_key_column_info
@@ -25,6 +26,7 @@ class SummaryQuery:
 
         # Build select query
         self._build_select_clause()
+        self.log.debug("SummaryQuery object construction complete")
         
 
     def __repr__(self):
@@ -56,6 +58,7 @@ class SummaryQuery:
         return '\n'.join(repr_components)
     
     def _build_select_clause(self):
+        self.log.debug("Constructing summary select clause")
         self.select_map = {'total_count': [], 'other_local_table_counts': []}
         self.select_clause_columns = []
         self._get_total_count()
@@ -81,15 +84,19 @@ class SummaryQuery:
 
     
     def _get_total_count(self):
+        self.log.debug(f"Constructing total_count select statement for {self.endpoint_table_info}")
         total_count = column_distinct_count_subquery(self.db, self.filtered_preselect_column_map[self.endpoint_table_info]).label('total_count')
         self.select_map['total_count'] = [total_count]
+
 
     def _get_other_local_table_counts(self):
         other_local_table_infos = [table_info for table_info in self.db_info.local_table_infos if table_info != self.endpoint_table_info]
         for other_local_table_info in other_local_table_infos:
             if other_local_table_info in self.filtered_preselect_column_map.keys():
+                self.log.debug(f"Constructing count select statement for {other_local_table_info} directly from filtered preselect")
                 distinct_count = column_distinct_count_subquery(self.db, self.filtered_preselect_column_map[other_local_table_info])
             else:
+                self.log.debug(f"Constructing count select statement for {other_local_table_info} mapping from filtered preselect")
                 distinct_count = foreign_table_distinct_count(self.db, self.filtered_preselect_cte_query_map[self.endpoint_table_info], self.endpoint_table_info, other_local_table_info)
             self.select_map['other_local_table_counts'].append(distinct_count.label(f'{other_local_table_info.name}_count'))
 
@@ -110,6 +117,7 @@ class SummaryQuery:
                 self.select_map[table_info] = []
 
         for table_info, column_type_map in self.summary_column_map.items():
+            self.log.debug(f"Constructing column summary selecct statements for {table_info}")
             all_table_columns = list(set([column_info.labeled_db_column for _, column_infos in column_type_map.items() for column_info in column_infos]))
             if table_info not in self.filtered_preselect_cte_query_map.keys():
                 connecting_column_info = table_info.primary_table_info.get_table_relationship(table_info).foreign_column_info
@@ -131,28 +139,13 @@ class SummaryQuery:
                     data_source_columns.append(column)
             
             if data_source_columns:
+                self.log.debug(f"Cosntructing select statement for the combinations of data_sources for {table_info}")
                 if table_info == self.endpoint_table_info:
                     label = 'data_source'
                 else:
                     label = f'{table_info.name}_data_source'
                 self.select_map[table_info].append(data_source_counts(self.db, data_source_columns).label(label))
 
-
-
-    def get_summarized_select(self, table_info, summarizable_column_info, db_column, connecting_column):
-        if summarizable_column_info.column_type == 'categorical':
-            if table_info in self.db_info.local_table_infos:
-                column_summary = basic_categorical_summary(self.db, db_column)
-            else:
-                column_summary = null_aware_categorical_summary(self.db, db_column, connecting_column)
-
-        elif summarizable_column_info.column_type == 'numeric':
-            column_summary = numeric_summary(self.db, db_column)
-        else:
-            self.log.debug(f'Skipping summarizing {summarizable_column_info} because it is of type: {summarizable_column_info.column_type}')
-            return
-
-        self.select_map[table_info].append(column_summary.label(f'{db_column.name}_summary'))
 
     def add_table_to_summary_column_map(self, table_info, column_infos):
         self.summary_column_map[table_info] = {'data_source_columns': [], 'summarizable_columns': []}
@@ -163,7 +156,25 @@ class SummaryQuery:
                 self.summary_column_map[table_info]['summarizable_columns'].append(column_info)
 
 
-    
+    def get_summarized_select(self, table_info, summarizable_column_info, db_column, connecting_column):
+        if summarizable_column_info.column_type == 'categorical':
+            if table_info in self.db_info.local_table_infos:
+                self.log.debug(f"Constructing basic categorical summary for {summarizable_column_info}")
+                column_summary = basic_categorical_summary(self.db, db_column)
+            else:
+                self.log.debug(f"Constructing null-aware categorical summary for {summarizable_column_info}")
+                column_summary = null_aware_categorical_summary(self.db, db_column, connecting_column)
+
+        elif summarizable_column_info.column_type == 'numeric':
+            self.log.debug(f"Constructing numeric summary for {summarizable_column_info}")
+            column_summary = numeric_summary(self.db, db_column)
+        else:
+            self.log.debug(f'Skipping summarizing {summarizable_column_info} because it is of type: {summarizable_column_info.column_type}')
+            return
+
+        self.select_map[table_info].append(column_summary.label(f'{db_column.name}_summary'))
+
+
     def get_query(self):
         subquery = self.db.query(*self.select_clause_columns).subquery('json_result')
         query = self.db.query(func.row_to_json(subquery.table_valued()).label('results'))

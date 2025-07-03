@@ -66,7 +66,7 @@ def test_data_subject_endpoint_query_generation():
         json={"MATCH_ALL": ["subject_id_alias < 0"]},
     )
     assert response.status_code == 200
-    assert response.json()["query_sql"].startswith("WITH subject_preselect")
+    assert response.json()["query_sql"].startswith("WITH filtered_preselect")
 
 
 def test_data_subject_endpoint_limit():
@@ -94,7 +94,7 @@ def test_data_subject_endpoint_column_not_found():
         "/data/subject",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: fake_column"}
     assert response.status_code == 400
     assert response.json() == expected_response_json
 
@@ -106,7 +106,7 @@ def test_data_file_endpoint_query_generation():
         json={"MATCH_ALL": ["file_id_alias < 0"]},
     )
     assert response.status_code == 200
-    assert response.json()["query_sql"].startswith("WITH file_preselect")
+    assert response.json()["query_sql"].startswith("WITH filtered_preselect")
 
 
 def test_data_file_endpoint_limit():
@@ -132,7 +132,7 @@ def test_data_file_endpoint_column_not_found():
         "/data/file",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: fake_column"}
     assert response.status_code == 400
     assert response.json() == expected_response_json
 
@@ -154,7 +154,7 @@ def test_summary_subject_endpoint_column_not_found():
         "/summary/subject",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: fake_column"}
     assert response.status_code == 400
     assert response.json() == expected_response_json
 
@@ -174,7 +174,7 @@ def test_summary_file_endpoint_column_not_found():
         "/summary/file",
         json={"MATCH_ALL": ["FAKE_COLUMN = 42"]},
     )
-    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: fake_column"}
     assert response.status_code == 400
     assert response.json() == expected_response_json
 
@@ -185,7 +185,7 @@ def test_column_values_endpoint_column_not_found():
     response = client.post(
         f"/column_values/{column}",
     )
-    expected_response_json = {"error_type": "ColumnNotFound", "message": "Column Not Found: FAKE_COLUMN\n'FAKE_COLUMN'"}
+    expected_response_json = {"error_type": "ColumnNotFound", 'message': "Column Not Found: FAKE_COLUMN"}
     assert response.status_code == 400
     assert response.json() == expected_response_json
 

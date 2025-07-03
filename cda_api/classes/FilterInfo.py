@@ -1,7 +1,7 @@
 from sqlalchemy.sql import select, exists
 from .DatabaseInfo import DatabaseInfo
 from cda_api import RelationshipError
-from cda_api.db.filter_builder import parse_filter_string, apply_filter_operator
+from cda_api.db.filter_functions import parse_filter_string, apply_filter_operator
 
 class FilterInfo:
     def __init__(self, filter_string, filter_type, db_info: DatabaseInfo, log):
@@ -42,7 +42,7 @@ class FilterInfo:
                 self.filter_value  = 'True'
                 self.local_filter_clause = self.filter_column_info.db_column.is_(True)
             else:
-                print(f'Could not build exclusive null filter for {self}')
+                self.log.warning(f'Could not build exclusive null filter for {self}')
                 self.exclusively_null = False
         
     # TODO remove this function when transitioning to new class methods

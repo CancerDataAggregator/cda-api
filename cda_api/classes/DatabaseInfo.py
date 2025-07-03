@@ -1,7 +1,7 @@
 from .ColumnInfo import ColumnInfo
 from .TableInfo import TableInfo
-from .NewTableRelationship import TableRelationship
-from cda_api import get_logger
+from .TableRelationship import TableRelationship
+from cda_api import get_logger, TableNotFound, ColumnNotFound, RelationshipNotFound
 from cda_api.db.connection import session
 from sqlalchemy import func
 from sqlalchemy.sql.schema import Column, Table
@@ -60,7 +60,7 @@ class DatabaseInfo:
             table_column_metadata = {}
             if db_table.name in self.column_metadata_map.keys():
                 table_column_metadata = self.column_metadata_map[db_table.name]
-            table_info = TableInfo(self, db_table, table_column_metadata, table_duplicate_column_names)
+            table_info = TableInfo(self, db_table, table_column_metadata, table_duplicate_column_names, log)
             self.table_infos.append(table_info)
             if table_info.name in ['file', 'subject']:
                 self.local_table_infos.append(table_info)
@@ -109,10 +109,10 @@ class DatabaseInfo:
 
             if len(potential_column_infos) < 1:
                 # TODO raise better exceptions
-                raise Exception(f"Column not found: {column}")
+                raise ColumnNotFound(f"Column Not Found: {column}")
             elif len(potential_column_infos) > 1:
                 # TODO raise better exceptions
-                raise Exception(f"Unexpectedly found more that one column named: {column}")
+                raise ColumnNotFound(f"Unexpectedly found more that one column named: {column}")
             return potential_column_infos[0]
         
         else:
@@ -130,15 +130,15 @@ class DatabaseInfo:
             raise Exception(f"Unexpected type {type(table)} for foreign_table. Only expecting str, Table, or TableInfo")
         if len(potential_table_infos) < 1:
             # TODO raise better exceptions
-            raise Exception(f"Table not found: {table}")
+            raise TableNotFound(f"Table not found: {table}")
         elif len(potential_table_infos) > 1:
             # TODO raise better exceptions
-            raise Exception(f"Unexpectedly found more that one table named: {table}")
+            raise TableNotFound(f"Unexpectedly found more that one table named: {table}")
         return potential_table_infos[0]
     
     def get_table_relationship(self, local_table, foreign_table) -> TableRelationship:
         local_table_info = self.get_table_info(local_table)
         if local_table_info not in self.local_table_infos:
-            raise Exception(f'Unexpected local table: {local_table}. Should only be from following list of tables {[table_info.name for table_info in self.local_table_infos]}')
+            raise RelationshipNotFound(f'Unexpected local table: {local_table}. Should only be from following list of tables {[table_info.name for table_info in self.local_table_infos]}')
 
         return local_table_info.get_table_relationship(foreign_table)

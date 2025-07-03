@@ -1,47 +1,34 @@
-from sqlalchemy.sql import select, exists
-
 class TableRelationship():
-    def __init__(self, DB_MAP, primary_column, secondary_column, primary_mapping_column, secondary_mapping_column):
-        self.db_map = DB_MAP
-        self.primary_column_info = self.db_map.get_table_column_info(primary_column.table.name, primary_column.name)
-        self.secondary_column_info = self.db_map.get_table_column_info(secondary_column.table.name, secondary_column.name)
-        
-        self._set_mapping_columns(primary_mapping_column, secondary_mapping_column)
+    def __init__(self, local_column_info, foreign_column_info, local_mapping_column_info, foreign_mapping_column_info):
+        self.local_column_info = local_column_info
+        self.foreign_column_info = foreign_column_info
+        self.local_mapping_column_info = local_mapping_column_info
+        self.foreign_mapping_column_info = foreign_mapping_column_info
+        self.requires_mapping_table = False
+        if (self.local_mapping_column_info is not None) and (self.foreign_mapping_column_info is not None):
+            self.requires_mapping_table = True
         self._set_additional_filters()
 
     def __repr__(self):
-        if self.primary_mapping_column_info is not None:
-            return f"{self.primary_column_info.table_columnname} -> |{self.primary_mapping_column_info.table_columnname}|{self.secondary_mapping_column_info.table_columnname}| -> {self.secondary_column_info.table_columnname}"
+        if self.local_mapping_column_info is not None:
+            return f"{self.local_column_info.table_column_name} -> |{self.local_mapping_column_info.table_column_name}|{self.foreign_mapping_column_info.table_column_name}| -> {self.foreign_column_info.table_column_name}"
 
         else:
-            return f"{self.primary_column_info.table_columnname} -> {self.secondary_column_info.table_columnname}"
-        
-    def _set_mapping_columns(self, primary_mapping_column, secondary_mapping_column):
-        if (primary_mapping_column is not None) and (secondary_mapping_column is not None):
-            self.requires_mapping_table = True
-            self.primary_mapping_column_info = self.db_map.get_table_column_info(primary_mapping_column.table.name, primary_mapping_column.name)
-            self.secondary_mapping_column_info = self.db_map.get_table_column_info(secondary_mapping_column.table.name, secondary_mapping_column.name)
-        else:
-            self.requires_mapping_table = False
-            self.primary_mapping_column_info = None
-            self.secondary_mapping_column_info = None
+            return f"{self.local_column_info.table_column_name} -> {self.foreign_column_info.table_column_name}"
             
     def _set_additional_filters(self):
-        if self.secondary_column_info.tablename == 'upstream_identifiers':
-            self.additional_filters = [self.secondary_column_info.metadata_table.c['cda_table'] == self.primary_column_info.tablename]
+        if self.foreign_column_info.parent_table_info.name == 'upstream_identifiers':
+            cda_table_column_info = self.foreign_column_info.parent_table_info.get_column_info('cda_table')
+            self.additional_filters = [cda_table_column_info.db_column == self.local_column_info.parent_table_info.name]
         else:
             self.additional_filters = []
-    
-    def get_preselect_filter_clause(self, secondary_filter_clause):
+
+    def get_foreign_table_join_clause(self):
         if self.requires_mapping_table:
-            subquery = select(1).select_from(self.secondary_mapping_column_info.metadata_table)\
-                                .filter(self.primary_column_info.metadata_column == self.primary_mapping_column_info.metadata_column)\
-                                .filter(self.secondary_mapping_column_info.metadata_column == self.secondary_column_info.metadata_column)
+            mapping_table = self.local_mapping_column_info.parent_table_info.db_table
+            onclause = self.foreign_column_info.db_column == self.foreign_mapping_column_info.db_column
+            return {'target': mapping_table, 'onclause': onclause}
         else:
-            subquery = select(1).select_from(self.secondary_column_info.metadata_table)\
-                                .filter(self.primary_column_info.metadata_column == self.secondary_column_info.metadata_column)
-        for additional_filter in self.additional_filters:
-            subquery = subquery.filter(additional_filter)
-        if secondary_filter_clause is not None:
-            subquery = subquery.filter(secondary_filter_clause)
-        return exists(subquery)
+            mapping_table = self.foreign_column_info.parent_table_info.db_table
+            onclause = self.local_column_info.db_column == self.foreign_column_info.db_column
+            return {'target': mapping_table, 'onclause': onclause}

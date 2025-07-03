@@ -1,12 +1,14 @@
-from .NewColumnInfo import ColumnInfo
-from .NewTableRelationship import TableRelationship
+from .ColumnInfo import ColumnInfo
+from .TableRelationship import TableRelationship
 from sqlalchemy.sql.schema import Column, Table
+from cda_api import RelationshipNotFound, RelationshipError, ColumnNotFound
 
 class TableInfo:
-    def __init__(self, database_info, db_table, table_column_metadata, table_duplicate_column_names):
+    def __init__(self, database_info, db_table, table_column_metadata, table_duplicate_column_names, log):
         self.database_info = database_info
         self.db_table = db_table
         self.name = self.db_table.name
+        self.log = log
         self.db_columns = [column for column in db_table.columns]
         self.foreign_key_map = {foreign_key.column.table.name: foreign_key for foreign_key in db_table.foreign_keys}
         self.primary_key_column_info = None
@@ -20,7 +22,7 @@ class TableInfo:
     
     def _build_column_info_list(self, table_column_metadata, table_duplicate_column_names):
         unique_name_overwrite = {
-            'file_anatomic_site_anatomic_site': 'file_anatomic_site',
+            'file_anatomic_site_anatomic_site': 'anatomic_site',
         }
         self.column_infos = []
         for db_column in self.db_columns:
@@ -48,6 +50,7 @@ class TableInfo:
         
     
     def build_table_relationship(self, foreign_table_info):
+        self.log.debug(f'Mapping relationship between {self} and {foreign_table_info}')
         local_column_info = None
         foreign_column_info = None
         local_mapping_column_info = None
@@ -101,20 +104,20 @@ class TableInfo:
             # Check 
             if potential_local_fks and potential_foreign_table_fks:
                 if len(potential_local_fks) > 1 or len(potential_foreign_table_fks) > 1:
-                    raise Exception(f'Unexpectedly found more than one path between {self.name}, {foreign_table_info.name}')
+                    raise RelationshipError(f'Unexpectedly found more than one path between {self.name}, {foreign_table_info.name}')
                 
                 local_fk = potential_local_fks[0]
                 foreign_table_fk = potential_foreign_table_fks[0]
                 
                 if local_fk == foreign_table_fk:
-                    raise Exception(f'Unexpectedly found relationship path where {self.name}, {foreign_table_info.name} relate via the same foreign key')
+                    raise RelationshipError(f'Unexpectedly found relationship path where {self.name}, {foreign_table_info.name} relate via the same foreign key')
                 
                 local_column_info = self.get_column_info(local_fk.column.name)
                 local_mapping_column_info = self.database_info.get_column_info(local_fk.parent)
 
                 if potential_foreign_table_columns:
                     if len(potential_foreign_table_columns) > 1:
-                        raise Exception(f'Unexpectedly found more than one potential secondary column {self.name}, {foreign_table_info.name}')
+                        raise RelationshipError(f'Unexpectedly found more than one potential secondary column {self.name}, {foreign_table_info.name}')
                     foreign_column = potential_foreign_table_columns[0]
                     foreign_column_info = self.database_info.get_column_info(foreign_column)
                 else:
@@ -123,13 +126,14 @@ class TableInfo:
                         
 
         if local_column_info is None or foreign_column_info is None:
-            raise Exception(f'Unable to find a path between {self.name}, {foreign_table_info.name}')
+            raise RelationshipError(f'Unable to find a path between {self.name}, {foreign_table_info.name}')
 
         table_relationship = TableRelationship(local_column_info, foreign_column_info, local_mapping_column_info, foreign_mapping_column_info)
         self.relationship_map[foreign_table_info.name] = table_relationship
+        self.log.debug(f'Built: {table_relationship}')
 
     def add_virtual_table_columns(self, virtual_table_column_info):
-        print(f'Adding {virtual_table_column_info.name} to {self.name}')
+        self.log.debug(f'Adding {virtual_table_column_info.name} to {self.name}')
         self.virtual_column_infos.append(virtual_table_column_info)
 
 
@@ -142,7 +146,7 @@ class TableInfo:
             # TODO raise better exceptions
             potential_column_infos = [column_info for column_info in self.column_infos if column_info.db_column.name == column]
             if len(potential_column_infos) < 1:
-                raise Exception(f"Column not found: {column} in table {self.name}")
+                raise ColumnNotFound(f"Column Not Found: {column} in table {self.name}")
         elif len(potential_column_infos) > 1:
             # TODO raise better exceptions
             raise Exception(f"Unexpectedly found more that one column named: {column}")
@@ -157,7 +161,7 @@ class TableInfo:
         else:
             raise Exception(f"Unexpected type {type(foreign_table)} for foreign_table. Only expecting str, Table, or TableInfo")
         if foreign_table_name not in self.relationship_map.keys():
-            raise Exception(f"Relationship not found between {self.name} and {foreign_table_name}")
+            raise RelationshipNotFound(f"Relationship not found between {self.name} and {foreign_table_name}")
         return self.relationship_map[foreign_table_name]
     
     def get_data_column_infos(self):

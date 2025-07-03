@@ -1,53 +1,41 @@
-from dataclasses import dataclass, field
-
-from sqlalchemy import Column, Table
-from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlalchemy.orm.decl_api import DeclarativeMeta
-
-
-@dataclass
 class ColumnInfo:
-    uniquename: str
-    entity_table: DeclarativeMeta
-    metadata_table: Table
-    metadata_column: Column
-    column_metadata_map: dict
-    columnname: str = field(init=False)
-    tablename: str = field(init=False)
-    table_columnname: str = field(init=False)
-    entity_column: InstrumentedAttribute = field(init=False)
-    column_type: str = field(init=False)
-    summary_returns: bool = field(init=False)
-    data_returns: bool = field(init=False)
-    process_before_display: str = field(init=False)
-    virtual_table: str = field(init=False)
-
-    def __post_init__(self):
-        self.columnname = self.metadata_column.name
-        self.tablename = self.metadata_table.name
-        self.table_columnname = f"{self.tablename}.{self.columnname}"
-        self.labeled_column = self.metadata_column.label(self.uniquename)
-
-        # Set metadata
+    def __init__(self, parent_table_info, name, db_column, column_metadata):
+        self.parent_table_info = parent_table_info
+        self.selectable_table_info = parent_table_info
+        self.name = name
+        self.db_column = db_column
+        self.labeled_db_column = self.db_column.label(self.name)
+        self.original_labeled_column = self.db_column.label(self.db_column.name)
+        self.table_column_name = f"{self.db_column.table.name}.{self.db_column.name}"
         self.column_type = None
-        self.summary_returns = None
-        self.data_returns = None
-        self.process_before_display = None
+        self.summary_returns = False
+        self.data_returns = False
+        self.process_before_display = False
         self.virtual_table = None
+        self.foreign_key_column_info = None
+        
+        if column_metadata is not None:
+            self.column_type = column_metadata["column_type"]
+            self.summary_returns = column_metadata["summary_returns"]
+            self.data_returns = column_metadata["data_returns"]
+            self.process_before_display = column_metadata["process_before_display"]
+            self.virtual_table = column_metadata["virtual_table"]
+        if self.virtual_table is not None:
+            self.selectable_table_info = self.parent_table_info.database_info.get_table_info(self.virtual_table)
+        self.null_column_info = None
 
-        if self.entity_table:
-            self.entity_column = getattr(self.entity_table, self.columnname)
-        else:
-            self.entity_column = None
-            
-        if self.tablename in self.column_metadata_map.keys():
-            if self.columnname in self.column_metadata_map[self.tablename].keys():
-                column_metadata = self.column_metadata_map[self.tablename][self.columnname]
-                self.column_type = column_metadata["column_type"]
-                self.summary_returns = column_metadata["summary_returns"]
-                self.data_returns = column_metadata["data_returns"]
-                self.process_before_display = column_metadata["process_before_display"]
-                self.virtual_table = column_metadata["virtual_table"]
 
-    def in_entity_table(self):
-        return bool(self.entity_table)
+    def __repr__(self):
+        repr_components = [
+            f'ColumnInfo({self.name})'
+        ]
+        return '\n'.join(repr_components)
+    
+    def assign_null_column(self, null_column_info):
+        self.null_column_info = null_column_info
+
+
+    def assign_foreign_key_column_infos(self):
+        if len(self.db_column.foreign_keys) > 0:
+            foreign_column = list(self.db_column.foreign_keys)[0].column
+            self.foreign_key_column_info = self.parent_table_info.database_info.get_column_info(foreign_column)

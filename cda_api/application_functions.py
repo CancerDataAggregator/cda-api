@@ -25,15 +25,6 @@ def get_logger(id="") -> logging.Logger:
     return logger
 
 
-
-    
-
-def database_connection_drop_handler(request, exc):
-    return JSONResponse(
-        status_code=500,
-        content=InternalError(type='DatabaseConnectionDropped', message=str(exc)),
-    )
-
 def convert_exceptions(e, log):
     if isinstance(e, OperationalError):
         log.debug('Database drop detected. Converting error output')

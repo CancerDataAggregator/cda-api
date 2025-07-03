@@ -1,5 +1,85 @@
+import ast
 from sqlalchemy import func
 from cda_api import ParsingError
+
+
+# Parse out the key components from the filter string
+def parse_filter_string(filter_string, log):
+    # Clean up the filter
+    filter_string = filter_string.strip()
+    split_filter_string = filter_string.split()
+    if len(split_filter_string) < 3:
+        raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
+    columnname = split_filter_string[0]
+    operator = split_filter_string[1]
+    value_string = ' '.join(split_filter_string[2:])
+    if len(split_filter_string) > 3:
+        if split_filter_string[2].lower() in ['in', 'like', 'not']:
+            operator =  f'{operator} {split_filter_string[2].lower()}'
+            value_string = ' '.join(split_filter_string[3:])
+
+    # Verify the matched operator is valid
+    valid_operators = [
+        "!=",
+        "<>",
+        "<=",
+        ">=",
+        "=",
+        "<",
+        ">",
+        "is",
+        "in",
+        "like",
+        "not",
+        "is not",
+        "not in",
+        "not like",
+    ]
+    if operator.lower() not in valid_operators:
+        raise ParsingError(f'Parsed operator: "{operator}" is not a valid operator')
+
+
+    # Use ast.literal_eval() to safely evaluate the value
+    try:
+        value = ast.literal_eval(value_string)
+    except Exception:
+        # If there is an error, just handle as a string
+        value = value_string
+
+    # Check if value is null
+    if isinstance(value, str):
+        if value.lower() == "null":
+            value = None
+        elif value.lower() == "true":
+            value = True
+        elif value.lower() == "false":
+            value = False
+        # Replace wildcards
+        else:
+            value = value.replace('*', '%')
+
+    elif isinstance(value, set) or isinstance(value, tuple):
+        value = list(value)
+
+    # Throw error on dictionary filter
+    elif isinstance(value, dict):
+        raise ParsingError(f'Dictionary filters are not accepted: {filter_string}')
+
+    # Need to ensure lists and the operators "in"/"not in" are only ever used together
+    if isinstance(value, list) and (operator not in ["in", "not in"]):
+        raise ParsingError(f'Operator must be "in" or "not in" when using a list value -> filter: {filter_string}')
+
+    elif (not isinstance(value, list)) and (operator in ["in", "not in"]):
+        raise ParsingError(
+            f'Value: {value_string} must be a list (ex. [1,2,3] or ["a","b","c"]) when using "in" or "not in" operators -> filter: "{filter_string}"'
+        )
+
+    log.debug(f"columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}")
+
+    return columnname.lower(), operator.lower(), value
+
+
+
 
 def apply_filter_operator(filter_column, filter_value, filter_operator, log):
     log.debug(f"Building SQLAlchemy filter: {filter_column} {filter_operator} {filter_value}")
