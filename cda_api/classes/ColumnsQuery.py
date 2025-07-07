@@ -12,7 +12,7 @@ class ColumnsQuery():
                 col = {}
                 col["table"] = column_info.selectable_table_info.name
                 col["column"] = column_info.name
-                col["data_type"] = str(column_info.column_type).lower()
+                col["data_type"] = str(column_info.db_column.type).lower()
                 col["nullable"] = column_info.db_column.nullable
                 col["description"] = column_info.db_column.comment
                 self.columns.append(col)
