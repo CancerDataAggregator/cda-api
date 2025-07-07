@@ -4,7 +4,7 @@ class ColumnsQuery():
         self.columns = []
         self.all_column_infos = []
         # Step through columns in each table and use their ColumnInfo class to return required information
-        for table_info in self.db_info.data_table_infos:
+        for table_info in self.db_info.table_infos:
             for column_info in table_info.get_data_column_infos():
                 if column_info in self.all_column_infos:
                     continue
