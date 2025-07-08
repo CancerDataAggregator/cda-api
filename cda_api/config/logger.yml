@@ -3,7 +3,9 @@ formatters:
   simple:
     format: '%(levelname)s: %(filename)s line number %(lineno)d: %(message)s'
   detailed:
-    format: '%(asctime)s - %(id)s - %(levelname)s: %(message)s'
+    format: '%(asctime)s - line number %(lineno)d - %(levelname)s: %(message)s'
+  id_detailed:
+    format: '%(levelname)s: %(id)s - line number %(lineno)d - %(message)s'
 handlers:
   console:
     class: logging.StreamHandler
@@ -17,10 +19,19 @@ handlers:
     filename: info.log
     encoding: utf8
     mode: a
+  query_handler:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: id_detailed
+    stream: ext://sys.stdout
 loggers:
   simple:
     level: DEBUG
     handlers: [console, file]
+    propagate: no
+  query:
+    level: DEBUG
+    handlers: [query_handler, file]
     propagate: no
 root:
   level: DEBUG

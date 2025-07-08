@@ -6,7 +6,7 @@ from cda_api.db.connection import session
 from sqlalchemy import func
 from sqlalchemy.sql.schema import Column, Table
 
-log = get_logger()
+log = get_logger('DatabaseInfo.py')
 setup_log = get_logger("Setup: DatabaseMap.py")
 
 class DatabaseInfo:

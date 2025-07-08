@@ -69,7 +69,7 @@ def cda_exception_handler(request: Request, exc: CDABaseException):
         content= {'error_type':exc.name, 'message':exc.message}
     )
 
-log.debug("API startup complete")
+log.info("API startup complete")
 
 
 if __name__ == "__main__":

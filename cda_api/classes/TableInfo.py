@@ -1,14 +1,14 @@
 from .ColumnInfo import ColumnInfo
 from .TableRelationship import TableRelationship
 from sqlalchemy.sql.schema import Column, Table
-from cda_api import RelationshipNotFound, RelationshipError, ColumnNotFound
+from cda_api import RelationshipNotFound, RelationshipError, ColumnNotFound, get_logger
 
 class TableInfo:
     def __init__(self, database_info, db_table, table_column_metadata, table_duplicate_column_names, log):
         self.database_info = database_info
         self.db_table = db_table
         self.name = self.db_table.name
-        self.log = log
+        self.log = get_logger('TableInfo.py')
         self.db_columns = [column for column in db_table.columns]
         self.foreign_key_map = {foreign_key.column.table.name: foreign_key for foreign_key in db_table.foreign_keys}
         self.primary_key_column_info = None 

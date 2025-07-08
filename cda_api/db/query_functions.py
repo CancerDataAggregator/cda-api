@@ -8,7 +8,7 @@ from sqlalchemy.exc import CompileError
 from cda_api import RelationshipNotFound, get_logger, TableNotFound
 
 
-log = get_logger()
+log = get_logger("Setup: query_functions.py")
 
 
 # Generates compiled SQL string from query object
@@ -103,6 +103,12 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
         else:
             foreign_column_infos.append(column_info)
 
+    foreign_primary_filler_name = ''
+    if not foreign_column_infos:
+        foreign_primary_column_info = foreign_table_info.primary_key_column_info
+        foreign_primary_filler_name = foreign_primary_column_info.name
+        foreign_column_infos.append(foreign_primary_column_info)
+
     # Name and select columns slightly differ between json & array
     if construct_type == 'json':
         cte_name = f"{foreign_table_info.name}_collated_preselect"
@@ -117,6 +123,7 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
     if construct_type == 'array':
         for virtual_table_info, virtual_column_infos in virtual_column_info_map.items():
             select_columns += [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in virtual_column_infos]
+            # virtual_to_foreign_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
             virtual_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
             virtual_table_joins.append(virtual_table_relationship.get_foreign_table_join_clause())
     else:
@@ -130,7 +137,6 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
             virtual_table_joins.extend(joins)
 
     log.debug(f"Building {cte_name}")
-
 
     # Set up base preselect
     foreign_preselect = (
@@ -155,7 +161,10 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
         foreign_array_preselect_cte = foreign_preselect.cte(cte_name)
         preselect_onclause = get_cte_column(foreign_array_preselect_cte, endpoint_relating_column.name) == endpoint_relationship.local_column_info.db_column
         preselect_join = {'target': foreign_array_preselect_cte, 'onclause': preselect_onclause}
-        preselect_columns = [db_column for db_column in foreign_array_preselect_cte.c if db_column.name != endpoint_relating_column.name]
+        if foreign_column_infos:
+            preselect_columns = [db_column for db_column in foreign_array_preselect_cte.c if db_column.name != endpoint_relating_column.name]
+        else:
+            preselect_columns = [db_column for db_column in foreign_array_preselect_cte.c if db_column.name not in [endpoint_relating_column.name, foreign_primary_filler_name]]
         
     # Build json for all columns
     elif construct_type == 'json': 
@@ -164,7 +173,7 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
         foreign_json_columns = []
         subquery_id_column = None
         for column in foreign_table_subquery.c:
-            if column.name != endpoint_relating_column.name:
+            if column.name not in [endpoint_relating_column.name, foreign_primary_filler_name]:
                 foreign_json_columns.append(column.name)
                 foreign_json_columns.append(column)
             else:

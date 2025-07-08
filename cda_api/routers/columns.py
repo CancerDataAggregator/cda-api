@@ -7,9 +7,6 @@ from cda_api.db import get_db
 from cda_api.db.query_builders import columns_query
 from cda_api.classes.models import ColumnResponseObj
 
-log = get_logger()
-
-
 router = APIRouter(prefix="/columns", tags=["columns"])
 
 

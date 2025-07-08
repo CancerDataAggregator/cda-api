@@ -90,7 +90,7 @@ class DataQuery:
                     for virtual_table_info, v_column_infos in virtual_column_map.items():
                         construct_type = 'array'
                         related_filtered_preselect_query = self.filtered_preselect_cte_query_map[self.endpoint_table_info]
-                        virtual_select_columns, virtual_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, self.endpoint_table_info, related_filtered_preselect_query, virtual_table_info, v_column_infos, filter_infos, self.log)
+                        virtual_select_columns, virtual_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, virtual_table_info.primary_table_info, related_filtered_preselect_query, virtual_table_info, v_column_infos, filter_infos, self.log)
                         select_columns.extend(virtual_select_columns)
                         select_joins.extend(virtual_select_joins)
             

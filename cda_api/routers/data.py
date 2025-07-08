@@ -34,7 +34,7 @@ def file_fetch_rows_endpoint(
         }
     """
     qid = get_query_id()
-    log = get_logger(qid)
+    log = get_logger(qid, logger_type='query')
 
     log.info(f"data/file endpoint hit: {request.client}")
     log.info(f"DataRequestBody: {request_body.as_string()}")
@@ -80,7 +80,7 @@ def subject_fetch_rows_endpoint(
     """
 
     qid = get_query_id()
-    log = get_logger(qid)
+    log = get_logger(qid, logger_type='query')
     log.info(f"data/subject endpoint hit: {request.client}")
     log.info(f"DataRequestBody: {request_body.as_string()}")
     log.info(f"{request.url}")

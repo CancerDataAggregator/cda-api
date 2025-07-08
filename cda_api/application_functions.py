@@ -11,7 +11,7 @@ from cda_api.classes.exceptions import CDABaseException, DatabaseConnectionDrop,
 
 
 # Function to generate logger from config file
-def get_logger(id="") -> logging.Logger:
+def get_logger(id="", logger_type = 'simple') -> logging.Logger:
     if getenv("DOCKER_DEPLOYED"):
         with open("cda_api/config/docker_logger.yml") as log_config_file:
             log_config = yaml.safe_load(log_config_file)
@@ -19,7 +19,7 @@ def get_logger(id="") -> logging.Logger:
         with open("cda_api/config/logger.yml") as log_config_file:
             log_config = yaml.safe_load(log_config_file)
     logging.config.dictConfig(log_config)
-    logger = logging.getLogger("simple")
+    logger = logging.getLogger(logger_type)
     extra = {"id": id}
     logger = logging.LoggerAdapter(logger, extra)
     return logger
