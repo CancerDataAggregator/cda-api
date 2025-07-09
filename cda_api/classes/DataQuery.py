@@ -96,7 +96,7 @@ class DataQuery:
             
             # Add foreign table select columns:
             else:
-                if self.request_body.COLLATE_RESULTS is False:
+                if (self.request_body.COLLATE_RESULTS is False) and (table_info.name != 'external_reference'):
                     construct_type = 'array'
                 else:
                     construct_type = 'json'

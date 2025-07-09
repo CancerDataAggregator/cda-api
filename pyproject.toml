@@ -5,6 +5,9 @@ description = ""
 authors = ["tanner-coon-bh <tanner.coon@bluehalo.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+start_api = "cda_api.main:start_api"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 fastapi = {extras = ["standard"], version = "^0.115.6"}

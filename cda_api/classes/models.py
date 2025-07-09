@@ -8,6 +8,7 @@ class DataRequestBody(BaseModel):
     ADD_COLUMNS: list[str] | None = []
     EXCLUDE_COLUMNS: list[str] | None = []
     COLLATE_RESULTS: bool | None = False
+    EXTERNAL_REFERENCE: bool | None = False
 
     def to_dict(self):
         return {
@@ -15,7 +16,8 @@ class DataRequestBody(BaseModel):
             "MATCH_SOME": self.MATCH_SOME,
             "ADD_COLUMNS": self.ADD_COLUMNS,
             "EXCLUDE_COLUMNS": self.EXCLUDE_COLUMNS,
-            "COLLATE_RESULTS": self.COLLATE_RESULTS
+            "COLLATE_RESULTS": self.COLLATE_RESULTS,
+            "EXTERNAL_REFERENCE": self.EXTERNAL_REFERENCE
         }
 
     def as_string(self):
@@ -28,8 +30,8 @@ class DataRequestBody(BaseModel):
             return False
 
     def replace(self, attribute: str, values: list):
-        if attribute not in ["MATCH_ALL", "MATCH_SOME", "ADD_COLUMNS", "EXCLUDE_COLUMNS", "COLLATE_RESULTS"]:
-            raise ValueError(f"{attribute} not in list: ['MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS', 'COLLATE_RESULTS']")
+        if attribute not in ["MATCH_ALL", "MATCH_SOME", "ADD_COLUMNS", "EXCLUDE_COLUMNS", "COLLATE_RESULTS", "EXTERNAL_REFERENCE"]:
+            raise ValueError(f"{attribute} not in list: ['MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS', 'COLLATE_RESULTS', 'EXTERNAL_REFERENCE']")
         setattr(self, attribute, values)
 
     def __eq__(self, value: object) -> bool:

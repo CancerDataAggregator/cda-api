@@ -66,6 +66,13 @@ def get_table_column_and_filter_map(query_object, query_type):
             new_columns = [column_info for column_info in table_column_and_filter_map[table_info]['column_infos'] if column_info not in column_infos_to_exclude]
             table_column_and_filter_map[table_info]['column_infos'] = new_columns
 
+    if query_type == 'data':
+        if query_object.request_body.EXTERNAL_REFERENCE:
+            external_reference_table_info = query_object.db_info.get_table_info('external_reference')
+            column_infos = [column_info for column_info in external_reference_table_info.column_infos 
+                            if column_info.process_before_display == 'external_reference_metadata']
+            table_column_and_filter_map[external_reference_table_info] = {'column_infos': column_infos, 'filter_infos': []}
+
     return table_column_and_filter_map
 
 
