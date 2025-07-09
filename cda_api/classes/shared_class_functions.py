@@ -84,9 +84,9 @@ def get_filtered_preselect(query_object):
         if table_info != query_object.endpoint_table_info:
             table_relationship = query_object.db_info.get_table_relationship(query_object.endpoint_table_info, table_info)
             if table_relationship.requires_mapping_table:
-                mapping_table_infos.append(table_relationship.local_mapping_column_info.parent_table_info)
+                if not table_relationship.local_mapping_column_info.parent_table_info.name.endswith('external_reference'):
+                    mapping_table_infos.append(table_relationship.local_mapping_column_info.parent_table_info)
     mapping_table_infos = list(set(mapping_table_infos))
-
     filter_preselect_map = {}
     filtered_preselect_joins = []
     if len(mapping_table_infos) < 1:

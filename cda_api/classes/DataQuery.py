@@ -100,12 +100,15 @@ class DataQuery:
                     construct_type = 'array'
                 else:
                     construct_type = 'json'
-
-                if table_info.name == 'upstream_identifiers':
-                    relating_table_info = self.endpoint_table_info
+                if table_info.name != 'external_reference':
+                    if table_info.name == 'upstream_identifiers':
+                        relating_table_info = self.endpoint_table_info
+                    else:
+                        relating_table_info = table_info.primary_table_info
+                    related_filtered_preselect_query = self.filtered_preselect_cte_query_map[relating_table_info]
                 else:
-                    relating_table_info = table_info.primary_table_info
-                related_filtered_preselect_query = self.filtered_preselect_cte_query_map[relating_table_info]
+                    relating_table_info = self.endpoint_table_info
+                    related_filtered_preselect_query = self.filtered_preselect_cte_query_map[self.endpoint_table_info]
 
                 foreign_select_columns, foreign_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, relating_table_info, related_filtered_preselect_query, table_info, column_infos, filter_infos, self.log)
                 select_columns.extend(foreign_select_columns)

@@ -5,7 +5,7 @@ formatters:
   detailed:
     format: '%(asctime)s - line number %(lineno)d - %(levelname)s: %(message)s'
   id_detailed:
-    format: '%(levelname)s: %(id)s - line number %(lineno)d - %(message)s'
+    format: '%(levelname)s: %(id)s - %(filename)s - line #%(lineno)d - %(message)s'
 handlers:
   console:
     class: logging.StreamHandler
