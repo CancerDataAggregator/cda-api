@@ -10,7 +10,6 @@ try:
     log.info("Building SQLAlchemy automap")
     Base = automap_base()
     Base.prepare(autoload_with=engine)
-    TABLE_LIST = Base.classes.values()
     log.info("Successfully built SQLAlchemy automap")
 except Exception as e:
     log.exception(e)

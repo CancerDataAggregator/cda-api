@@ -115,16 +115,21 @@ class SummaryQuery:
                 self.select_map[table_info] = []
 
         for table_info, column_type_map in self.summary_column_map.items():
-            self.log.debug(f"Constructing column summary selecct statements for {table_info}")
+            self.log.debug(f"Constructing column summary select statements for {table_info}")
             all_table_columns = list(set([column_info.labeled_db_column for _, column_infos in column_type_map.items() for column_info in column_infos]))
             if table_info not in self.filtered_preselect_cte_query_map.keys():
-                connecting_column_info = table_info.primary_table_info.get_table_relationship(table_info).foreign_column_info
+                if table_info.name == 'upstream_identifiers':
+                    filtered_table_info = self.endpoint_table_info
+                else:
+                    filtered_table_info = table_info.primary_table_info
+                connecting_column_info = filtered_table_info.get_table_relationship(table_info).foreign_column_info
             else:
+                filtered_table_info = table_info
                 connecting_column_info = table_info.primary_key_column_info
                 
             all_table_columns = [connecting_column_info.labeled_db_column] + all_table_columns
 
-            table_preselect = self.db.query(*all_table_columns).filter(connecting_column_info.labeled_db_column.in_(self.filtered_preselect_cte_query_map[table_info.primary_table_info]))
+            table_preselect = self.db.query(*all_table_columns).filter(connecting_column_info.labeled_db_column.in_(self.filtered_preselect_cte_query_map[filtered_table_info]))
             table_preselect_cte = table_preselect.cte(f'{table_info.name}_preselect')
             preselect_connecting_column = get_cte_column(table_preselect_cte, connecting_column_info.name)
 
