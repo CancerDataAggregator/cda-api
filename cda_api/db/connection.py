@@ -17,12 +17,7 @@ def is_interactive():
     return not hasattr(main, "__file__")
 
 
-# # Load environment variables
-# if is_interactive():
-#     env_file = find_dotenv('cda_api/config/.env')
-# else:
-#     env_file = find_dotenv('../config/.env')
-# load_dotenv(env_file)
+# Load environment variables
 if not getenv("DB_USERNAME"):
     log.info("Reading environment variables from .env")
     if is_interactive():
@@ -47,3 +42,13 @@ log.info("Creating database engine and session objects")
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # TODO determine if there is a better (more secure) way to set up sessions
 session = sessionmaker(bind=engine)
+
+
+def get_db():
+    db = session()
+    try:
+        log.debug("Creating database session")
+        yield db
+    finally:
+        log.debug("Closing database session")
+        db.close()

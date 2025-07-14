@@ -2,13 +2,10 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from cda_api import get_logger, get_query_id
-from cda_api.application_utilities import handle_router_errors
+from cda_api.application_functions import handle_router_errors
 from cda_api.db import get_db
 from cda_api.db.query_builders import columns_query
-from cda_api.models import ColumnResponseObj
-
-log = get_logger()
-
+from cda_api.classes.models import ColumnResponseObj
 
 router = APIRouter(prefix="/columns", tags=["columns"])
 

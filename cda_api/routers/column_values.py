@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from cda_api import get_logger, get_query_id
-from cda_api.application_utilities import handle_router_errors
+from cda_api.application_functions import handle_router_errors
 from cda_api.db import get_db
 from cda_api.db.query_builders import column_values_query
-from cda_api.models import ColumnValuesResponseObj
+from cda_api.classes.models import ColumnValuesResponseObj
 
 router = APIRouter(prefix="/column_values", tags=["column_values"])
 
@@ -39,8 +39,8 @@ def column_values_endpoint(
         # Get paged query result
         result = column_values_query(
             db,
-            column=column,
-            data_source=data_source,
+            column_name=column,
+            data_source_string=data_source,
             limit=limit,
             offset=offset,
             log=log,

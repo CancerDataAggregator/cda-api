@@ -6,12 +6,12 @@ import yaml
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError, ProgrammingError, DataError, ArgumentError
-from cda_api.models import ClientError, InternalError
+from cda_api.classes.models import ClientError, InternalError
 from cda_api.classes.exceptions import CDABaseException, DatabaseConnectionDrop, InternalErrorException, InvalidFilterError
 
 
 # Function to generate logger from config file
-def get_logger(id="") -> logging.Logger:
+def get_logger(id="", logger_type = 'simple') -> logging.Logger:
     if getenv("DOCKER_DEPLOYED"):
         with open("cda_api/config/docker_logger.yml") as log_config_file:
             log_config = yaml.safe_load(log_config_file)
@@ -19,20 +19,11 @@ def get_logger(id="") -> logging.Logger:
         with open("cda_api/config/logger.yml") as log_config_file:
             log_config = yaml.safe_load(log_config_file)
     logging.config.dictConfig(log_config)
-    logger = logging.getLogger("simple")
+    logger = logging.getLogger(logger_type)
     extra = {"id": id}
     logger = logging.LoggerAdapter(logger, extra)
     return logger
 
-
-
-    
-
-def database_connection_drop_handler(request, exc):
-    return JSONResponse(
-        status_code=500,
-        content=InternalError(type='DatabaseConnectionDropped', message=str(exc)),
-    )
 
 def convert_exceptions(e, log):
     if isinstance(e, OperationalError):

@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from cda_api import get_logger, get_query_id
-from cda_api.application_utilities import handle_router_errors
+from cda_api.application_functions import handle_router_errors
 from cda_api.db import get_db
-from cda_api.db.metadata import get_release_metadata
-from cda_api.models import ReleaseMetadataObj
+from cda_api.db.query_builders import release_metadata_query
+from cda_api.classes.models import ReleaseMetadataObj
 
 router = APIRouter(prefix="/release_metadata", tags=["release_metadata"])
 
@@ -28,7 +28,7 @@ def release_metadata_endpoint(request: Request, db: Session = Depends(get_db)) -
     log.info(f"{request.url}")
 
     try:
-        result = get_release_metadata(db, log)
+        result = release_metadata_query(db, log)
         log.info("Success")
     except Exception as e:
         handle_router_errors(e, log)

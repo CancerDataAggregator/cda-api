@@ -61,5 +61,5 @@ EXPOSE 5432
 ENV DOCKER_DEPLOYED=1
 
 # Run the application within the poetry virtual environment
-CMD ["poetry", "run", "fastapi", "run", "cda_api/main.py", "--port", "8000"]
-
+# CMD ["poetry", "run", "fastapi", "run", "cda_api/main.py", "--port", "8000"]
+CMD ["poetry", "run", "start_api" ]

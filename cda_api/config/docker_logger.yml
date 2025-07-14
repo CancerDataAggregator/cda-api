@@ -4,16 +4,27 @@ formatters:
     format: '%(levelname)s: %(message)s'
   detailed:
     format: '%(asctime)s - %(id)s - %(levelname)s: %(message)s'
+  id_detailed:
+    format: '%(levelname)s: %(id)s - %(message)s'
 handlers:
   console:
     class: logging.StreamHandler
     level: INFO
     formatter: simple
     stream: ext://sys.stdout
+  query_handler:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: id_detailed
+    stream: ext://sys.stdout
 loggers:
   simple:
     level: INFO
     handlers: [console]
+    propagate: no
+  query:
+    level: DEBUG
+    handlers: [query_handler]
     propagate: no
 root:
   level: INFO
