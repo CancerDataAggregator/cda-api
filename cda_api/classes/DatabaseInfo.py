@@ -51,7 +51,6 @@ class DatabaseInfo:
         self.table_infos = []
         self.local_table_infos = []
         self.data_table_infos = []
-        self.standalone_table_infos = []
         self.mapping_table_infos = []
         self.all_column_infos = []
         all_duplicate_column_names = list(set([column_name for column_name in self.column_names if self.column_names.count(column_name) > 1]))
@@ -60,7 +59,7 @@ class DatabaseInfo:
             table_column_metadata = {}
             if db_table.name in self.column_metadata_map.keys():
                 table_column_metadata = self.column_metadata_map[db_table.name]
-            table_info = TableInfo(self, db_table, table_column_metadata, table_duplicate_column_names, log)
+            table_info = TableInfo(self, db_table, table_column_metadata, table_duplicate_column_names)
             self.table_infos.append(table_info)
             if table_info.name in ['file', 'subject']:
                 self.local_table_infos.append(table_info)

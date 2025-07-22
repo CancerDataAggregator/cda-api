@@ -4,7 +4,7 @@ from sqlalchemy.sql.schema import Column, Table
 from cda_api import RelationshipNotFound, RelationshipError, ColumnNotFound, get_logger
 
 class TableInfo:
-    def __init__(self, database_info, db_table, table_column_metadata, table_duplicate_column_names, log):
+    def __init__(self, database_info, db_table, table_column_metadata, table_duplicate_column_names):
         self.database_info = database_info
         self.db_table = db_table
         self.name = self.db_table.name
