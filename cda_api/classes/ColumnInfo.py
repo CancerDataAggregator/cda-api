@@ -13,6 +13,7 @@ class ColumnInfo:
         self.process_before_display = False
         self.virtual_table = None
         self.foreign_key_column_info = None
+        self.null_column_info = None
         
         if column_metadata is not None:
             self.column_type = column_metadata["column_type"]
@@ -22,7 +23,7 @@ class ColumnInfo:
             self.virtual_table = column_metadata["virtual_table"]
         if self.virtual_table is not None:
             self.selectable_table_info = self.parent_table_info.database_info.get_table_info(self.virtual_table)
-        self.null_column_info = None
+        
 
 
     def __repr__(self):

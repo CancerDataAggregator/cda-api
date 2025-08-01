@@ -10,9 +10,9 @@ start_api = "cda_api.main:start_api"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = {extras = ["standard"], version = "^0.115.6"}
+fastapi = {extras = ["standard"], version = "^0.116.1"}
 python-dotenv = "^1.0.1"
-sqlalchemy = "^2.0.36"
+sqlalchemy = "^2.0.42"
 pytest = "^8.3.2"
 psycopg2-binary = "^2.9.9"
 sqlparse = "^0.5.1"

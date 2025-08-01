@@ -11,7 +11,7 @@ class FilterInfo:
         self.filter_type = filter_type
         self.db_info = db_info
         self.log = log
-        self.build_filter_components()
+        self._build_filter_components()
     
     def __repr__(self):
         repr_components = [
@@ -19,7 +19,7 @@ class FilterInfo:
         ]
         return '\n'.join(repr_components)
     
-    def build_filter_components(self):
+    def _build_filter_components(self):
         self.filter_column_name, self.filter_operator, self.filter_value = parse_filter_string(self.filter_string, self.log)
         self.filter_column_info = self.db_info.get_column_info(self.filter_column_name)
         self.selectable_column_info = self.filter_column_info
@@ -42,7 +42,7 @@ class FilterInfo:
                 self.filter_value  = 'True'
                 self.local_filter_clause = self.filter_column_info.db_column.is_(True)
             else:
-                self.log.warning(f'Could not build exclusive null filter for {self}')
+                self.log.debug(f'Could not build exclusive null filter for {self}')
                 self.exclusively_null = False
         
     
