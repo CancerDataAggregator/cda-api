@@ -1,24 +1,11 @@
 import ast
-from sqlalchemy import func
+from sqlalchemy import func, and_, or_
 from cda_api import ParsingError
 
 
 # Parse out the key components from the filter string
 def parse_filter_string(filter_string, log):
-    # Clean up the filter
-    filter_string = filter_string.strip()
-    split_filter_string = filter_string.split()
-    if len(split_filter_string) < 3:
-        raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
-    columnname = split_filter_string[0]
-    operator = split_filter_string[1]
-    value_string = ' '.join(split_filter_string[2:])
-    if len(split_filter_string) > 3:
-        if split_filter_string[2].lower() in ['in', 'like', 'not']:
-            operator =  f'{operator} {split_filter_string[2].lower()}'
-            value_string = ' '.join(split_filter_string[3:])
-
-    # Verify the matched operator is valid
+    # Set valid operators list
     valid_operators = [
         "!=",
         "<>",
@@ -35,95 +22,154 @@ def parse_filter_string(filter_string, log):
         "not in",
         "not like",
     ]
-    if operator.lower() not in valid_operators:
-        raise ParsingError(f'Parsed operator: "{operator}" is not a valid operator')
+
+    # Clean up the filter
+    filter_string = filter_string.strip()
+    split_filter_string = filter_string.split()
+    if len(split_filter_string) < 3:
+        raise ParsingError(f'Unable to parse out operator in filter: "{filter_string}"')
+    columnname = split_filter_string[0]
+    operator = split_filter_string[1]
+    value_string = ' '.join(split_filter_string[2:])
+    if len(split_filter_string) > 3:
+        # Catch bounded filter
+        if (split_filter_string[1] in valid_operators) and (split_filter_string[3] in valid_operators):
+            if len(split_filter_string) != 5:
+                raise ParsingError(f'Error parsing bounded filter: {filter_string}')
+            try: 
+                first_value = ast.literal_eval(split_filter_string[0])
+                second_value = ast.literal_eval(split_filter_string[4])
+            except:
+                raise ParsingError(f'Values must be numeric when using a bounded filter: {filter_string}')
+            first_operator = split_filter_string[1]
+            columnname = split_filter_string[2]
+            second_operator = split_filter_string[3]
+            operator = (first_operator, second_operator)
+            value = (first_value, second_value)
+
+        # Catch multi word operators:
+        elif split_filter_string[2].lower() in ['in', 'like', 'not']:
+            operator =  f'{operator} {split_filter_string[2].lower()}'
+            value_string = ' '.join(split_filter_string[3:])
+    # Bounded filter:
+    if isinstance(operator, tuple):
+        log.debug(f"columnname: {columnname}, operators: {operator}, values: {value}")
+
+        return columnname.lower(), operator, value
+    # Not bounded filter
+    else:
+        # Verify the matched operator is valid
+        if operator.lower() not in valid_operators:
+            raise ParsingError(f'Parsed operator: "{operator}" is not a valid operator')
 
 
-    # Use ast.literal_eval() to safely evaluate the value
-    try:
-        value = ast.literal_eval(value_string)
-    except Exception:
-        # If there is an error, just handle as a string
-        value = value_string
+        # Use ast.literal_eval() to safely evaluate the value
+        try:
+            value = ast.literal_eval(value_string)
+        except Exception:
+            # If there is an error, just handle as a string
+            value = value_string
 
-    # Check if value is null
-    if isinstance(value, str):
-        if value.lower() == "null":
-            value = None
-        elif value.lower() == "true":
-            value = True
-        elif value.lower() == "false":
-            value = False
-        # Replace wildcards
-        else:
-            value = value.replace('*', '%')
+        # Check if value is null
+        if isinstance(value, str):
+            if value.lower() == "null":
+                value = None
+            elif value.lower() == "true":
+                value = True
+            elif value.lower() == "false":
+                value = False
+            # Replace wildcards
+            else:
+                value = value.replace('*', '%')
 
-    elif isinstance(value, set) or isinstance(value, tuple):
-        value = list(value)
+        elif isinstance(value, set) or isinstance(value, tuple):
+            value = list(value)
 
-    # Throw error on dictionary filter
-    elif isinstance(value, dict):
-        raise ParsingError(f'Dictionary filters are not accepted: {filter_string}')
+        # Throw error on dictionary filter
+        elif isinstance(value, dict):
+            raise ParsingError(f'Dictionary filters are not accepted: {filter_string}')
 
-    # Need to ensure lists and the operators "in"/"not in" are only ever used together
-    if isinstance(value, list) and (operator not in ["in", "not in"]):
-        raise ParsingError(f'Operator must be "in" or "not in" when using a list value -> filter: {filter_string}')
+        # Need to ensure lists and the operators "in"/"not in" are only ever used together
+        if isinstance(value, list) and (operator not in ["in", "not in"]):
+            raise ParsingError(f'Operator must be "in" or "not in" when using a list value -> filter: {filter_string}')
 
-    elif (not isinstance(value, list)) and (operator in ["in", "not in"]):
-        raise ParsingError(
-            f'Value: {value_string} must be a list (ex. [1,2,3] or ["a","b","c"]) when using "in" or "not in" operators -> filter: "{filter_string}"'
-        )
+        elif (not isinstance(value, list)) and (operator in ["in", "not in"]):
+            raise ParsingError(
+                f'Value: {value_string} must be a list (ex. [1,2,3] or ["a","b","c"]) when using "in" or "not in" operators -> filter: "{filter_string}"'
+            )
 
-    log.debug(f"columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}")
+        log.debug(f"columnname: {columnname}, operator: {operator}, value: {value}, value type: {type(value)}")
 
-    return columnname.lower(), operator.lower(), value
+        return columnname.lower(), operator.lower(), value
+    
+    
 
 
 
 
 def apply_filter_operator(filter_column, filter_value, filter_operator, log):
     log.debug(f"Building SQLAlchemy filter: {filter_column} {filter_operator} {filter_value}")
-    match filter_operator.lower():
-        case "like":
-            return case_insensitive_like(filter_column, filter_value)
-        case "not like":
-            return case_insensitive_not_like(filter_column, filter_value)
-        case "in":
-            return in_array(filter_column, filter_value)
-        case "not in":
-            return not_in_array(filter_column, filter_value)
-        case "=":
-            if isinstance(filter_value, str):
-                return case_insensitive_equals(filter_column, filter_value)
-            else:
-                return filter_column == filter_value
-        case "!=":
-            if isinstance(filter_value, str):
-                return case_insensitive_not_equals(filter_column, filter_value)
-            else:
-                return filter_column != filter_value
-        case "<":
-            return filter_column < filter_value
-        case "<=":
-            return filter_column <= filter_value
-        case ">":
-            return filter_column > filter_value
-        case ">=":
-            return filter_column >= filter_value
-        case "is":
-            if type(filter_value) not in [type(None), bool]:
-                raise ParsingError(
-                    f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator."
-                )
-            return filter_column.is_(filter_value)
-        case "is not":
-            if type(filter_value) not in [type(None), bool]:
-                raise ParsingError(
-                    f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator."
-                )
-            return filter_column.is_not(filter_value)
-        case _:
-            raise ParsingError(f"Unexpected operator: {filter_operator}")
+    if isinstance(filter_operator, tuple):
+        first_operator, second_operator = filter_operator
+        first_value, second_value = filter_value
+        match first_operator:
+            case "<":
+                match second_operator:
+                    case "<":
+                        return and_(first_value < filter_column, filter_column < second_value)
+                    case "<=":
+                        return and_(first_value < filter_column, filter_column <= second_value)
+            case "<=":
+                match second_operator:
+                    case "<":
+                        return and_(first_value <= filter_column, filter_column < second_value)
+                    case "<=":
+                        return and_(first_value <= filter_column, filter_column <= second_value)
+                    
+        raise ParsingError(f"Improper bounded filter: {first_value} {first_operator} {filter_column} {second_operator} {second_value}")
+
+    else:
+        match filter_operator.lower():
+            case "like":
+                return case_insensitive_like(filter_column, filter_value)
+            case "not like":
+                return case_insensitive_not_like(filter_column, filter_value)
+            case "in":
+                return in_array(filter_column, filter_value)
+            case "not in":
+                return not_in_array(filter_column, filter_value)
+            case "=":
+                if isinstance(filter_value, str):
+                    return case_insensitive_equals(filter_column, filter_value)
+                else:
+                    return filter_column == filter_value
+            case "!=":
+                if isinstance(filter_value, str):
+                    return case_insensitive_not_equals(filter_column, filter_value)
+                else:
+                    return filter_column != filter_value
+            case "<":
+                return filter_column < filter_value
+            case "<=":
+                return filter_column <= filter_value
+            case ">":
+                return filter_column > filter_value
+            case ">=":
+                return filter_column >= filter_value
+            case "is":
+                if type(filter_value) not in [type(None), bool]:
+                    raise ParsingError(
+                        f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator."
+                    )
+                return filter_column.is_(filter_value)
+            case "is not":
+                if type(filter_value) not in [type(None), bool]:
+                    raise ParsingError(
+                        f"Operator '{filter_operator}' not compatible with value '{filter_value}'s type. Must use 'NULL', 'TRUE', or 'FALSE' for this operator."
+                    )
+                return filter_column.is_not(filter_value)
+            case _:
+                raise ParsingError(f"Unexpected operator: {filter_operator}")
 
 
 # Returns a case insensitive like filter conditional object
