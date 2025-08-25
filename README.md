@@ -1,25 +1,25 @@
 # cda-api
 
 ## About
-The Application Programming Interface (API) for the Cancer Data Aggregator project. This tool allows users to search for National Cancer Institute (NCI) data by leveraging cdapython or directly through the Swagger/Redoc pages. 
+The Application Programming Interface (API) for the Cancer Data Aggregator project. This tool allows users to search for National Cancer Institute (NCI) data by leveraging [cdapython](https://github.com/CancerDataAggregator/cdapython) or directly through the Swagger/Redoc pages. 
 
-The API is built in Python leveraging the FastAPI module. FastAPI auto generates an OpenAPI schema which is used to automatically generate the cda-client library that allows for cdapython to make calls against the deployed API. 
+The API is built in Python leveraging the FastAPI module. FastAPI auto generates an OpenAPI schema which is used to automatically generate the [cda-client](https://github.com/CancerDataAggregator/cda-client) library that allows for [cdapython](https://github.com/CancerDataAggregator/cdapython) to make calls against the deployed API. 
 
 ## Endpoint Descriptions
 ### /data/file
-Returns list of json objects containing information about files based on the filters provied in the request
+Returns list of json objects containing information about files based on the filters provided in the request
 body.
 
 ### /data/subject
-Returns list of json objects containing information about subjects based on the filters provied in the request
+Returns list of json objects containing information about subjects based on the filters provided in the request
 body.
 
 ### /summary/file
-Returns a json object containing summarizations of file data based on the filters provied in the request
+Returns a json object containing summarizations of file data based on the filters provided in the request
 body.
 
 ### /summary/subject
-Returns a json object containing summarizations of file data based on the filters provied in the request
+Returns a json object containing summarizations of file data based on the filters provided in the request
 body.
 
 ### /columns
@@ -36,7 +36,7 @@ Returns a list of json objects containing information about the current release 
 ### cdapython example
 ```python
 from cdapython import get_file_data
-get_file_data(match_all=["size < 100", "format like T*"])
+get_file_data(match_all=["size < 100", "format = T*"])
 ```
 
 ### /data/file endpoint request body Swagger page example
@@ -71,9 +71,10 @@ curl -X 'POST' \
 ```
 
 ## Links
-- Direct Production API Link: https://cda.datacommons.cancer.gov/
+
 - [Production API Swagger Page](https://cda.datacommons.cancer.gov/docs)
 - [Production API Redoc Page](https://cda.datacommons.cancer.gov/redoc)
+- API URL for developing against: https://cda.datacommons.cancer.gov/
 - [cdapython GitHub Page](https://github.com/CancerDataAggregator/cdapython)
 - [cda-client GitHub Page](https://github.com/CancerDataAggregator/cda-client)
 - [CDA-HelpDesk GitHub Page](https://github.com/CancerDataAggregator/CDA-HelpDesk)
