@@ -3,7 +3,7 @@
 ## About
 The Application Programming Interface (API) for the Cancer Data Aggregator project. This tool allows users to search for National Cancer Institute (NCI) data by leveraging cdapython or directly through the Swagger/Redoc pages. 
 
-The API is built in Python leveraging the FastAPI module. FastAPI auto generates an OpenAPI schema which we use to automatically generate the cda-client library that allows for cdapython to make calls against the deployed API. 
+The API is built in Python leveraging the FastAPI module. FastAPI auto generates an OpenAPI schema which is used to automatically generate the cda-client library that allows for cdapython to make calls against the deployed API. 
 
 ## Endpoint Descriptions
 ### /data/file
@@ -74,7 +74,7 @@ curl -X 'POST' \
 - Direct Production API Link: https://cda.datacommons.cancer.gov/
 - [Production API Swagger Page](https://cda.datacommons.cancer.gov/docs)
 - [Production API Redoc Page](https://cda.datacommons.cancer.gov/redoc)
-- [cdapython GitHub page](https://github.com/CancerDataAggregator/cdapython)
-- [cda-client GitHub page](https://github.com/CancerDataAggregator/cda-client)
-- [CDA Hepldesk GitHub page](https://github.com/CancerDataAggregator/CDA-HelpDesk)
+- [cdapython GitHub Page](https://github.com/CancerDataAggregator/cdapython)
+- [cda-client GitHub Page](https://github.com/CancerDataAggregator/cda-client)
+- [CDA-HelpDesk GitHub Page](https://github.com/CancerDataAggregator/CDA-HelpDesk)
 - [FastAPI](https://fastapi.tiangolo.com/)
