@@ -35,7 +35,7 @@ Returns a list of json objects containing information about the current release 
 ## Example API calls
 ### cdapython example
 ```python
-from cdapython import 
+from cdapython import get_file_data
 get_file_data(match_all=["size < 100", "format like T*"])
 ```
 
