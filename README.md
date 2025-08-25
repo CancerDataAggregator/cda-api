@@ -19,7 +19,7 @@ Returns a json object containing summarizations of file data based on the filter
 body.
 
 ### /summary/subject
-Returns a json object containing summarizations of file data based on the filters provided in the request
+Returns a json object containing summarizations of subject data based on the filters provided in the request
 body.
 
 ### /columns
