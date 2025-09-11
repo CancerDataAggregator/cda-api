@@ -130,6 +130,13 @@ class SummaryQuery:
             all_table_columns = [connecting_column_info.labeled_db_column] + all_table_columns
 
             table_preselect = self.db.query(*all_table_columns).filter(connecting_column_info.labeled_db_column.in_(self.filtered_preselect_cte_query_map[filtered_table_info]))
+
+            # Apply additional filters if required
+            if table_info not in self.filtered_preselect_cte_query_map.keys():
+                endpoint_relationship = self.endpoint_table_info.get_table_relationship(table_info)
+                for additional_filter in endpoint_relationship.additional_filters:
+                    table_preselect = table_preselect.filter(additional_filter)
+
             table_preselect_cte = table_preselect.cte(f'{table_info.name}_preselect')
             preselect_connecting_column = get_cte_column(table_preselect_cte, connecting_column_info.name)
 
