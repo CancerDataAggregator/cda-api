@@ -21,6 +21,7 @@ python-multipart = "^0.0.18"
 uvicorn = "^0.32.1"
 tornado = "^6.5.1"
 setuptools = "^78.1.1"
+starlette = "0.47.2"
 
 
 [tool.poetry.group.dev.dependencies]
