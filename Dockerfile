@@ -18,6 +18,9 @@ RUN apk add --update --no-cache python3=~${PYTHON_VERSION} py3-pip py3-setuptool
 # Install prereqs for python packages
 RUN apk add gcc python3-dev musl-dev linux-headers
 
+# Manually force upgrade of setuptools
+RUN python -m pip install --upgrade "setuptools>=78.1.1" --break-system-packages
+
 # Install update for sqlite to address vulnerability scan
 RUN apk del sqlite 
 RUN apk add make
