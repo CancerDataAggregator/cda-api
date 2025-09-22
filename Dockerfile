@@ -29,6 +29,9 @@ RUN make install
 RUN export PATH="/usr/local/bin:$PATH"
 WORKDIR /
 
+# Updating expat to address vulneratbilty scan
+RUN apk update && apk upgrade expat
+
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=10001
