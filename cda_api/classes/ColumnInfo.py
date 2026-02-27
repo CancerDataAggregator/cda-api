@@ -14,6 +14,7 @@ class ColumnInfo:
         self.virtual_table = None
         self.foreign_key_column_info = None
         self.null_column_info = None
+        self.controlled_term = False
         
         if column_metadata is not None:
             self.column_type = column_metadata["column_type"]
@@ -40,3 +41,5 @@ class ColumnInfo:
         if len(self.db_column.foreign_keys) > 0:
             foreign_column = list(self.db_column.foreign_keys)[0].column
             self.foreign_key_column_info = self.parent_table_info.database_info.get_column_info(foreign_column)
+            if self.foreign_key_column_info.parent_table_info.name == 'controlled_term':
+                self.controlled_term = True

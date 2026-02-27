@@ -52,6 +52,7 @@ class DatabaseInfo:
         self.local_table_infos = []
         self.data_table_infos = []
         self.mapping_table_infos = []
+        self.term_table_infos = []
         self.all_column_infos = []
         all_duplicate_column_names = list(set([column_name for column_name in self.column_names if self.column_names.count(column_name) > 1]))
         for db_table in self.db_tables.values():
@@ -64,10 +65,14 @@ class DatabaseInfo:
             if table_info.name in ['file', 'subject']:
                 self.local_table_infos.append(table_info)
             if table_info.name not in ['release_metadata', 'column_metadata']:
-                if len(table_info.db_table.foreign_keys) < 2:
-                    self.data_table_infos.append(table_info)
-                else:
+                if table_info.name.endswith('_inputs'):
+                    pass
+                elif table_info.name.endswith('_term'):
+                    self.term_table_infos.append(table_info)
+                elif ('_describes_' in table_info.name) or ('_in_' in table_info.name) or ('_external_reference' in table_info.name):
                     self.mapping_table_infos.append(table_info)
+                else:
+                    self.data_table_infos.append(table_info)
             self.all_column_infos.extend(table_info.column_infos)
                     
     
@@ -76,6 +81,10 @@ class DatabaseInfo:
             for data_table_info in self.data_table_infos:
                 if local_table_info == data_table_info:
                     continue
+                # TODO: Double check that we won't ever need to map from subject -> file_keywords or file_text_search and visa-versa
+                if data_table_info.name.endswith('_keywords') or data_table_info.name.endswith('_text_search'):
+                    if not data_table_info.name.startswith(local_table_info.name):
+                        continue
                 local_table_info.build_table_relationship(data_table_info)
     
     def _assign_virtual_table_columns(self):

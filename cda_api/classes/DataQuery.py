@@ -55,6 +55,18 @@ class DataQuery:
         ]
         return '\n'.join(repr_components)
 
+    def get_selectable_db_column_and_possible_join(self, column_info):
+        join = None
+    
+        db_column = column_info.labeled_db_column
+        if column_info.controlled_term:
+            aliased_controlled_term_db_table = self.db_info.get_table_info('controlled_term').db_table.alias(f'ct_{column_info.name}')
+            db_column = aliased_controlled_term_db_table.columns['name'].label(column_info.name)
+            on_clause = column_info.db_column == aliased_controlled_term_db_table.columns['id_alias']
+            join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause}
+            
+        return db_column, join
+
     def _build_select_columns_and_joins(self):
         self.select_map = {}
         self.select_joins = []
@@ -69,16 +81,24 @@ class DataQuery:
             select_columns = []
             select_joins = []
 
+            virtual_table_column_infos = table_info.virtual_column_infos
+
             # Add endpoint table select columns:
             if table_info == self.endpoint_table_info:
                 virtual_column_map = {}
-                table_virtual_column_infos = table_info.virtual_column_infos
-                local_select_columns = [column_info.labeled_db_column for column_info in column_infos if column_info not in table_virtual_column_infos]
+                local_select_columns = []
+                for column_info in column_infos:
+                    if column_info in virtual_table_column_infos:
+                        continue
+                    db_column, join = self.get_selectable_db_column_and_possible_join(column_info) 
+                    local_select_columns.append(db_column)
+                    if join:
+                        select_joins.append(join)
                 self.select_map[table_info][table_info.name] = local_select_columns
 
                 # Need to build mapping of virtual_tables to their respective columns
                 for column_info in column_infos:
-                    if column_info not in table_virtual_column_infos:
+                    if column_info not in virtual_table_column_infos:
                         continue
                     virtual_table_info = column_info.parent_table_info
                     if virtual_table_info not in virtual_column_map.keys():
@@ -114,8 +134,10 @@ class DataQuery:
                 select_columns.extend(foreign_select_columns)
                 select_joins.extend(foreign_select_joins)
             
+
             # Add the select columns where they belong in the select_map
             for select_column in select_columns:
+                
                 if isinstance(select_column, Label):
                     preselect_name = select_column.element.table.name
                 else:
@@ -149,10 +171,13 @@ class DataQuery:
 
     def get_query(self):
         query = self.db.query(*self.select_columns)
-        if not self.select_map[self.endpoint_table_info]:
-            query = query.select_from(self.endpoint_table_info.db_table)
+        # if not self.select_map[self.endpoint_table_info]:
+        query = query.select_from(self.endpoint_table_info.db_table)
         query = query.filter(self.endpoint_alias.db_column.in_(self.filtered_preselect_cte_query_map[self.endpoint_table_info]))
         for join in self.select_joins:
+            # if join['target'].name == 'controlled_term':
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!'*3)
+            print(join)
             query = query.join(**join, isouter=True)
         subquery = query.subquery("json_result")
         return self.db.query(func.row_to_json(subquery.table_valued()))

@@ -59,7 +59,10 @@ class FilterInfo:
 
         if filterable_table_info == filter_table_info:
             if len(filter_preselect_map.keys()) == 1:
-                return self.local_filter_clause
+                if self.filter_column_info.controlled_term and not self.exclusively_null:
+                    subquery = select(1).select_from(filter_table_info.db_table)
+                else:
+                    return self.local_filter_clause
             else:
                 subquery = select(1).select_from(filter_table_info.db_table)\
                                     .filter(filterable_column_info.db_column == filter_table_info.primary_key_column_info.db_column)
@@ -75,7 +78,17 @@ class FilterInfo:
                                     .filter(filterable_column_info.db_column == filter_table_relationship.foreign_column_info.db_column)
             for additional_filter in filter_table_relationship.additional_filters:
                 subquery = subquery.filter(additional_filter)
+        
+        if self.filter_column_info.controlled_term and self.filter_value is not None:
+            controlled_term_table_info = self.db_info.get_table_info('controlled_term')
+            controlled_term_filter_clause = apply_filter_operator(controlled_term_table_info.get_column_info('name').db_column, self.filter_value, self.filter_operator, self.log)
+            controlled_term_filter_subquery = select(controlled_term_table_info.primary_key_column_info.db_column)\
+                                                    .filter(controlled_term_filter_clause)
             
-        if self.local_filter_clause is not None:
+            subquery = subquery.filter(self.filter_column_info.db_column.in_(controlled_term_filter_subquery))
+                                
+        
+        elif self.local_filter_clause is not None:
             subquery = subquery.filter(self.local_filter_clause)
+        
         return exists(subquery)

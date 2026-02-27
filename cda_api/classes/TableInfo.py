@@ -43,11 +43,11 @@ class TableInfo:
             self.column_infos.append(column_info)
 
     def set_primary_table_info(self):
-        if self.foreign_key_map:
-            if len(self.foreign_key_map.keys()) == 1:
-                self.primary_table_info = self.database_info.get_table_info(list(self.foreign_key_map.keys())[0])
-        else:
-            self.primary_table_info = self
+        for foreign_table_name in self.foreign_key_map.keys():
+            if foreign_table_name != 'controlled_term':
+                self.primary_table_info = self.database_info.get_table_info(foreign_table_name)
+                return
+        self.primary_table_info = self
         
     
     def build_table_relationship(self, foreign_table_info):

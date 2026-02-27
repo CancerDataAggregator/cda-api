@@ -53,6 +53,19 @@ def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_
         query = query.filter(or_(*match_some_db_filters))
     return query
 
+def get_selectable_db_column_and_possible_join(column_info, column_func = None):
+    join = None
+    db_column = column_info.db_column
+    if column_info.controlled_term:
+        db_info = column_info.parent_table_info.database_info
+        aliased_controlled_term_db_table = db_info.get_table_info('controlled_term').db_table.alias(f'ct_{column_info.name}')
+        db_column = aliased_controlled_term_db_table.columns['name']
+        on_clause = column_info.db_column == aliased_controlled_term_db_table.columns['id_alias']
+        join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause}
+    if column_func:
+        db_column = column_func(db_column)
+    db_column = db_column.label(column_info.name)
+    return db_column, join
 
 def build_virtual_foreign_arrays(db,foreign_table_info, virtual_table_info, virtual_column_infos, filtered_preselect, log):
     virtual_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
@@ -61,11 +74,19 @@ def build_virtual_foreign_arrays(db,foreign_table_info, virtual_table_info, virt
     else:
         relating_column = virtual_table_relationship.foreign_column_info.db_column
     cte_name = f'{foreign_table_info.name}_{virtual_table_info.name}_columns'
-    select_columns = [relating_column] + [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in virtual_column_infos]
+    select_columns = [relating_column]
+    select_joins = []
+    for column_info in virtual_column_infos:
+        db_column, join = get_selectable_db_column_and_possible_join(column_info, unique_column_array_agg)
+        select_columns.append(db_column)
+        if join: 
+            select_joins.append(join)
     virtual_preselect = (
         db.query(*select_columns)
         .filter(relating_column.in_(filtered_preselect))
     )
+    for select_join in select_joins:
+        virtual_preselect = virtual_preselect.join(**select_join, isouter=True)
     virtual_preselect = virtual_preselect.group_by(relating_column)
     virtual_preselect_cte = virtual_preselect.cte(cte_name)
     preselect_onclause = get_cte_column(virtual_preselect_cte, relating_column.name) == virtual_table_relationship.local_column_info.db_column
@@ -109,15 +130,22 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
         foreign_primary_filler_name = foreign_primary_column_info.name
         foreign_column_infos.append(foreign_primary_column_info)
 
+    select_columns = [endpoint_relating_column]
     # Name and select columns slightly differ between json & array
     if construct_type == 'json':
         cte_name = f"{foreign_table_info.name}_collated_preselect"
-        select_columns = [endpoint_relating_column] + [column_info.labeled_db_column for column_info in foreign_column_infos]
+        column_func = None
     elif construct_type == 'array':
         cte_name = f'{foreign_table_info.name}_{endpoint_table_info.name}_columns'
-        select_columns = [endpoint_relating_column] + [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in foreign_column_infos]
+        column_func = unique_column_array_agg
     else:
         raise Exception(f'Unexpected foreign preselect contruct_type {construct_type}. Please use "json", or "array"')
+    select_joins = []
+    for column_info in foreign_column_infos:
+        db_column, join = get_selectable_db_column_and_possible_join(column_info, column_func)
+        select_columns.append(db_column)
+        if join: 
+            select_joins.append(join)
     
     virtual_table_joins = []
     if construct_type == 'array':
@@ -146,6 +174,9 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
 
     for virtual_table_join in virtual_table_joins:
         foreign_preselect = foreign_preselect.join(**virtual_table_join, isouter=True)
+
+    for select_join in select_joins:
+        foreign_preselect = foreign_preselect.join(**select_join, isouter=True)
 
     # Join on the mapping table if required
     if endpoint_relationship.requires_mapping_table:
