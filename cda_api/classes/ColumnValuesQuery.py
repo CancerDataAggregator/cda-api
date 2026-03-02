@@ -1,5 +1,6 @@
 from cda_api import SystemNotFound
 from cda_api.classes.DatabaseInfo import DatabaseInfo
+from cda_api.db.query_functions import get_selectable_db_column_and_possible_join
 from sqlalchemy import func
 
 
@@ -10,7 +11,14 @@ class ColumnValuesQuery:
 
         column_info = self.db_info.get_column_info(column_name)
 
-        column_values_query = db.query(column_info.labeled_db_column, func.count().label("value_count")).group_by(column_info.db_column).order_by(column_info.db_column)
+        db_column, join = get_selectable_db_column_and_possible_join(column_info)
+
+        column_values_query = db.query(db_column, func.count().label("value_count"))\
+                                .select_from(column_info.parent_table_info.db_table)\
+                                .group_by(db_column)\
+                                .order_by(db_column)
+        if join:
+            column_values_query = column_values_query.join(**join)
 
         if data_source_string:
             for source in data_source_string.split(','):
