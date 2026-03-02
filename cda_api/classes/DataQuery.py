@@ -175,9 +175,6 @@ class DataQuery:
         query = query.select_from(self.endpoint_table_info.db_table)
         query = query.filter(self.endpoint_alias.db_column.in_(self.filtered_preselect_cte_query_map[self.endpoint_table_info]))
         for join in self.select_joins:
-            # if join['target'].name == 'controlled_term':
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!'*3)
-            print(join)
             query = query.join(**join, isouter=True)
         subquery = query.subquery("json_result")
         return self.db.query(func.row_to_json(subquery.table_valued()))
