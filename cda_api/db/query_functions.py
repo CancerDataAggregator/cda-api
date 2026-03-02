@@ -168,7 +168,7 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
 
     # Set up base preselect
     foreign_preselect = (
-        db.query(*select_columns).select_from(filtered_preselect_relating_column.table)
+        db.query(*select_columns).select_from(foreign_table_info.db_table)
         .filter(filtered_preselect_relating_column.in_(filtered_preselect))
     )
 
