@@ -33,6 +33,10 @@ loggers:
     level: DEBUG
     handlers: [query_handler, file]
     propagate: no
+  quiet:
+    level: WARNING
+    handlers: [query_handler]
+    propagate: no
 root:
   level: DEBUG
   handlers: [console]
