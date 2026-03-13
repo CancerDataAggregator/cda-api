@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class DataRequestBody(BaseModel):
+    SEARCH_STRING: str | None = ''
     MATCH_ALL: list[str] | None = []
     MATCH_SOME: list[str] | None = []
     ADD_COLUMNS: list[str] | None = []
@@ -12,6 +13,7 @@ class DataRequestBody(BaseModel):
 
     def to_dict(self):
         return {
+            "SEARCH_STRING": self.SEARCH_STRING,
             "MATCH_ALL": self.MATCH_ALL,
             "MATCH_SOME": self.MATCH_SOME,
             "ADD_COLUMNS": self.ADD_COLUMNS,
@@ -30,8 +32,8 @@ class DataRequestBody(BaseModel):
             return False
 
     def replace(self, attribute: str, values: list):
-        if attribute not in ["MATCH_ALL", "MATCH_SOME", "ADD_COLUMNS", "EXCLUDE_COLUMNS", "COLLATE_RESULTS", "EXTERNAL_REFERENCE"]:
-            raise ValueError(f"{attribute} not in list: ['MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS', 'COLLATE_RESULTS', 'EXTERNAL_REFERENCE']")
+        if attribute not in ["SEARCH_STRING", "MATCH_ALL", "MATCH_SOME", "ADD_COLUMNS", "EXCLUDE_COLUMNS", "COLLATE_RESULTS", "EXTERNAL_REFERENCE"]:
+            raise ValueError(f"{attribute} not in list: ['SEARCH_STRING', 'MATCH_ALL', 'MATCH_SOME', 'ADD_COLUMNS', 'EXCLUDE_COLUMNS', 'COLLATE_RESULTS', 'EXTERNAL_REFERENCE']")
         setattr(self, attribute, values)
 
     def __eq__(self, value: object) -> bool:
@@ -39,6 +41,7 @@ class DataRequestBody(BaseModel):
     
     
 class SummaryRequestBody(BaseModel):
+    SEARCH_STRING: str | None = ''
     MATCH_ALL: list[str] | None = []
     MATCH_SOME: list[str] | None = []
     ADD_COLUMNS: list[str] | None = []
@@ -46,6 +49,7 @@ class SummaryRequestBody(BaseModel):
 
     def to_dict(self):
         return {
+            "SEARCH_STRING": self.SEARCH_STRING,
             "MATCH_ALL": self.MATCH_ALL,
             "MATCH_SOME": self.MATCH_SOME,
             "ADD_COLUMNS": self.ADD_COLUMNS,

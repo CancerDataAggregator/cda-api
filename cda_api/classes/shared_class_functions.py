@@ -1,13 +1,19 @@
-from .FilterInfo import FilterInfo
+from cda_api.classes.FilterInfo import FilterInfo
+from cda_api.classes.SearchFilterInfo import SearchFilterInfo
 from cda_api.db.query_functions import get_cte_column, apply_match_all_and_some_filters
+from sqlalchemy import select
 
-def get_filter_infos(query_object):
+def construct_filter_infos(query_object):
     log = query_object.log
     log.debug("Constructing FilterInfo objects from MATCH_ALL and MATCH_SOME arguments")
     filter_infos = [FilterInfo(filter_string, 'match_all', query_object.db_info, query_object.log) for filter_string in query_object.request_body.MATCH_ALL]
     filter_infos.extend([FilterInfo(filter_string, 'match_some', query_object.db_info, query_object.log) for filter_string in query_object.request_body.MATCH_SOME])
     return filter_infos
-    
+
+def construct_search_filter_info(query_object):
+    log = query_object.log
+    log.debug("Constructing SearchFilterInfo objects from SEARCH_STRING and argument")
+    return SearchFilterInfo(query_object.db, query_object.request_body.SEARCH_STRING, query_object.db_info, query_object.endpoint_table_info, query_object.log)
 
 def get_table_column_and_filter_map(query_object, query_type):
     log = query_object.log
@@ -107,17 +113,20 @@ def get_filtered_preselect(query_object):
                     filtered_preselect_joins.append({'target': mapping_table_info.db_table, 'onclause': column_info.db_column == column_info_to_join.db_column})
 
     preselect_columns = [column_info.labeled_db_column for column_info in filter_preselect_map.values()]
-    filtered_preselect = query_object.db.query(*preselect_columns)
+    preselect_query = query_object.db.query(*preselect_columns)
     for mapping_join in filtered_preselect_joins:
-        filtered_preselect = filtered_preselect.join(**mapping_join)
+        preselect_query = preselect_query.join(**mapping_join)
+    
+    if query_object.search_filter_info:
+        log.debug(f'Applying SEARCH_STRING filters to the filtered preselect')
+        preselect_query = preselect_query.filter(query_object.search_filter_info.get_filterable_preselect(filter_preselect_map))
 
     match_all_db_filters  = [filter_info.get_filterable_preselect(filter_preselect_map, query_object.endpoint_table_info) for filter_info in query_object.get_filter_infos('match_all')]
     match_some_db_filters = [filter_info.get_filterable_preselect(filter_preselect_map, query_object.endpoint_table_info) for filter_info in query_object.get_filter_infos('match_some')]
 
-    log.debug(f'Applying MATCH_ALL and MATCH_SOME filters to the filtered preselect')
-    preselect_cte = apply_match_all_and_some_filters(filtered_preselect, match_all_db_filters, match_some_db_filters)
     preselect_cte_name = f'filtered_preselect'
-    preselect_cte = preselect_cte.cte(preselect_cte_name)
+    log.debug(f'Applying MATCH_ALL and MATCH_SOME filters to the filtered preselect')
+    preselect_cte = apply_match_all_and_some_filters(preselect_query, match_all_db_filters, match_some_db_filters).cte(preselect_cte_name)
     filtered_preselect = query_object.db.query(preselect_cte.c)
     filtered_preselect_cte_query_map = {}
     filtered_preselect_column_map = {}

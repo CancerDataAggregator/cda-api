@@ -1,7 +1,7 @@
 from cda_api.db.query_functions import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, basic_categorical_summary, null_aware_categorical_summary, numeric_summary
 from .models import SummaryRequestBody
 from .DatabaseInfo import DatabaseInfo
-from .shared_class_functions import get_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
+from .shared_class_functions import construct_search_filter_info, construct_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
 from sqlalchemy import func
 
 class SummaryQuery:
@@ -18,7 +18,8 @@ class SummaryQuery:
         self.endpoint_alias = self.endpoint_table_info.primary_key_column_info
 
         # Construct filter preselect
-        self.filter_infos = get_filter_infos(self)
+        self.search_filter_info = construct_search_filter_info(self)
+        self.filter_infos = construct_filter_infos(self)
         self.table_column_and_filter_map = get_table_column_and_filter_map(self, 'summary')
         self.filtered_preselect, self.filtered_preselect_cte_query_map, self.filtered_preselect_column_map = get_filtered_preselect(self)
 
@@ -44,6 +45,7 @@ class SummaryQuery:
         repr_components = [
             f'SummaryQuery({self.log.extra['id']})',
             f'Endpoint: {self.endpoint_table_info}', 
+            f'SEARCH_STRING Filters:\n{self.search_filter_info}',
             f'MATCH_ALL Filters:\n{self.get_filter_infos('match_all')}',
             f'MATCH_SOME Filters:\n{self.get_filter_infos('match_some')}',
             f'Table Column and Filter Map:',

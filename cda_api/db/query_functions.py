@@ -42,6 +42,11 @@ def get_cte_column(cte, columnname):
 # Get array aggregate of unique values in a column not including null
 def unique_column_array_agg(column):
     return func.array_remove(func.array_agg(distinct(column)), None).label(column.name)
+
+# Get &'d to_tsquery()
+def list_to_tsquery(search_term_list):
+    search_string = ' & '.join(search_term_list)
+    return func.to_tsquery('english', search_string)
     
     
 def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_filters):
