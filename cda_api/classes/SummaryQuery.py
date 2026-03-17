@@ -1,4 +1,4 @@
-from cda_api.db.query_functions import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, basic_categorical_summary, null_aware_categorical_summary, numeric_summary
+from cda_api.db.query_functions import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, basic_categorical_summary, null_aware_categorical_summary, numeric_summary, get_selectable_db_column_and_possible_join
 from .models import SummaryRequestBody
 from .DatabaseInfo import DatabaseInfo
 from .shared_class_functions import construct_search_filter_info, construct_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
@@ -118,7 +118,15 @@ class SummaryQuery:
 
         for table_info, column_type_map in self.summary_column_map.items():
             self.log.debug(f"Constructing column summary select statements for {table_info}")
-            all_table_columns = list(set([column_info.labeled_db_column for _, column_infos in column_type_map.items() for column_info in column_infos]))
+            all_table_columns = []
+            table_preselect_joins = []
+            for _, column_infos in column_type_map.items():
+                for column_info in column_infos:
+                    db_column, join = get_selectable_db_column_and_possible_join(column_info)
+                    all_table_columns.append(db_column)
+                    if join:
+                        table_preselect_joins.append(join)
+            all_table_columns = list(set(all_table_columns))
             if table_info not in self.filtered_preselect_cte_query_map.keys():
                 if table_info.name == 'upstream_identifiers':
                     filtered_table_info = self.endpoint_table_info
@@ -132,7 +140,8 @@ class SummaryQuery:
             all_table_columns = [connecting_column_info.labeled_db_column] + all_table_columns
 
             table_preselect = self.db.query(*all_table_columns).filter(connecting_column_info.labeled_db_column.in_(self.filtered_preselect_cte_query_map[filtered_table_info]))
-
+            for join in table_preselect_joins:
+                table_preselect = table_preselect.join(**join)
             # Apply additional filters if required
             if table_info not in self.filtered_preselect_cte_query_map.keys():
                 endpoint_relationship = self.endpoint_table_info.get_table_relationship(table_info)
