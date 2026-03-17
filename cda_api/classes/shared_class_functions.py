@@ -13,7 +13,10 @@ def construct_filter_infos(query_object):
 def construct_search_filter_info(query_object):
     log = query_object.log
     log.debug("Constructing SearchFilterInfo objects from SEARCH_STRING and argument")
-    return SearchFilterInfo(query_object.db, query_object.request_body.SEARCH_STRING, query_object.db_info, query_object.endpoint_table_info, query_object.log)
+    if query_object.request_body.SEARCH_STRING:
+        return SearchFilterInfo(query_object.db, query_object.request_body.SEARCH_STRING, query_object.db_info, query_object.endpoint_table_info, query_object.log)
+    else:
+        return None
 
 def get_table_column_and_filter_map(query_object, query_type):
     log = query_object.log
