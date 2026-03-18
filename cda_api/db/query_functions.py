@@ -16,13 +16,13 @@ def query_to_string(q, indented=False) -> str:
     try:
         sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}))
         if indented:
-            return sqlparse.format(sql_string, reindent=True, keyword_case="upper")
+            return sqlparse.format(sql_string, reindent_aligned=True, keyword_case="upper")
         else:
             return sql_string.replace("\n", "")
     except CompileError as ce:
         sql_string = str(q.statement.compile())
         if indented:
-            return sqlparse.format(sql_string, reindent=True, keyword_case="upper")
+            return sqlparse.format(sql_string, reindent_aligned=True, keyword_case="upper")
         else:
             return sql_string.replace("\n", "")
     except Exception as e:
@@ -66,7 +66,7 @@ def get_selectable_db_column_and_possible_join(column_info, column_func = None):
         aliased_controlled_term_db_table = db_info.get_table_info('controlled_term').db_table.alias(f'ct_{column_info.name}')
         db_column = aliased_controlled_term_db_table.columns['name']
         on_clause = column_info.db_column == aliased_controlled_term_db_table.columns['id_alias']
-        join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause}
+        join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause, 'full': True}
     if column_func:
         db_column = column_func(db_column)
     db_column = db_column.label(column_info.name)
