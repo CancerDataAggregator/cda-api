@@ -46,7 +46,7 @@ def unique_column_array_agg(column):
 # Get &'d to_tsquery()
 def list_to_tsquery(search_term_list):
     search_string = ' & '.join(search_term_list)
-    return func.to_tsquery('english', search_string)
+    return func.plainto_tsquery('english', search_string)
     
     
 def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_filters):
@@ -155,10 +155,18 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
     virtual_table_joins = []
     if construct_type == 'array':
         for virtual_table_info, virtual_column_infos in virtual_column_info_map.items():
-            select_columns += [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in virtual_column_infos]
-            # virtual_to_foreign_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
             virtual_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
             virtual_table_joins.append(virtual_table_relationship.get_foreign_table_join_clause())
+            for column_info in virtual_column_infos:
+                db_column, join = get_selectable_db_column_and_possible_join(column_info, unique_column_array_agg)
+                select_columns.append(db_column)
+                if join:
+                    virtual_table_joins.append(join)
+                
+            # select_columns += [unique_column_array_agg(column_info.db_column).label(column_info.name) for column_info in virtual_column_infos]
+            # select_columns += [get_selectable_db_column_and_possible_join(column_info, column_func) for column_info in virtual_column_infos]
+            # virtual_to_foreign_table_relationship = foreign_table_info.get_table_relationship(virtual_table_info)
+            
     else:
         for virtual_table_info, virtual_column_infos in virtual_column_info_map.items():
             columns, joins = build_virtual_foreign_arrays(db, foreign_table_info, virtual_table_info, virtual_column_infos, filtered_preselect, log)

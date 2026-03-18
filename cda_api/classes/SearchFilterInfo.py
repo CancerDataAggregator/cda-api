@@ -3,6 +3,7 @@ from cda_api.db.filter_functions import case_insensitive_equals, case_insensitiv
 from sqlalchemy.orm import Session
 from sqlalchemy import func, intersect
 from cda_api.db.query_functions import list_to_tsquery, get_cte_column
+import re
 
 class SearchFilterInfo:
     def __init__(self, db: Session, search_string, db_info: DatabaseInfo, endpoint_table_info, log):
@@ -55,6 +56,7 @@ class SearchFilterInfo:
         self.unmatched_keywords = [keyword for keyword, query in self.keyword_query_map.items() if query is None]
         self.matched_keyword_query_map = {keyword:query for keyword, query in self.keyword_query_map.items() if query is not None}
 
+        i = 0
         # Create filters for matching keywords directly to the *_keywords table
         for keyword, keyword_query in self.matched_keyword_query_map.items():
             keyword_filter = self.db.query(self.keyword_relationship.local_mapping_column_info.db_column.label(self.endpoint_unique_id))
@@ -65,10 +67,13 @@ class SearchFilterInfo:
                 self.search_preselect_cte = keyword_filter.cte(f'search_preselect')
                 return
             
-            keyword_query_cte = keyword_query.cte(f'{keyword.lower().replace('%','')}_keyword_ids_preselect')
+            cte_alias_prefix = re.sub(r'[^a-zA-Z0-9]', '', keyword).lower()
+
+            keyword_query_cte = keyword_query.cte(f'keyword_{cte_alias_prefix}_{i}_ids_preselect')
             keyword_filter = keyword_filter.filter(self.keyword_relationship.foreign_mapping_column_info.db_column.in_(self.db.query(keyword_query_cte.c[0])))
             
             filter_query_list.append(keyword_filter)
+            i+=1
 
         # Add text search vector subquery
         if self.unmatched_keywords:
