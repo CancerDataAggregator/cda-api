@@ -59,7 +59,7 @@ class FilterInfo:
 
         if filterable_table_info == filter_table_info:
             if len(filter_preselect_map.keys()) == 1:
-                if not self.filter_column_info.controlled_term or self.exclusively_null:
+                if not self.filter_column_info.controlled_term or self.filter_value is None:
                     return self.local_filter_clause
             else:
                 subquery = select(1).select_from(filter_table_info.db_table)\
