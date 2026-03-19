@@ -59,9 +59,7 @@ class FilterInfo:
 
         if filterable_table_info == filter_table_info:
             if len(filter_preselect_map.keys()) == 1:
-                if self.filter_column_info.controlled_term and not self.exclusively_null:
-                    subquery = select(1).select_from(filter_table_info.db_table)
-                else:
+                if not self.filter_column_info.controlled_term or self.exclusively_null:
                     return self.local_filter_clause
             else:
                 subquery = select(1).select_from(filter_table_info.db_table)\
@@ -85,6 +83,8 @@ class FilterInfo:
             controlled_term_filter_subquery = select(controlled_term_table_info.primary_key_column_info.db_column)\
                                                     .filter(controlled_term_filter_clause)
             
+            if filterable_table_info == filter_table_info:
+                return self.filter_column_info.db_column.in_(controlled_term_filter_subquery)
             subquery = subquery.filter(self.filter_column_info.db_column.in_(controlled_term_filter_subquery))
                                 
         
