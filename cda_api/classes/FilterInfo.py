@@ -57,10 +57,13 @@ class FilterInfo:
 
         self.log.debug(f'Getting filter {self}, for {filterable_table_info}')
 
+        local_controlled_term_filter = False
         if filterable_table_info == filter_table_info:
             if len(filter_preselect_map.keys()) == 1:
                 if not self.filter_column_info.controlled_term or self.filter_value is None:
                     return self.local_filter_clause
+                else:
+                    local_controlled_term_filter = True
             else:
                 subquery = select(1).select_from(filter_table_info.db_table)\
                                     .filter(filterable_column_info.db_column == filter_table_info.primary_key_column_info.db_column)
@@ -83,7 +86,7 @@ class FilterInfo:
             controlled_term_filter_subquery = select(controlled_term_table_info.primary_key_column_info.db_column)\
                                                     .filter(controlled_term_filter_clause)
             
-            if filterable_table_info == filter_table_info:
+            if local_controlled_term_filter:
                 return self.filter_column_info.db_column.in_(controlled_term_filter_subquery)
             subquery = subquery.filter(self.filter_column_info.db_column.in_(controlled_term_filter_subquery))
                                 
