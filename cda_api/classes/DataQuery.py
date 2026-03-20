@@ -3,6 +3,7 @@ from .models import DataRequestBody
 from .DatabaseInfo import DatabaseInfo
 from .shared_class_functions import construct_search_filter_info, construct_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
 from sqlalchemy import func, Label
+from cda_api.db.query_functions import get_selectable_db_column_and_possible_join
 
 class DataQuery:
     def __init__(self, db, db_info: DatabaseInfo, endpoint_table_name, request_body: DataRequestBody, log):
@@ -57,18 +58,6 @@ class DataQuery:
         ]
         return '\n'.join(repr_components)
 
-    def get_selectable_db_column_and_possible_join(self, column_info):
-        join = None
-    
-        db_column = column_info.labeled_db_column
-        if column_info.controlled_term:
-            aliased_controlled_term_db_table = self.db_info.get_table_info('controlled_term').db_table.alias(f'ct_{column_info.name}')
-            db_column = aliased_controlled_term_db_table.columns['name'].label(column_info.name)
-            on_clause = column_info.db_column == aliased_controlled_term_db_table.columns['id_alias']
-            join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause}
-            
-        return db_column, join
-
     def _build_select_columns_and_joins(self):
         self.select_map = {}
         self.select_joins = []
@@ -92,7 +81,7 @@ class DataQuery:
                 for column_info in column_infos:
                     if column_info in virtual_table_column_infos:
                         continue
-                    db_column, join = self.get_selectable_db_column_and_possible_join(column_info) 
+                    db_column, join = get_selectable_db_column_and_possible_join(column_info) 
                     local_select_columns.append(db_column)
                     if join:
                         select_joins.append(join)

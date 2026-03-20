@@ -130,10 +130,6 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
             foreign_column_infos.append(column_info)
 
     foreign_primary_filler_name = ''
-    if not foreign_column_infos:
-        foreign_primary_column_info = foreign_table_info.primary_key_column_info
-        foreign_primary_filler_name = foreign_primary_column_info.name
-        foreign_column_infos.append(foreign_primary_column_info)
 
     select_columns = [endpoint_relating_column]
     # Name and select columns slightly differ between json & array
