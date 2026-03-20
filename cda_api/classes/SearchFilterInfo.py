@@ -86,16 +86,14 @@ class SearchFilterInfo:
                 # If we only have one keyword and no vector search to perform, then there is no reason to create both a keyword CTE and the search_preselect CTE
                 if len(matched_keyword_query_map.keys()) == 1 and len(unmatched_keywords) == 0:
                     keyword_filter = keyword_filter.filter(keyword_relationship.foreign_mapping_column_info.db_column.in_(keyword_query))
-                    local_search_preselect_map[local_table_info.name] = keyword_filter.cte(local_search_preselect_alias)
-                    continue
-                
-                cte_alias_prefix = re.sub(r'[^a-zA-Z0-9]', '', keyword).lower()
-
-                keyword_query_cte = keyword_query.cte(f'{local_table_info.name}_keyword_{cte_alias_prefix}_{i}_ids_preselect')
-                keyword_filter = keyword_filter.filter(keyword_relationship.foreign_mapping_column_info.db_column.in_(self.db.query(keyword_query_cte.c[0])))
-                
-                filter_query_list.append(keyword_filter)
-                i+=1
+                    local_search_preselect_map[local_table_info] = keyword_filter.cte(local_search_preselect_alias)
+                    
+                else:
+                    cte_alias_prefix = re.sub(r'[^a-zA-Z0-9]', '', keyword).lower()
+                    keyword_query_cte = keyword_query.cte(f'{local_table_info.name}_keyword_{cte_alias_prefix}_{i}_ids_preselect')
+                    keyword_filter = keyword_filter.filter(keyword_relationship.foreign_mapping_column_info.db_column.in_(self.db.query(keyword_query_cte.c[0])))
+                    filter_query_list.append(keyword_filter)
+                    i+=1
 
             # Add text search vector subquery
             if unmatched_keywords:
@@ -103,18 +101,18 @@ class SearchFilterInfo:
                                             .filter(text_search_table_info.get_column_info('search_vector').db_column.op('@@')(list_to_tsquery(unmatched_keywords)))
                 # If we only have no matching keywords then use just the text search for the search_preselect CTE
                 if not matched_keyword_query_map:
-                    local_search_preselect_map[local_table_info.name] = text_vector_subquery.cte(local_search_preselect_alias)
-                    continue
-
-                filter_query_list.append(text_vector_subquery)
+                    local_search_preselect_map[local_table_info] = text_vector_subquery.cte(local_search_preselect_alias)
+                else:
+                    filter_query_list.append(text_vector_subquery)
             
             # Intersect the multiple filters
-            local_search_preselect_map[local_table_info.name] = intersect(*filter_query_list).cte(local_search_preselect_alias)
-        
-        endpoint_preselect = local_search_preselect_map[self.endpoint_table_info.name]
+            if len(filter_query_list) > 1:
+                local_search_preselect_map[local_table_info] = intersect(*filter_query_list).cte(local_search_preselect_alias)
+
+        endpoint_preselect = local_search_preselect_map[self.endpoint_table_info]
         endpoint_subquery = self.db.query(get_cte_column(endpoint_preselect, self.endpoint_unique_id).label(self.endpoint_unique_id))
 
-        other_local_preselect = local_search_preselect_map[self.other_local_table_info.name]
+        other_local_preselect = local_search_preselect_map[self.other_local_table_info]
         local_table_relationship = self.endpoint_table_info.get_table_relationship(self.other_local_table_info)
         other_table_subquery = self.db.query(local_table_relationship.local_mapping_column_info.db_column.label(self.endpoint_unique_id))\
                                       .filter(local_table_relationship.foreign_mapping_column_info.db_column.in_(self.db.query(other_local_preselect.c)))
