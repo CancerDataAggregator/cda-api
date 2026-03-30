@@ -11,7 +11,7 @@ class ColumnValuesQuery:
 
         column_info = self.db_info.get_column_info(column_name)
 
-        db_column, join = get_selectable_db_column_and_possible_join(column_info)
+        db_column, join = get_selectable_db_column_and_possible_join(column_info, full_join=False, outer_join=True)
 
         column_values_query = db.query(db_column, func.count().label("value_count"))\
                                 .select_from(column_info.parent_table_info.db_table)\

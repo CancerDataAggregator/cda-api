@@ -58,7 +58,7 @@ def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_
         query = query.filter(or_(*match_some_db_filters))
     return query
 
-def get_selectable_db_column_and_possible_join(column_info, column_func = None):
+def get_selectable_db_column_and_possible_join(column_info, column_func = None, full_join = True, outer_join = True):
     join = None
     db_column = column_info.db_column
     if column_info.controlled_term:
@@ -66,7 +66,7 @@ def get_selectable_db_column_and_possible_join(column_info, column_func = None):
         aliased_controlled_term_db_table = db_info.get_table_info('controlled_term').db_table.alias(f'ct_{column_info.name}')
         db_column = aliased_controlled_term_db_table.columns['name']
         on_clause = column_info.db_column == aliased_controlled_term_db_table.columns['id_alias']
-        join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause, 'full': True}
+        join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause, 'full': full_join, 'isouter': outer_join}
     if column_func:
         db_column = column_func(db_column)
     db_column = db_column.label(column_info.name)

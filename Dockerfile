@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG ALPINE_VERSION="3.21.3"
+ARG ALPINE_VERSION="3.23.3"
 
 FROM alpine:${ALPINE_VERSION}
 
@@ -19,21 +19,23 @@ RUN apk add --update --no-cache python3=~${PYTHON_VERSION} py3-pip py3-setuptool
 RUN apk add gcc python3-dev musl-dev linux-headers
 
 # Manually force upgrade of setuptools
-RUN python -m pip install --upgrade "setuptools>=78.1.1" --break-system-packages
+RUN python -m pip install --upgrade "setuptools>=82.0.1" --break-system-packages
+RUN python -m pip install --upgrade "wheel>=0.46.2" --break-system-packages 
+RUN python -m pip install --upgrade "jaraco.context>=6.1.0" --break-system-packages 
 
 # Install update for sqlite to address vulnerability scan
-RUN apk del sqlite 
-RUN apk add make
-RUN wget https://www.sqlite.org/2025/sqlite-autoconf-3500400.tar.gz
-RUN tar xvfz sqlite-autoconf-*.tar.gz
-WORKDIR /sqlite-autoconf-3500400
-RUN sh ./configure --prefix=/usr/local
-RUN make install
-RUN export PATH="/usr/local/bin:$PATH"
-WORKDIR /
+# RUN apk del sqlite 
+# RUN apk add make
+# RUN wget https://www.sqlite.org/2025/sqlite-autoconf-3500400.tar.gz
+# RUN tar xvfz sqlite-autoconf-*.tar.gz
+# WORKDIR /sqlite-autoconf-3500400
+# RUN sh ./configure --prefix=/usr/local
+# RUN make install
+# RUN export PATH="/usr/local/bin:$PATH"
+# WORKDIR /
 
-# Updating expat to address vulneratbilty scan
-RUN apk update && apk upgrade expat
+# Updating zlib to address vulneratbilty scan
+RUN apk update && apk upgrade zlib
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
