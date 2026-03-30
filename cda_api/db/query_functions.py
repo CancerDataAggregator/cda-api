@@ -58,7 +58,7 @@ def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_
         query = query.filter(or_(*match_some_db_filters))
     return query
 
-def get_selectable_db_column_and_possible_join(column_info, column_func = None, full_join = True, outer_join = True):
+def get_selectable_db_column_and_possible_join(column_info, column_func = None, full_join = False, outer_join = True):
     join = None
     db_column = column_info.db_column
     if column_info.controlled_term:
