@@ -182,10 +182,12 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
     )
 
     for virtual_table_join in virtual_table_joins:
-        foreign_preselect = foreign_preselect.join(**virtual_table_join, isouter=True)
+        virtual_table_join['isouter'] = True
+        foreign_preselect = foreign_preselect.join(**virtual_table_join)
 
     for select_join in select_joins:
-        foreign_preselect = foreign_preselect.join(**select_join, isouter=True)
+        select_join['isouter'] = True
+        foreign_preselect = foreign_preselect.join(**select_join)
 
     # Join on the mapping table if required
     if endpoint_relationship.requires_mapping_table:
