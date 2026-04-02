@@ -54,7 +54,7 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_VIRTUALENVS_CREATE=true \
     POETRY_HOME='/usr/local' \
     POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION="1.8.3"
+    POETRY_VERSION="2.3.3"
 RUN pipx install poetry==${POETRY_VERSION} --global
 
 # Change to app directory
