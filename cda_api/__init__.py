@@ -9,6 +9,7 @@ from cda_api.classes.exceptions import (
     RelationshipNotFound,
     SystemNotFound,
     TableNotFound,
-    InvalidFilterError
+    InvalidFilterError,
+    InvalidSearchError
 )
 from cda_api.main import app

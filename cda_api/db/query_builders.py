@@ -40,22 +40,27 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log):
     data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
     log.debug(data_query)
     query = data_query.get_query()
-    count_query = data_query.get_count_query()
+    # count_query = data_query.get_count_query()
 
     log.debug(f'Query:\n{"-"*100}\n{query_to_string(query)}\n{"-"*100}')
-    log.debug(f'Count Query:\n{"-"*100}\n{query_to_string(count_query)}\n{"-"*100}')
+    # log.debug(f'Count Query:\n{"-"*100}\n{query_to_string(count_query)}\n{"-"*100}')
 
     # Get results from the database
     log.info("Running the query")
     q_start_time = time.time()
     result = query.offset(offset).limit(limit).all()
-    row_count = count_query.scalar()
+    # row_count = count_query.scalar()
+    # row_count = 100
     query_time = time.time() - q_start_time
     log.info(f"Query execution time: {query_time}s")
 
     # Format the results
     f_start_time = time.time()
-    result = [row for (row,) in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
+    if result:
+        row_count = result[0][1]
+    else:
+        row_count = 0
+    result = [row[0] for row in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     format_time = time.time() - f_start_time
     log.info(f"Row formatting time: {format_time}s")
     log.info(f"Returning {len(result)} rows out of {row_count} results | limit={limit} & offset={offset}")

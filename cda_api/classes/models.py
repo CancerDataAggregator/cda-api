@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class DataRequestBody(BaseModel):
-    SEARCH_STRING: str | None = ''
+    SEARCH_LIST: list[str] | None = []
     MATCH_ALL: list[str] | None = []
     MATCH_SOME: list[str] | None = []
     ADD_COLUMNS: list[str] | None = []
@@ -13,7 +13,7 @@ class DataRequestBody(BaseModel):
 
     def to_dict(self):
         return {
-            "SEARCH_STRING": self.SEARCH_STRING,
+            "SEARCH_LIST": self.SEARCH_LIST,
             "MATCH_ALL": self.MATCH_ALL,
             "MATCH_SOME": self.MATCH_SOME,
             "ADD_COLUMNS": self.ADD_COLUMNS,
@@ -41,7 +41,7 @@ class DataRequestBody(BaseModel):
     
     
 class SummaryRequestBody(BaseModel):
-    SEARCH_STRING: str | None = ''
+    SEARCH_LIST: list[str] | None = []
     MATCH_ALL: list[str] | None = []
     MATCH_SOME: list[str] | None = []
     ADD_COLUMNS: list[str] | None = []
@@ -49,7 +49,7 @@ class SummaryRequestBody(BaseModel):
 
     def to_dict(self):
         return {
-            "SEARCH_STRING": self.SEARCH_STRING,
+            "SEARCH_LIST": self.SEARCH_LIST,
             "MATCH_ALL": self.MATCH_ALL,
             "MATCH_SOME": self.MATCH_SOME,
             "ADD_COLUMNS": self.ADD_COLUMNS,

@@ -197,8 +197,8 @@ class SummaryQuery:
 
 
     def get_query(self):
-        subquery = self.db.query(*self.select_clause_columns).subquery('json_result')
-        query = self.db.query(func.row_to_json(subquery.table_valued()).label('results'))
+        subquery = self.db.query(*self.select_clause_columns).subquery('json_subquery')
+        query = self.db.query(func.row_to_json(subquery.table_valued()).label('json_results'))
         return query
         
 

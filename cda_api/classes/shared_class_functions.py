@@ -12,9 +12,9 @@ def construct_filter_infos(query_object):
 
 def construct_search_filter_info(query_object):
     log = query_object.log
-    log.debug("Constructing SearchFilterInfo objects from SEARCH_STRING and argument")
-    if query_object.request_body.SEARCH_STRING:
-        return SearchFilterInfo(query_object.db, query_object.request_body.SEARCH_STRING, query_object.db_info, query_object.endpoint_table_info, query_object.log)
+    log.debug("Constructing SearchFilterInfo objects from SEARCH_LIST and argument")
+    if query_object.request_body.SEARCH_LIST:
+        return SearchFilterInfo(query_object.db, query_object.request_body.SEARCH_LIST, query_object.db_info, query_object.endpoint_table_info, log)
     else:
         return None
 

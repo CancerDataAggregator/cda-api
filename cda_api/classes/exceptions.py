@@ -56,5 +56,9 @@ class DatabaseConnectionDrop(InternalErrorException):
     pass
 
 class InvalidFilterError(ClientErrorException):
-    """Custom exception for when the RequestBody is empty"""
+    """Custom exception for when a filter is invalid"""
+    pass
+
+class InvalidSearchError(ClientErrorException):
+    """Custom exception for when a search is invalid"""
     pass

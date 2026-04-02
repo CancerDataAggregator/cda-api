@@ -44,7 +44,7 @@ class DataQuery:
         repr_components = [
             f'DataQuery({self.log.extra['id']})',
             f'Endpoint: {self.endpoint_table_info}', 
-            f'SEARCH_STRING Filters:\n{self.search_filter_info}',
+            f'SEARCH_LIST Filters:\n{self.search_filter_info}',
             f'MATCH_ALL Filters:\n{self.get_filter_infos('match_all')}',
             f'MATCH_SOME Filters:\n{self.get_filter_infos('match_some')}',
             f'Table Column and Filter Map:',
@@ -168,15 +168,14 @@ class DataQuery:
         for join in self.select_joins:
             join['isouter'] = True
             query = query.join(**join)
-        subquery = query.subquery("json_result")
-        return self.db.query(func.row_to_json(subquery.table_valued()))
+        subquery = query.subquery("json_subquery")
+        return self.db.query(func.row_to_json(subquery.table_valued()).label('json_results'), self.db.query(func.count(func.distinct(self.filtered_preselect_column_map[self.endpoint_table_info]))).scalar_subquery().label('total_row_count') )
     
-    def get_count_query(self):
-        count_subquery = (
-            self.db.query(self.endpoint_alias.db_column).filter(self.endpoint_alias.db_column.in_(self.filtered_preselect_cte_query_map[self.endpoint_table_info])).subquery("rows_to_count")
-        )
-        return self.db.query(func.count()).select_from(count_subquery)
-
+    # def get_count_query(self):
+    #     count_subquery = (
+    #         self.db.query(self.endpoint_alias.db_column).filter(self.endpoint_alias.db_column.in_(self.filtered_preselect_cte_query_map[self.endpoint_table_info])).subquery("rows_to_count")
+    #     )
+    #     return self.db.query(func.count()).select_from(count_subquery)
 
     def get_filter_infos(self, filter_type = None):
         if filter_type:

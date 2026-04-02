@@ -47,6 +47,10 @@ def unique_column_array_agg(column):
 def list_to_tsquery(search_term_list):
     search_string = ' & '.join(search_term_list)
     return func.plainto_tsquery('english', search_string)
+
+def validate_tsquery(db, ts_query):
+    return bool(db.query(ts_query).scalar())
+
     
     
 def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_filters):
