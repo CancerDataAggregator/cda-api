@@ -95,7 +95,8 @@ def build_virtual_foreign_arrays(db,foreign_table_info, virtual_table_info, virt
         .filter(relating_column.in_(filtered_preselect))
     )
     for select_join in select_joins:
-        virtual_preselect = virtual_preselect.join(**select_join, isouter=True)
+        select_join['isouter'] = True
+        virtual_preselect = virtual_preselect.join(**select_join)
     virtual_preselect = virtual_preselect.group_by(relating_column)
     virtual_preselect_cte = virtual_preselect.cte(cte_name)
     preselect_onclause = get_cte_column(virtual_preselect_cte, relating_column.name) == virtual_table_relationship.local_column_info.db_column

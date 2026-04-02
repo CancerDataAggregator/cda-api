@@ -37,7 +37,7 @@ class SearchFilterInfo:
             repr_str += f'\n\t{table_info}) exclusive matched keywords: {list(keyword_query_map.keys())}'
         repr_str += f'\n\t Commonly matched keywords: {list(self.common_keyword_query_map.keys())}'
         if validate_tsquery(self.db, self.ts_query):
-            repr_str += f"\n\t\tUnmatched Keyword ts_vector input: to_tsquery('english', {' & '.join(self.unmatched_keywords)}')"
+            repr_str += f"\n\t\tUnmatched Keyword ts_vector input: to_tsquery('english', '{' & '.join(self.unmatched_keywords)}')"
         else:
             repr_str += f"\n\t\tUnmatched Keyword ts_vector input: NONE"
         
@@ -130,9 +130,9 @@ class SearchFilterInfo:
 
         # Get exclusive filters
         for local_table_info, keyword_filter_query_map in self.exclusive_keyword_cte_map.items():
-            exclusive_endpoint_filters = [filter_query for _, filter_query in keyword_filter_query_map.items()]
+            exclusive_endpoint_filters = [self._get_endpoint_id_keyword_query(local_table_info, [filter_query]) for _, filter_query in keyword_filter_query_map.items()]
             if exclusive_endpoint_filters:
-                exclusive_cte = self._get_endpoint_id_keyword_query(local_table_info, exclusive_endpoint_filters).cte(f'{local_table_info.name}_exclusive_keywords_preselect')
+                exclusive_cte = intersect(*exclusive_endpoint_filters).cte(f'{local_table_info.name}_exclusive_keywords_preselect')
                 intersection_filter_list.append(self.db.query(exclusive_cte.c[0].label(self.endpoint_unique_id)))
         
         # Get common filters
