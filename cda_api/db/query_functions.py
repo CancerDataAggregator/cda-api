@@ -1,7 +1,7 @@
 import itertools
 
 import sqlparse
-from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union
+from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label
 from sqlalchemy.exc import CompileError
 
 
@@ -303,15 +303,26 @@ def basic_categorical_summary(db, column):
     categorical_array_agg = db.query(func.array_agg(get_cte_column(column_json, f"{column.name}_categories"))).scalar_subquery()
     return categorical_array_agg
 
-def null_aware_categorical_summary(db, db_column, connecting_column):
+def null_aware_categorical_summary(db, db_column, connecting_column, summarizable_column_info, filter_table_cte_column):
     non_null_cte = db.query(db_column, connecting_column) \
                     .filter(db_column.is_not(None)) \
                     .group_by(connecting_column, db_column) \
                     .cte(f'{db_column.name}_non_nulls')
-    null_cte = db.query(db_column, connecting_column) \
-                    .filter(connecting_column.not_in(db.query(get_cte_column(non_null_cte, connecting_column.name)))) \
-                    .group_by(connecting_column, db_column) \
-                    .cte(f'{db_column.name}_nulls')
+    
+    null_column_info = summarizable_column_info.null_column_info
+    if null_column_info is not None:
+        null_connecting_column = null_column_info.parent_table_info.primary_key_column_info.db_column.label(connecting_column.name)
+        null_cte = db.query(label(db_column.name, None), null_connecting_column) \
+                     .filter(null_connecting_column.in_(filter_table_cte_column)) \
+                     .filter(null_column_info.labeled_db_column == True)
+        
+    else: # virtual table column nulls ie: file_anatomic_site and 
+        null_connecting_column = summarizable_column_info.parent_table_info.null_table_info.primary_key_column_info.db_column.label(connecting_column.name)
+        null_cte = db.query(label(db_column.name, None), null_connecting_column) \
+                     .filter(null_connecting_column.in_(filter_table_cte_column))
+        
+    null_cte = null_cte.cte(f'{db_column.name}_nulls')
+    
     union_subquery = union_all(db.query(non_null_cte.c), db.query(null_cte.c)).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).subquery(f'{db_column.name}_union')
     union_column = get_cte_column(union_subquery, db_column.name)
     count_subquery = db.query(union_column,func.count().label('count_result')) \

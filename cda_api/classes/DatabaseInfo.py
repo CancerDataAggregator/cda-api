@@ -17,6 +17,7 @@ class DatabaseInfo:
         self._build_table_infos()
         self._build_table_relationships()
         self._assign_virtual_table_columns()
+        self._assign_null_tables()
         self._assign_null_columns()
         self._assign_foreign_key_column_infos()
         self._assign_primary_table_infos()
@@ -92,6 +93,12 @@ class DatabaseInfo:
             if column_info.virtual_table is not None:
                 table_info = self.get_table_info(column_info.virtual_table)
                 table_info.add_virtual_table_columns(column_info)
+
+    def _assign_null_tables(self):
+        for table_info in self.table_infos:
+            if table_info.name.endswith('nulls') and table_info.name.replace('_nulls', '') in self.table_names:
+                table_info_info_to_assign = self.get_table_info(table_info.name.replace('_nulls', ''))
+                table_info_info_to_assign.null_table_info = table_info
 
     def _assign_null_columns(self):
         for column_info in self.all_column_infos:

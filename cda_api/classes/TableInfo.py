@@ -15,6 +15,7 @@ class TableInfo:
         self.relationship_map = {}
         self.virtual_column_infos = []
         self.primary_table_info = None
+        self.null_table_info = None
         
         self._build_column_info_list(table_column_metadata, table_duplicate_column_names)
 

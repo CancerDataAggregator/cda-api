@@ -155,7 +155,7 @@ class SummaryQuery:
             for column in table_preselect_cte.columns:
                 matching_column_info = self.db_info.get_column_info(column.name, table_info)
                 if matching_column_info in column_type_map['summarizable_columns']:
-                    self.get_summarized_select(table_info, matching_column_info, column, preselect_connecting_column)
+                    self.get_summarized_select(filtered_table_info, table_info, matching_column_info, column, preselect_connecting_column)
                 elif matching_column_info in column_type_map['data_source_columns']:
                     data_source_columns.append(column)
             
@@ -177,14 +177,14 @@ class SummaryQuery:
                 self.summary_column_map[table_info]['summarizable_columns'].append(column_info)
 
 
-    def get_summarized_select(self, table_info, summarizable_column_info, db_column, connecting_column):
+    def get_summarized_select(self, filtered_table_info, table_info, summarizable_column_info, db_column, connecting_column):
         if summarizable_column_info.column_type == 'categorical':
             if table_info in self.db_info.local_table_infos:
                 self.log.debug(f"Constructing basic categorical summary for {summarizable_column_info}")
                 column_summary = basic_categorical_summary(self.db, db_column)
             else:
                 self.log.debug(f"Constructing null-aware categorical summary for {summarizable_column_info}")
-                column_summary = null_aware_categorical_summary(self.db, db_column, connecting_column)
+                column_summary = null_aware_categorical_summary(self.db, db_column, connecting_column, summarizable_column_info, self.filtered_preselect_cte_query_map[filtered_table_info])
 
         elif summarizable_column_info.column_type == 'numeric':
             self.log.debug(f"Constructing numeric summary for {summarizable_column_info}")
