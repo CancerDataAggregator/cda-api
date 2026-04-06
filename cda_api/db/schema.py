@@ -6,11 +6,15 @@ from cda_api.db.connection import engine
 
 log = get_logger("Setup: schema.py")
 
-try:
-    log.info("Building SQLAlchemy automap")
-    Base = automap_base()
-    Base.prepare(autoload_with=engine)
-    log.info("Successfully built SQLAlchemy automap")
-except Exception as e:
-    log.exception(e)
-    raise e
+def load_base():
+    try:
+        log.info("Building SQLAlchemy automap")
+        Base = automap_base()
+        Base.prepare(autoload_with=engine)
+        log.info("Successfully built SQLAlchemy automap")
+        return Base
+    except Exception as e:
+        log.exception(e)
+        raise e
+
+Base = load_base()
