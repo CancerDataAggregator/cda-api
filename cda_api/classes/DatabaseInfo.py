@@ -157,3 +157,6 @@ class DatabaseInfo:
             raise RelationshipNotFound(f'Unexpected local table: {local_table}. Should only be from following list of tables {[table_info.name for table_info in self.local_table_infos]}')
 
         return local_table_info.get_table_relationship(foreign_table)
+    
+    def reset(self, db_base):
+        self.__init__(db_base)

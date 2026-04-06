@@ -2,8 +2,9 @@ import time
 
 from sqlalchemy import func
 
-from cda_api import SystemNotFound
+from cda_api import SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound
 from cda_api.db import DB_INFO
+from cda_api.db.connection import engine
 from cda_api.db.schema import Base
 from cda_api.classes.DataQuery import DataQuery
 from cda_api.classes.SummaryQuery import SummaryQuery
@@ -14,6 +15,7 @@ from cda_api.classes.ReleaseMetadataQuery import ReleaseMetadataQuery
 from .query_functions import (
     query_to_string,
 )
+
 
 
 def data_query(db, endpoint_table_name, request_body, limit, offset, log):
@@ -36,8 +38,15 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log):
         }
     """
     log.info("Building data query")
+    try:
+        data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
+    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
+        log.warning('An error occured when building DataQuery. Rebuilding DatabaseInfo')
+        Base.prepare(autoload_with=engine)
+        DB_INFO.reset(Base)
+        log.info('DatabaseInfo has been rebuilt. Rebuilding DataQuery')
+        data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
 
-    data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
     log.debug(data_query)
     query = data_query.get_query()
     # count_query = data_query.get_count_query()
@@ -86,7 +95,14 @@ def summary_query(db, endpoint_table_name, request_body, log):
         }
     """
     log.debug('Building summary query')
-    summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
+    try:
+        summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
+    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
+        log.warning('An error occured when building SummaryQuery. Rebuilding DatabaseInfo')
+        Base.prepare(autoload_with=engine)
+        DB_INFO.reset(Base)
+        log.info('DatabaseInfo has been rebuilt. Rebuilding SummaryQuery')
+        summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
     log.debug(summary_query)
     query = summary_query.get_query()
 
@@ -125,7 +141,14 @@ def columns_query(db, log):
         }
     """
     log.info('Building columns query')
-    columns_query = ColumnsQuery(DB_INFO)
+    try:
+        columns_query = ColumnsQuery(DB_INFO)
+    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
+        log.warning('An error occured when building ColumnsQuery. Rebuilding DatabaseInfo')
+        Base.prepare(autoload_with=engine)
+        DB_INFO.reset(Base)
+        log.info('DatabaseInfo has been rebuilt. Rebuilding ColumnsQuery')
+        columns_query = ColumnsQuery(DB_INFO)
 
     return columns_query.get_result()
 
@@ -145,8 +168,15 @@ def column_values_query(db, column_name, data_source_string, limit, offset, log)
         }
     """
     log.info("Building column_values query")
-
-    column_values_query = ColumnValuesQuery(db, DB_INFO, column_name, data_source_string, log)
+    try:
+        column_values_query = ColumnValuesQuery(db, DB_INFO, column_name, data_source_string, log)
+    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
+        log.warning('An error occured when building ColumnValuesQuery. Rebuilding DatabaseInfo')
+        Base.prepare(autoload_with=engine)
+        DB_INFO.reset(Base)
+        log.info('DatabaseInfo has been rebuilt. Rebuilding ColumnValuesQuery')
+        column_values_query = ColumnValuesQuery(db, DB_INFO, column_name, data_source_string, log)
+    
     
     query = column_values_query.get_query()
     total_count_query = column_values_query.get_total_count_query()
@@ -174,8 +204,15 @@ def column_values_query(db, column_name, data_source_string, limit, offset, log)
 def release_metadata_query(db, log):
     # Simply get all the rows in the release_metadata database
     log.info("Building release_metadata query")
-
-    release_metadata_query = ReleaseMetadataQuery(db, DB_INFO)
+    try:
+        release_metadata_query = ReleaseMetadataQuery(db, DB_INFO)
+    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
+        log.warning('An error occured when building ReleaseMetadataQuery. Rebuilding DatabaseInfo')
+        Base.prepare(autoload_with=engine)
+        DB_INFO.reset(Base)
+        log.info('DatabaseInfo has been rebuilt. Rebuilding ReleaseMetadataQuery')
+        release_metadata_query = ReleaseMetadataQuery(db, DB_INFO)
+    
     query = release_metadata_query.get_query()
 
     log.debug(f'Query:\n{"-"*60}\n{query_to_string(query)}\n{"-"*60}')
