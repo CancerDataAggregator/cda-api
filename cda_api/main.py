@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, status, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from cda_api import get_logger, CDABaseException
 from cda_api.routers import column_values, columns, data, release_metadata, summary
@@ -8,6 +9,19 @@ from cda_api.classes.models import ClientError, InternalError
 
 # Establish FastAPI "app" used for decorators on api endpoint functions
 app = FastAPI()
+
+origins = [
+    "https://cda*.org.readthedocs.build/",
+    "https://cda.readthedocs.io"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Set up logger
