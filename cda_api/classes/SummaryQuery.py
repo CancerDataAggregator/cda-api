@@ -170,11 +170,12 @@ class SummaryQuery:
 
     def add_table_to_summary_column_map(self, table_info, column_infos):
         self.summary_column_map[table_info] = {'data_source_columns': [], 'summarizable_columns': []}
-        for column_info in column_infos:  
-            if column_info.process_before_display == 'data_source':
-                self.summary_column_map[table_info]['data_source_columns'].append(column_info)
-            else:
-                self.summary_column_map[table_info]['summarizable_columns'].append(column_info)
+        for column_info in column_infos: 
+            if column_info.summary_returns:
+                if column_info.process_before_display == 'data_source':
+                    self.summary_column_map[table_info]['data_source_columns'].append(column_info)
+                else:
+                    self.summary_column_map[table_info]['summarizable_columns'].append(column_info)
 
 
     def get_summarized_select(self, filtered_table_info, table_info, summarizable_column_info, db_column, connecting_column):
