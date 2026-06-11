@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG ALPINE_VERSION="3.23.3"
+ARG ALPINE_VERSION="3.24.0"
 
 FROM alpine:${ALPINE_VERSION}
 
@@ -13,7 +13,8 @@ ENV PYTHONUNBUFFERED=1
 
 # Install Python
 ARG PYTHON_VERSION="3.12"
-RUN apk add --update --no-cache python3=~${PYTHON_VERSION} py3-pip py3-setuptools pipx
+RUN apk update
+RUN apk add --update --no-cache py3-pip py3-setuptools pipx
 
 # Install prereqs for python packages
 RUN apk add gcc python3-dev musl-dev linux-headers
@@ -36,6 +37,9 @@ RUN python -m pip install --upgrade "jaraco.context>=6.1.0" --break-system-packa
 
 # Updating zlib to address vulneratbilty scan
 RUN apk update && apk upgrade zlib
+
+# Updating libssl3 to address vulneratbilty scan
+RUN apk update && apk upgrade libssl3
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
