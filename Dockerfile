@@ -20,6 +20,7 @@ RUN apk add --update --no-cache py3-pip py3-setuptools pipx
 RUN apk add gcc python3-dev musl-dev linux-headers
 
 # Manually force upgrade of setuptools
+RUN python -m pip install --upgrade pip --break-system-packages
 RUN python -m pip install --upgrade "setuptools>=82.0.1" --break-system-packages
 RUN python -m pip install --upgrade "wheel>=0.46.2" --break-system-packages 
 RUN python -m pip install --upgrade "jaraco.context>=6.1.0" --break-system-packages 
