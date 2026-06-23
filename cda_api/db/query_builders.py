@@ -12,12 +12,12 @@ from cda_api.classes.ColumnValuesQuery import ColumnValuesQuery
 from cda_api.classes.ReleaseMetadataQuery import ReleaseMetadataQuery
 
 from .query_functions import (
-    query_to_string,
+    query_to_string, add_connecting_terms
 )
 
 
 
-def data_query(db, endpoint_table_name, request_body, limit, offset, log):
+def data_query(db, endpoint_table_name, request_body, limit, offset, log, add_connecting = True):
     """Generates json formatted row data based on input query
 
     Args:
@@ -68,7 +68,10 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log):
         row_count = result[0][1]
     else:
         row_count = 0
-    result = [row[0] for row in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
+    if add_connecting:
+        result = [add_connecting_terms(row[0], data_query.controlled_term_column_map) for row in result]
+    else: 
+        result = [row[0] for row in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     format_time = time.time() - f_start_time
     log.info(f"Row formatting time: {format_time}s")
     log.info(f"Returning {len(result)} rows out of {row_count} results | limit={limit} & offset={offset}")
@@ -78,7 +81,7 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log):
 
 
 # TODO
-def summary_query(db, endpoint_table_name, request_body, log):
+def summary_query(db, endpoint_table_name, request_body, log, add_connecting = True):
     """Generates json formatted summary data based on input query
 
     Args:
@@ -116,7 +119,10 @@ def summary_query(db, endpoint_table_name, request_body, log):
 
     # Format the results
     f_start_time = time.time()
-    result = [row for (row,) in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
+    if add_connecting:
+        result = [add_connecting_terms(row, summary_query.controlled_term_column_map) for (row,) in result]
+    else: 
+        result = [row for (row,) in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     format_time = time.time() - f_start_time
     log.info(f"Row formatting time: {format_time}s")
 

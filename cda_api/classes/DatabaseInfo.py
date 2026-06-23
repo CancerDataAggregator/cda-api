@@ -3,7 +3,7 @@ from .TableInfo import TableInfo
 from .TableRelationship import TableRelationship
 from cda_api import get_logger, TableNotFound, ColumnNotFound, RelationshipNotFound
 from cda_api.db.connection import session
-from sqlalchemy import func
+from sqlalchemy import func, distinct
 from sqlalchemy.sql.schema import Column, Table
 
 log = get_logger('DatabaseInfo.py')
@@ -16,6 +16,7 @@ class DatabaseInfo:
         self._build_column_metadata_map()
         self._build_table_infos()
         self._build_table_relationships()
+        self._build_term_table_map()
         self._assign_virtual_table_columns()
         self._assign_null_tables()
         self._assign_null_columns()
@@ -87,6 +88,41 @@ class DatabaseInfo:
                     if not data_table_info.name.startswith(local_table_info.name):
                         continue
                 local_table_info.build_table_relationship(data_table_info)
+    
+    def _build_term_table_map(self):
+        db = session()
+        db_columns = []
+        joins = []
+        full_join = True
+        outer_join = True
+        connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
+        controlled_term_table_info = self.get_table_info('controlled_term')
+        for connected_term_table_info in connected_term_table_infos:
+            
+            aliased_connected_term_db_table = connected_term_table_info.db_table.alias(f'ct_{connected_term_table_info.name}')
+            aliased_controlled_term_db_table = controlled_term_table_info.db_table.alias(f'{connected_term_table_info.name}_ct')
+
+            connected_term_on_clause = controlled_term_table_info.get_column_info('id_alias').db_column == aliased_connected_term_db_table.columns[0]
+            connected_term_join = {'target': aliased_connected_term_db_table, 'onclause': connected_term_on_clause, 'full': full_join, 'isouter': outer_join}
+
+            controlled_term_on_clause = aliased_connected_term_db_table.columns[1] == aliased_controlled_term_db_table.columns['id_alias']
+            controlled_term_join = {'target': aliased_controlled_term_db_table, 'onclause': controlled_term_on_clause, 'full': full_join, 'isouter': outer_join}
+            db_columns.append(func.array_remove(func.array_agg(distinct(aliased_controlled_term_db_table.columns['name'])), None).label(f'{connected_term_table_info.name}s'))
+            joins.extend([connected_term_join, controlled_term_join])
+            
+        q = db.query(controlled_term_table_info.get_column_info('name').db_column)
+        q = q.add_columns(*db_columns)
+        for join in joins:
+            q = q.join(**join)
+        q = q.group_by(controlled_term_table_info.get_column_info('name').db_column)
+        subquery = q.subquery('subquery')
+        q = db.query(func.row_to_json(subquery.table_valued()).label('json_results'))
+        res = q.all()
+        self.connected_term_map = {row[0]['name']: {k:v for k,v in row[0].items() if k != 'name'} for row in res}
+        # Add a None result
+        self.connected_term_map['NONE'] = {k:[] for k,v in res[0][0].items() if k != 'name'}
+
+
     
     def _assign_virtual_table_columns(self):
         for column_info in self.all_column_infos:

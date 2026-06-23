@@ -6,6 +6,7 @@ from sqlalchemy.exc import CompileError
 
 
 from cda_api import RelationshipNotFound, get_logger, TableNotFound
+from cda_api.db import DB_INFO
 
 
 log = get_logger("Setup: query_functions.py")
@@ -40,8 +41,10 @@ def get_cte_column(cte, columnname):
 
 
 # Get array aggregate of unique values in a column not including null
-def unique_column_array_agg(column):
-    return func.array_remove(func.array_agg(distinct(column)), None).label(column.name)
+def unique_column_array_agg(column, label = None):
+    if label is None:
+        label = column.name
+    return func.array_remove(func.array_agg(distinct(column)), None).label(label)
 
 # Get &'d to_tsquery()
 def list_to_tsquery(search_term_list):
@@ -373,3 +376,43 @@ def data_source_counts(db, data_source_columns):
     # Get the row_to_json of the subquery
     data_source_json = db.query(func.row_to_json(data_source_preselect.table_valued()))
     return data_source_json
+
+def get_controlled_term_data_from_name(name=None):
+    if name is None:
+        name = 'NONE'
+    return DB_INFO.connected_term_map.get(name, name)
+    
+def get_matching_connected_terms(data, path, data_type):
+    for i, key in enumerate(path):
+        if key == "*":
+            current_list = data
+            remaining_path = path[i+1:]
+            
+            if current_list:
+                for item in current_list:
+                    get_matching_connected_terms(item, remaining_path, data_type)
+            return data
+        else:
+            if i == len(path) - 1:
+                if data_type == 'list':
+                    controlled_term_data_list = [get_controlled_term_data_from_name(name) for name in data[key]]
+                    
+                else:
+                    controlled_term_data_list = [get_controlled_term_data_from_name(data[key])]
+                
+                if not controlled_term_data_list:
+                    controlled_term_data_list = [get_controlled_term_data_from_name()]
+                for ct_data_key in controlled_term_data_list[0].keys():
+                    data[f'{key}_{ct_data_key}'] = list(set([connected_term for controlled_term_data in controlled_term_data_list for connected_term in controlled_term_data[ct_data_key] if ct_data_key != 'name']))
+            else:
+                data = data[key]
+
+                    
+def add_connecting_terms(row, controlled_term_column_map):
+    try:
+        for _, controlled_term_column_info in controlled_term_column_map.items():
+            get_matching_connected_terms(row, controlled_term_column_info['path'], controlled_term_column_info['data_type'])
+    except:
+        raise Exception
+    
+    return row
