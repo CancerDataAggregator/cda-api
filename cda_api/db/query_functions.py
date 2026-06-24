@@ -1,7 +1,7 @@
 import itertools
 
 import sqlparse
-from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label
+from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer
 from sqlalchemy.exc import CompileError
 
 
@@ -68,12 +68,12 @@ def apply_match_all_and_some_filters(query, match_all_db_filters, match_some_db_
 def get_selectable_db_column_and_possible_join(column_info, column_func = None, full_join = False, outer_join = True):
     join = None
     db_column = column_info.db_column
-    if column_info.controlled_term:
-        db_info = column_info.parent_table_info.database_info
-        aliased_controlled_term_db_table = db_info.get_table_info('controlled_term').db_table.alias(f'ct_{column_info.name}')
-        db_column = aliased_controlled_term_db_table.columns['name']
-        on_clause = column_info.db_column == aliased_controlled_term_db_table.columns['id_alias']
-        join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause, 'full': full_join, 'isouter': outer_join}
+    # if column_info.controlled_term:
+    #     db_info = column_info.parent_table_info.database_info
+    #     aliased_controlled_term_db_table = db_info.get_table_info('controlled_term').db_table.alias(f'ct_{column_info.name}')
+    #     db_column = aliased_controlled_term_db_table.columns['name']
+    #     on_clause = column_info.db_column == aliased_controlled_term_db_table.columns['id_alias']
+    #     join = {'target': aliased_controlled_term_db_table, 'onclause': on_clause, 'full': full_join, 'isouter': outer_join}
     if column_func:
         db_column = column_func(db_column)
     db_column = db_column.label(column_info.name)
@@ -315,13 +315,13 @@ def null_aware_categorical_summary(db, db_column, connecting_column, summarizabl
     null_column_info = summarizable_column_info.null_column_info
     if null_column_info is not None:
         null_connecting_column = null_column_info.parent_table_info.primary_key_column_info.db_column.label(connecting_column.name)
-        null_cte = db.query(label(db_column.name, None), null_connecting_column) \
+        null_cte = db.query(cast(null(), Integer).label(db_column.name), null_connecting_column) \
                      .filter(null_connecting_column.in_(filter_table_cte_column)) \
                      .filter(null_column_info.labeled_db_column == True)
         
     else: # virtual table column nulls ie: file_anatomic_site and 
         null_connecting_column = summarizable_column_info.parent_table_info.null_table_info.primary_key_column_info.db_column.label(connecting_column.name)
-        null_cte = db.query(label(db_column.name, None), null_connecting_column) \
+        null_cte = db.query(cast(null(), Integer).label(db_column.name), null_connecting_column) \
                      .filter(null_connecting_column.in_(filter_table_cte_column))
         
     null_cte = null_cte.cte(f'{db_column.name}_nulls')
@@ -377,12 +377,42 @@ def data_source_counts(db, data_source_columns):
     data_source_json = db.query(func.row_to_json(data_source_preselect.table_valued()))
     return data_source_json
 
-def get_controlled_term_data_from_name(name=None):
-    if name is None:
-        name = 'NONE'
-    return DB_INFO.connected_term_map.get(name, name)
+# def get_controlled_term_data_from_name(name=None):
+#     if name is None:
+#         name = 'NONE'
+#     return DB_INFO.connected_term_map.get(name, name)
     
-def get_matching_connected_terms(data, path, data_type):
+# def get_matching_connected_terms(data, path, data_type):
+#     for i, key in enumerate(path):
+#         if key == "*":
+#             current_list = data
+#             remaining_path = path[i+1:]
+            
+#             if current_list:
+#                 for item in current_list:
+#                     get_matching_connected_terms(item, remaining_path, data_type)
+#             return data
+#         else:
+#             if i == len(path) - 1:
+#                 if data_type == 'list':
+#                     controlled_term_data_list = [get_controlled_term_data_from_name(name) for name in data[key]]
+                    
+#                 else:
+#                     controlled_term_data_list = [get_controlled_term_data_from_name(data[key])]
+                
+#                 if not controlled_term_data_list:
+#                     controlled_term_data_list = [get_controlled_term_data_from_name()]
+#                 for ct_data_key in controlled_term_data_list[0].keys():
+#                     data[f'{key}_{ct_data_key}'] = list(set([connected_term for controlled_term_data in controlled_term_data_list for connected_term in controlled_term_data[ct_data_key] if ct_data_key != 'name']))
+#             else:
+#                 data = data[key]
+
+def get_controlled_term_data_from_id(id):
+    if id is None:
+        id = -1
+    return DB_INFO.controlled_term_map.get(id, id)
+    
+def get_matching_connected_terms(data, path, data_type, include_connected_columns):
     for i, key in enumerate(path):
         if key == "*":
             current_list = data
@@ -390,28 +420,33 @@ def get_matching_connected_terms(data, path, data_type):
             
             if current_list:
                 for item in current_list:
-                    get_matching_connected_terms(item, remaining_path, data_type)
+                    get_matching_connected_terms(item, remaining_path, data_type, include_connected_columns)
             return data
         else:
             if i == len(path) - 1:
                 if data_type == 'list':
-                    controlled_term_data_list = [get_controlled_term_data_from_name(name) for name in data[key]]
-                    
+                    controlled_term_data_list = [get_controlled_term_data_from_id(v) for v in data[key]]
+                    data[key] = [controlled_term_data['name'] for controlled_term_data in controlled_term_data_list]
+                    if include_connected_columns:
+                        if controlled_term_data_list:
+                            for ct_data_key in controlled_term_data_list[0].keys():
+                                data[f'{key}_{ct_data_key}'] = list(set([connected_term for controlled_term_data in controlled_term_data_list for connected_term in controlled_term_data[ct_data_key] if ct_data_key != 'name']))
                 else:
-                    controlled_term_data_list = [get_controlled_term_data_from_name(data[key])]
-                
-                if not controlled_term_data_list:
-                    controlled_term_data_list = [get_controlled_term_data_from_name()]
-                for ct_data_key in controlled_term_data_list[0].keys():
-                    data[f'{key}_{ct_data_key}'] = list(set([connected_term for controlled_term_data in controlled_term_data_list for connected_term in controlled_term_data[ct_data_key] if ct_data_key != 'name']))
+                    controlled_term_data = get_controlled_term_data_from_id(data[key])
+                    data[key] = controlled_term_data['name']
+                    if include_connected_columns:
+                        for ct_data_key in controlled_term_data.keys():
+                            if ct_data_key != 'name':
+                                data[f'{key}_{ct_data_key}'] = controlled_term_data[ct_data_key]
+                    
             else:
                 data = data[key]
 
                     
-def add_connecting_terms(row, controlled_term_column_map):
+def map_controlled_terms(row, controlled_term_column_map, include_connected_columns = False):
     try:
         for _, controlled_term_column_info in controlled_term_column_map.items():
-            get_matching_connected_terms(row, controlled_term_column_info['path'], controlled_term_column_info['data_type'])
+            get_matching_connected_terms(row, controlled_term_column_info['path'], controlled_term_column_info['data_type'], include_connected_columns)
     except:
         raise Exception
     
