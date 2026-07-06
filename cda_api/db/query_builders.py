@@ -36,6 +36,12 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log, includ
             'next_url': 'URL to acquire next paged result'
         }
     """
+
+    if DB_INFO.table_hash_changed('controlled_term', db):
+        log.info('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        Base = load_base()
+        DB_INFO.reset(Base)
+
     log.info("Building data query")
     try:
         DB_INFO._build_column_metadata_map()
@@ -70,10 +76,6 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log, includ
         row_count = result[0][1]
     else:
         row_count = 0
-    # if add_connecting:
-    #     result = [map_controlled_terms(row[0], data_query.controlled_term_column_map, include_connected_columns) for row in result]
-    # else: 
-    #     result = [row[0] for row in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
     result = [map_controlled_terms(row[0], data_query.controlled_term_column_map, include_connected_columns) for row in result]
     format_time = time.time() - f_start_time
     log.info(f"Row formatting time: {format_time}s")
@@ -99,6 +101,10 @@ def summary_query(db, endpoint_table_name, request_body, log, include_connected_
             'query_sql': 'SQL statement used to generate result'
         }
     """
+    if DB_INFO.table_hash_changed('controlled_term', db):
+        log.debug('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        DB_INFO.reset(Base)
+
     log.debug('Building summary query')
     try:
         DB_INFO._build_column_metadata_map()

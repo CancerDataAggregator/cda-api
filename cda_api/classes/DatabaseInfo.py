@@ -3,8 +3,9 @@ from .TableInfo import TableInfo
 from .TableRelationship import TableRelationship
 from cda_api import get_logger, TableNotFound, ColumnNotFound, RelationshipNotFound
 from cda_api.db.connection import session
-from sqlalchemy import func, distinct
+from sqlalchemy import func, distinct, cast, Text
 from sqlalchemy.sql.schema import Column, Table
+from sqlalchemy.dialects.postgresql import aggregate_order_by
 
 log = get_logger('DatabaseInfo.py')
 setup_log = get_logger("Setup: DatabaseMap.py")
@@ -12,6 +13,7 @@ setup_log = get_logger("Setup: DatabaseMap.py")
 class DatabaseInfo:
     def __init__(self, db_base):
         self.db_base = db_base
+        self.table_hash = {}
         self._build_sqlalchemy_components()
         self._build_column_metadata_map()
         self._build_table_infos()
@@ -95,6 +97,7 @@ class DatabaseInfo:
         joins = []
         full_join = False
         outer_join = True
+        self.controlled_term_hash = self.table_hash_changed('controlled_term', db)
         connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
         controlled_term_table_info = self.get_table_info('controlled_term')
         for connected_term_table_info in connected_term_table_infos:
@@ -200,6 +203,28 @@ class DatabaseInfo:
             raise RelationshipNotFound(f'Unexpected local table: {local_table}. Should only be from following list of tables {[table_info.name for table_info in self.local_table_infos]}')
 
         return local_table_info.get_table_relationship(foreign_table)
+    
+    def table_hash_changed(self, table, db) -> bool:
+        table_info = self.get_table_info(table)
+        q = db.query(func.md5(
+                            cast(
+                                func.array_agg(
+                                    aggregate_order_by(
+                                        func.md5(
+                                            cast(
+                                                table_info.db_table.table_valued(), Text)
+                                        ), 
+                                        table_info.primary_key_column_info.db_column)
+                                    ), Text)
+                            )
+                    )
+        hash = q.first()[0]
+        if table_info in self.table_hash.keys():
+            if hash != self.table_hash[table_info]:
+                return True
+        else:
+            self.table_hash[table_info] = hash
+        return False
     
     def reset(self, db_base):
         self.__init__(db_base)
