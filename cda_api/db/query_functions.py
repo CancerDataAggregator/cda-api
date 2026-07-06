@@ -447,7 +447,7 @@ def map_controlled_terms(row, controlled_term_column_map, include_connected_colu
     try:
         for _, controlled_term_column_info in controlled_term_column_map.items():
             get_matching_connected_terms(row, controlled_term_column_info['path'], controlled_term_column_info['data_type'], include_connected_columns)
-    except:
-        raise Exception
+    except Exception as e:
+        raise e
     
     return row
