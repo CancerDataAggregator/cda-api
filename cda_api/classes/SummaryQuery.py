@@ -181,7 +181,7 @@ class SummaryQuery:
 
     def get_summarized_select(self, filtered_table_info, table_info, summarizable_column_info, db_column, connecting_column):
         if summarizable_column_info.column_type == 'categorical':
-            if table_info in self.db_info.local_table_infos:
+            if table_info in self.db_info.local_table_infos or table_info == self.db_info.get_table_info('project'):
                 self.log.debug(f"Constructing basic categorical summary for {summarizable_column_info}")
                 column_summary = basic_categorical_summary(self.db, db_column)
             else:
