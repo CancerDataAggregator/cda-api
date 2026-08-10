@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG ALPINE_VERSION="3.24.0"
+ARG ALPINE_VERSION="3.24.1"
 
 FROM alpine:${ALPINE_VERSION}
 
@@ -59,7 +59,7 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_VIRTUALENVS_CREATE=true \
     POETRY_HOME='/usr/local' \
     POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION="2.3.3"
+    POETRY_VERSION="2.3.4"
 RUN pipx install poetry==${POETRY_VERSION} --global
 
 # Change to app directory
