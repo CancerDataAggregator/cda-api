@@ -1,7 +1,7 @@
 import itertools
 
 import sqlparse
-from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer
+from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer, Text
 from sqlalchemy.exc import CompileError
 
 
@@ -313,15 +313,21 @@ def null_aware_categorical_summary(db, db_column, connecting_column, summarizabl
                     .cte(f'{db_column.name}_non_nulls')
     
     null_column_info = summarizable_column_info.null_column_info
+
+    if isinstance(db_column.type, Text):
+        null_casted_column = label(db_column.name, None)
+    else:
+        null_casted_column = cast(null(), Integer).label(db_column.name)
+
     if null_column_info is not None:
         null_connecting_column = null_column_info.parent_table_info.primary_key_column_info.db_column.label(connecting_column.name)
-        null_cte = db.query(cast(null(), Integer).label(db_column.name), null_connecting_column) \
+        null_cte = db.query(null_casted_column, null_connecting_column) \
                      .filter(null_connecting_column.in_(filter_table_cte_column)) \
                      .filter(null_column_info.labeled_db_column == True)
         
     else: # virtual table column nulls ie: file_anatomic_site and 
         null_connecting_column = summarizable_column_info.parent_table_info.null_table_info.primary_key_column_info.db_column.label(connecting_column.name)
-        null_cte = db.query(cast(null(), Integer).label(db_column.name), null_connecting_column) \
+        null_cte = db.query(null_casted_column, null_connecting_column) \
                      .filter(null_connecting_column.in_(filter_table_cte_column))
         
     null_cte = null_cte.cte(f'{db_column.name}_nulls')
