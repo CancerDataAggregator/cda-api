@@ -434,9 +434,13 @@ def get_matching_connected_terms(data, path, data_type, include_connected_column
                     controlled_term_data_list = [get_controlled_term_data_from_id(v) for v in data[key]]
                     data[key] = [controlled_term_data['name'] for controlled_term_data in controlled_term_data_list]
                     if include_connected_columns:
-                        if controlled_term_data_list:
-                            for ct_data_key in controlled_term_data_list[0].keys():
-                                data[f'{key}_{ct_data_key}'] = list(set([connected_term for controlled_term_data in controlled_term_data_list for connected_term in controlled_term_data[ct_data_key] if ct_data_key != 'name']))
+                        if not controlled_term_data_list:
+                            controlled_term_data_list = [get_controlled_term_data_from_id(None)]
+
+                        for ct_data_key in controlled_term_data_list[0].keys():
+                            if ct_data_key == 'name':
+                                continue
+                            data[f'{key}_{ct_data_key}'] = list(set([connected_term for controlled_term_data in controlled_term_data_list for connected_term in controlled_term_data[ct_data_key] if ct_data_key != 'name']))
                 else:
                     controlled_term_data = get_controlled_term_data_from_id(data[key])
                     data[key] = controlled_term_data['name']
