@@ -12,12 +12,12 @@ from cda_api.classes.ColumnValuesQuery import ColumnValuesQuery
 from cda_api.classes.ReleaseMetadataQuery import ReleaseMetadataQuery
 
 from .query_functions import (
-    query_to_string,
+    query_to_string, map_controlled_terms
 )
 
 
 
-def data_query(db, endpoint_table_name, request_body, limit, offset, log):
+def data_query(db, endpoint_table_name, request_body, limit, offset, log, include_connected_columns = True):
     """Generates json formatted row data based on input query
 
     Args:
@@ -36,13 +36,21 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log):
             'next_url': 'URL to acquire next paged result'
         }
     """
+
+    if DB_INFO.table_hash_changed('controlled_term', db):
+        log.info('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        Base = load_base()
+        DB_INFO.reset(Base)
+
     log.info("Building data query")
     try:
+        DB_INFO._build_column_metadata_map()
         data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
     except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
         log.warning('An error occured when building DataQuery. Rebuilding DatabaseInfo')
         Base = load_base()
         DB_INFO.reset(Base)
+        DB_INFO._build_column_metadata_map()
         log.info('DatabaseInfo has been rebuilt. Rebuilding DataQuery')
         data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
 
@@ -68,7 +76,7 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log):
         row_count = result[0][1]
     else:
         row_count = 0
-    result = [row[0] for row in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
+    result = [map_controlled_terms(row[0], data_query.controlled_term_column_map, include_connected_columns) for row in result]
     format_time = time.time() - f_start_time
     log.info(f"Row formatting time: {format_time}s")
     log.info(f"Returning {len(result)} rows out of {row_count} results | limit={limit} & offset={offset}")
@@ -78,7 +86,7 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log):
 
 
 # TODO
-def summary_query(db, endpoint_table_name, request_body, log):
+def summary_query(db, endpoint_table_name, request_body, log, include_connected_columns = True):
     """Generates json formatted summary data based on input query
 
     Args:
@@ -93,13 +101,19 @@ def summary_query(db, endpoint_table_name, request_body, log):
             'query_sql': 'SQL statement used to generate result'
         }
     """
+    if DB_INFO.table_hash_changed('controlled_term', db):
+        log.debug('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        DB_INFO.reset(Base)
+
     log.debug('Building summary query')
     try:
+        DB_INFO._build_column_metadata_map()
         summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
     except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
         log.warning('An error occured when building SummaryQuery. Rebuilding DatabaseInfo')
         Base = load_base()
         DB_INFO.reset(Base)
+        DB_INFO._build_column_metadata_map()
         log.info('DatabaseInfo has been rebuilt. Rebuilding SummaryQuery')
         summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
     log.debug(summary_query)
@@ -116,7 +130,11 @@ def summary_query(db, endpoint_table_name, request_body, log):
 
     # Format the results
     f_start_time = time.time()
-    result = [row for (row,) in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
+    # if add_connecting:
+    #     result = [add_connecting_terms(row, summary_query.controlled_term_column_map) for (row,) in result]
+    # else: 
+    #     result = [row for (row,) in result] # [({column1: value},), ({column2: value},)] -> [{column1: value}, {column2: value}]
+    result = [map_controlled_terms(row[0], summary_query.controlled_term_column_map, include_connected_columns) for row in result]
     format_time = time.time() - f_start_time
     log.info(f"Row formatting time: {format_time}s")
 

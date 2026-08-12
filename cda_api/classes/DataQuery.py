@@ -59,6 +59,7 @@ class DataQuery:
         return '\n'.join(repr_components)
 
     def _build_select_columns_and_joins(self):
+        self.controlled_term_column_map = {}
         self.select_map = {}
         self.select_joins = []
         for table_info, value in self.table_column_and_filter_map.items():
@@ -85,6 +86,8 @@ class DataQuery:
                     local_select_columns.append(db_column)
                     if join:
                         select_joins.append(join)
+                    if column_info.controlled_term:
+                        self.controlled_term_column_map[db_column.name] = {'data_type': 'single', 'path': [db_column.name]}
                 self.select_map[table_info][table_info.name] = local_select_columns
 
                 # Need to build mapping of virtual_tables to their respective columns
@@ -104,6 +107,9 @@ class DataQuery:
                         virtual_select_columns, virtual_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, virtual_table_info.primary_table_info, related_filtered_preselect_query, virtual_table_info, v_column_infos, filter_infos, self.log)
                         select_columns.extend(virtual_select_columns)
                         select_joins.extend(virtual_select_joins)
+                        for v_column_info in v_column_infos:
+                            if v_column_info.controlled_term:
+                                self.controlled_term_column_map[v_column_info.name] = {'data_type': 'list', 'path': [v_column_info.name]}
             
             # Add foreign table select columns:
             else:
@@ -124,6 +130,18 @@ class DataQuery:
                 foreign_select_columns, foreign_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, relating_table_info, related_filtered_preselect_query, table_info, column_infos, filter_infos, self.log)
                 select_columns.extend(foreign_select_columns)
                 select_joins.extend(foreign_select_joins)
+
+                for column_info in column_infos:
+                    if not column_info.controlled_term:
+                        continue
+                    if construct_type == 'array':
+                        self.controlled_term_column_map[column_info.name] = {'data_type': 'list', 'path': [column_info.name]}
+                    else:
+                        if column_info.parent_table_info != table_info:
+                            self.controlled_term_column_map[column_info.name] = {'data_type': 'list', 'path': [f'{table_info.name}_columns','*', column_info.name]}
+                        else:
+                            self.controlled_term_column_map[column_info.name] = {'data_type': 'single', 'path': [f'{table_info.name}_columns', '*', column_info.name]}
+
             
 
             # Add the select columns where they belong in the select_map

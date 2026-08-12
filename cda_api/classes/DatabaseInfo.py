@@ -3,8 +3,9 @@ from .TableInfo import TableInfo
 from .TableRelationship import TableRelationship
 from cda_api import get_logger, TableNotFound, ColumnNotFound, RelationshipNotFound
 from cda_api.db.connection import session
-from sqlalchemy import func
+from sqlalchemy import func, distinct, cast, Text
 from sqlalchemy.sql.schema import Column, Table
+from sqlalchemy.dialects.postgresql import aggregate_order_by
 
 log = get_logger('DatabaseInfo.py')
 setup_log = get_logger("Setup: DatabaseMap.py")
@@ -12,10 +13,12 @@ setup_log = get_logger("Setup: DatabaseMap.py")
 class DatabaseInfo:
     def __init__(self, db_base):
         self.db_base = db_base
+        self.table_hash = {}
         self._build_sqlalchemy_components()
         self._build_column_metadata_map()
         self._build_table_infos()
         self._build_table_relationships()
+        self._build_term_table_map()
         self._assign_virtual_table_columns()
         self._assign_null_tables()
         self._assign_null_columns()
@@ -88,6 +91,49 @@ class DatabaseInfo:
                         continue
                 local_table_info.build_table_relationship(data_table_info)
     
+    def _build_term_table_map(self):
+        db = session()
+        db_columns = []
+        joins = []
+        full_join = False
+        outer_join = True
+        self.controlled_term_hash = self.table_hash_changed('controlled_term', db)
+        connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
+        controlled_term_table_info = self.get_table_info('controlled_term')
+        for connected_term_table_info in connected_term_table_infos:
+            if connected_term_table_info.name == 'synonym_term':
+                base_term_column = 0
+                connected_term_column = 1
+            else:
+                base_term_column = 1
+                connected_term_column = 0
+            
+            aliased_connected_term_db_table = connected_term_table_info.db_table.alias(f'ct_{connected_term_table_info.name}')
+            aliased_controlled_term_db_table = controlled_term_table_info.db_table.alias(f'{connected_term_table_info.name}_ct')
+
+            connected_term_on_clause = controlled_term_table_info.get_column_info('id_alias').db_column == aliased_connected_term_db_table.columns[base_term_column]
+            connected_term_join = {'target': aliased_connected_term_db_table, 'onclause': connected_term_on_clause, 'full': full_join, 'isouter': outer_join}
+
+            controlled_term_on_clause = aliased_connected_term_db_table.columns[connected_term_column] == aliased_controlled_term_db_table.columns['id_alias']
+            controlled_term_join = {'target': aliased_controlled_term_db_table, 'onclause': controlled_term_on_clause, 'full': full_join, 'isouter': outer_join}
+            db_columns.append(func.array_remove(func.array_agg(distinct(aliased_controlled_term_db_table.columns['name'])), None).label(f'{connected_term_table_info.name}s'))
+            joins.extend([connected_term_join, controlled_term_join])
+            
+        q = db.query(controlled_term_table_info.get_column_info('id_alias').db_column, controlled_term_table_info.get_column_info('name').db_column)
+        q = q.add_columns(*db_columns)
+        for join in joins:
+            q = q.join(**join)
+        q = q.group_by(controlled_term_table_info.get_column_info('id_alias').db_column)
+        subquery = q.subquery('subquery')
+        q = db.query(func.row_to_json(subquery.table_valued()).label('json_results'))
+        res = q.all()
+        self.controlled_term_map = {row[0]['id_alias']: {k:v for k,v in row[0].items() if k != 'id_alias'} for row in res}
+        # Add a None result
+        self.controlled_term_map[-1] = {k:[] for k,v in res[0][0].items() if k != 'id_alias'}
+        self.controlled_term_map[-1]['name'] = None
+
+
+    
     def _assign_virtual_table_columns(self):
         for column_info in self.all_column_infos:
             if column_info.virtual_table is not None:
@@ -157,6 +203,28 @@ class DatabaseInfo:
             raise RelationshipNotFound(f'Unexpected local table: {local_table}. Should only be from following list of tables {[table_info.name for table_info in self.local_table_infos]}')
 
         return local_table_info.get_table_relationship(foreign_table)
+    
+    def table_hash_changed(self, table, db) -> bool:
+        table_info = self.get_table_info(table)
+        q = db.query(func.md5(
+                            cast(
+                                func.array_agg(
+                                    aggregate_order_by(
+                                        func.md5(
+                                            cast(
+                                                table_info.db_table.table_valued(), Text)
+                                        ), 
+                                        table_info.primary_key_column_info.db_column)
+                                    ), Text)
+                            )
+                    )
+        hash = q.first()[0]
+        if table_info in self.table_hash.keys():
+            if hash != self.table_hash[table_info]:
+                return True
+        else:
+            self.table_hash[table_info] = hash
+        return False
     
     def reset(self, db_base):
         self.__init__(db_base)

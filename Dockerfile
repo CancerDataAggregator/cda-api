@@ -1,41 +1,29 @@
 # syntax=docker/dockerfile:1
 
-ARG ALPINE_VERSION="3.23.3"
+ARG ALPINE_VERSION="3.24.1"
 
+# Setup builder image to build and install python packages
+FROM alpine:${ALPINE_VERSION} AS builder
+
+RUN apk add --no-cache python3 py3-pip poetry
+
+WORKDIR /app
+COPY pyproject.toml ./
+
+# Tell poetry to create the virtualenv inside the project folder
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_HOME='/usr/local' \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VERSION="2.4.1"
+RUN poetry install --no-interaction --no-ansi --no-root
+
+
+# Setup running image and copy necessary things from builder image
 FROM alpine:${ALPINE_VERSION}
 
-# Prevents Python from writing pyc files.
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
-ENV PYTHONUNBUFFERED=1
-
-# Install Python
-ARG PYTHON_VERSION="3.12"
-RUN apk add --update --no-cache python3=~${PYTHON_VERSION} py3-pip py3-setuptools pipx
-
-# Install prereqs for python packages
-RUN apk add gcc python3-dev musl-dev linux-headers
-
-# Manually force upgrade of setuptools
-RUN python -m pip install --upgrade "setuptools>=82.0.1" --break-system-packages
-RUN python -m pip install --upgrade "wheel>=0.46.2" --break-system-packages 
-RUN python -m pip install --upgrade "jaraco.context>=6.1.0" --break-system-packages 
-
-# Install update for sqlite to address vulnerability scan
-# RUN apk del sqlite 
-# RUN apk add make
-# RUN wget https://www.sqlite.org/2025/sqlite-autoconf-3500400.tar.gz
-# RUN tar xvfz sqlite-autoconf-*.tar.gz
-# WORKDIR /sqlite-autoconf-3500400
-# RUN sh ./configure --prefix=/usr/local
-# RUN make install
-# RUN export PATH="/usr/local/bin:$PATH"
-# WORKDIR /
-
-# Updating zlib to address vulneratbilty scan
-RUN apk update && apk upgrade zlib
+# Install ONLY the bare python runtime and poetry packages
+RUN apk add --no-cache python3 poetry
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
@@ -49,35 +37,40 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Set environment variables for poetry and install with pipx
-ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=true \
-    POETRY_HOME='/usr/local' \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION="2.3.3"
-RUN pipx install poetry==${POETRY_VERSION} --global
-
 # Change to app directory
 WORKDIR /app
 
-# copy only pyproject.toml nothing else here
-COPY pyproject.toml ./
+# 1. Copy the virtual environment from Stage 1
+COPY --from=builder /app/.venv /app/.venv
+COPY . .
 
-# This will create the folder /app/.venv
-RUN poetry install --no-root
+# 2. PURGE the internal pip package files directly from the copied virtual env
+RUN rm -rf /app/.venv/lib/python3.*/site-packages/pip* \
+    && rm -f /app/.venv/bin/pip*
 
 # Switch to the non-privileged user to run the application.
 USER appuser
 
-# Copy the source code into the container.
-COPY . .
+# Prevents Python from writing pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Keeps Python from buffering stdout and stderr to avoid situations where
+# the application crashes without emitting any logs due to buffering.
+ENV PYTHONUNBUFFERED=1
+
+# Set up environment variable to indicate the app is running in docker
+ENV DOCKER_DEPLOYED=1
+
+# Tell Resetup poetry environment variables
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_HOME='/usr/local' \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VERSION="2.4.1"
 
 # Expose the port that the application listens on.
 EXPOSE 8000
 EXPOSE 5432
-
-# Set up environment variable to indicate the app is running in docker
-ENV DOCKER_DEPLOYED=1
 
 # Run the application within the poetry virtual environment
 # CMD ["poetry", "run", "fastapi", "run", "cda_api/main.py", "--port", "8000"]

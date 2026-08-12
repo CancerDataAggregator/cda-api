@@ -61,6 +61,7 @@ class SummaryQuery:
         self.log.debug("Constructing summary select clause")
         self.select_map = {'total_count': [], 'other_local_table_counts': []}
         self.select_clause_columns = []
+        self.controlled_term_column_map = {}
         self._get_total_count()
         self._get_other_local_table_counts()
         self._get_column_summaries()
@@ -180,7 +181,7 @@ class SummaryQuery:
 
     def get_summarized_select(self, filtered_table_info, table_info, summarizable_column_info, db_column, connecting_column):
         if summarizable_column_info.column_type == 'categorical':
-            if table_info in self.db_info.local_table_infos:
+            if table_info in self.db_info.local_table_infos or table_info == self.db_info.get_table_info('project'):
                 self.log.debug(f"Constructing basic categorical summary for {summarizable_column_info}")
                 column_summary = basic_categorical_summary(self.db, db_column)
             else:
@@ -193,8 +194,10 @@ class SummaryQuery:
         else:
             self.log.debug(f'Skipping summarizing {summarizable_column_info} because it is of type: {summarizable_column_info.column_type}')
             return
-
-        self.select_map[table_info].append(column_summary.label(f'{db_column.name}_summary'))
+        column_label = f'{db_column.name}_summary'
+        if summarizable_column_info.controlled_term:
+            self.controlled_term_column_map[db_column.name] = {'data_type': 'single', 'path': [column_label, '*', db_column.name]}
+        self.select_map[table_info].append(column_summary.label(column_label))
 
 
     def get_query(self):
