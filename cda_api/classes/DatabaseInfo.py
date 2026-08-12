@@ -101,7 +101,7 @@ class DatabaseInfo:
         connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
         controlled_term_table_info = self.get_table_info('controlled_term')
         for connected_term_table_info in connected_term_table_infos:
-            if connected_term_table_info.name in ['related_term', 'synonym_term']:
+            if connected_term_table_info.name == 'synonym_term':
                 base_term_column = 0
                 connected_term_column = 1
             else:
