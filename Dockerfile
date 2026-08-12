@@ -5,25 +5,9 @@ ARG ALPINE_VERSION="3.24.1"
 # Setup builder image to build and install python packages
 FROM alpine:${ALPINE_VERSION} AS builder
 
-RUN apk add --no-cache python3 py3-pip poetry
-
-WORKDIR /app
-COPY pyproject.toml ./
-
-# Tell poetry to create the virtualenv inside the project folder
-ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=true \
-    POETRY_HOME='/usr/local' \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION="2.4.1"
-RUN poetry install --no-interaction --no-ansi --no-root
-
-
-# Setup running image and copy necessary things from builder image
-FROM alpine:${ALPINE_VERSION}
-
-# Install ONLY the bare python runtime and poetry packages
-RUN apk add --no-cache python3 poetry
+RUN apk update
+RUN apk upgrade
+RUN apk add --no-cache pipx
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
@@ -37,19 +21,20 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Change to app directory
 WORKDIR /app
-
-# 1. Copy the virtual environment from Stage 1
-COPY --from=builder /app/.venv /app/.venv
 COPY . .
 
-# 2. PURGE the internal pip package files directly from the copied virtual env
-RUN rm -rf /app/.venv/lib/python3.*/site-packages/pip* \
-    && rm -f /app/.venv/bin/pip*
+ENV PIPX_HOME=/var/lib/pipx
+ENV PIPX_BIN_DIR=/usr/local/bin
+RUN pipx install poetry
 
-# Switch to the non-privileged user to run the application.
-USER appuser
+# Tell poetry to create the virtualenv inside the project folder
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_HOME='/usr/local' \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VERSION="2.4.1"
+RUN poetry install --no-cache --no-interaction --no-ansi --no-root
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -61,12 +46,8 @@ ENV PYTHONUNBUFFERED=1
 # Set up environment variable to indicate the app is running in docker
 ENV DOCKER_DEPLOYED=1
 
-# Tell Resetup poetry environment variables
-ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=true \
-    POETRY_HOME='/usr/local' \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION="2.4.1"
+# Switch to the non-privileged user to run the application.
+USER appuser
 
 # Expose the port that the application listens on.
 EXPOSE 8000
