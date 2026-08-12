@@ -97,7 +97,7 @@ class DatabaseInfo:
         joins = []
         full_join = False
         outer_join = True
-        self.controlled_term_hash = self.table_hash_changed('controlled_term', db)
+        self.table_hash_changed('controlled_term', db)
         connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
         controlled_term_table_info = self.get_table_info('controlled_term')
         for connected_term_table_info in connected_term_table_infos:
@@ -116,10 +116,10 @@ class DatabaseInfo:
 
             controlled_term_on_clause = aliased_connected_term_db_table.columns[connected_term_column] == aliased_controlled_term_db_table.columns['id_alias']
             controlled_term_join = {'target': aliased_controlled_term_db_table, 'onclause': controlled_term_on_clause, 'full': full_join, 'isouter': outer_join}
-            db_columns.append(func.array_remove(func.array_agg(distinct(aliased_controlled_term_db_table.columns['name'])), None).label(f'{connected_term_table_info.name}s'))
+            db_columns.append(func.array_remove(func.array_agg(distinct(aliased_controlled_term_db_table.columns['id_alias'])), None).label(f'{connected_term_table_info.name}s'))
             joins.extend([connected_term_join, controlled_term_join])
-            
-        q = db.query(controlled_term_table_info.get_column_info('id_alias').db_column, controlled_term_table_info.get_column_info('name').db_column)
+
+        q = db.query(controlled_term_table_info.db_table)
         q = q.add_columns(*db_columns)
         for join in joins:
             q = q.join(**join)
@@ -127,10 +127,29 @@ class DatabaseInfo:
         subquery = q.subquery('subquery')
         q = db.query(func.row_to_json(subquery.table_valued()).label('json_results'))
         res = q.all()
-        self.controlled_term_map = {row[0]['id_alias']: {k:v for k,v in row[0].items() if k != 'id_alias'} for row in res}
-        # Add a None result
-        self.controlled_term_map[-1] = {k:[] for k,v in res[0][0].items() if k != 'id_alias'}
-        self.controlled_term_map[-1]['name'] = None
+
+        self.controlled_term_map = {}
+        term_columns = []
+        for row in res:
+            id_alias = row[0]['id_alias']
+            self.controlled_term_map[id_alias] = {}
+            term_dict = {}
+            for k,v in row[0].items():
+                if k == 'id_alias':
+                    continue
+                if k.endswith('terms'):
+                    self.controlled_term_map[id_alias][k] = v
+                    term_columns.append(k)
+                else:
+                    term_dict[k] = v
+                    if k == 'name':
+                        self.controlled_term_map[id_alias]['name'] = v
+                    
+            self.controlled_term_map[id_alias]['term_dict'] = term_dict
+
+        self.controlled_term_map[-1] = {'name': None, 'term_dict': {}}
+        for term_column in term_columns:
+            self.controlled_term_map[-1][term_column] = []
 
 
     

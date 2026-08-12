@@ -417,7 +417,10 @@ def get_controlled_term_data_from_id(id):
     if id is None:
         id = -1
     return DB_INFO.controlled_term_map.get(id, id)
-    
+
+def get_controlled_term_dict_from_id(id):
+    return DB_INFO.controlled_term_map.get(id)['term_dict']
+
 def get_matching_connected_terms(data, path, data_type, include_connected_columns):
     for i, key in enumerate(path):
         if key == "*":
@@ -432,21 +435,23 @@ def get_matching_connected_terms(data, path, data_type, include_connected_column
             if i == len(path) - 1:
                 if data_type == 'list':
                     controlled_term_data_list = [get_controlled_term_data_from_id(v) for v in data[key]]
-                    data[key] = [controlled_term_data['name'] for controlled_term_data in controlled_term_data_list]
+                    data[key] = [controlled_term_data['term_dict'] for controlled_term_data in controlled_term_data_list]
                     if include_connected_columns:
                         if not controlled_term_data_list:
                             controlled_term_data_list = [get_controlled_term_data_from_id(None)]
 
                         for ct_data_key in controlled_term_data_list[0].keys():
-                            if ct_data_key == 'name':
+                            if not ct_data_key.endswith('terms'):
                                 continue
-                            data[f'{key}_{ct_data_key}'] = list(set([connected_term for controlled_term_data in controlled_term_data_list for connected_term in controlled_term_data[ct_data_key] if ct_data_key != 'name']))
+                            # data[f'{key}_{ct_data_key}'] = list(set([connected_term_dict for controlled_term_data in controlled_term_data_list for connected_term_dict in controlled_term_data[ct_data_key] if ct_data_key.endswith('terms')]))
+                            connected_term_ids = list(set([connected_term_id for controlled_term_data in controlled_term_data_list for connected_term_id in controlled_term_data[ct_data_key]]))
+                            data[f'{key}_{ct_data_key}'] = [get_controlled_term_dict_from_id(connected_term_id) for connected_term_id in connected_term_ids]
                 else:
                     controlled_term_data = get_controlled_term_data_from_id(data[key])
-                    data[key] = controlled_term_data['name']
+                    data[key] = controlled_term_data['term_dict']
                     if include_connected_columns:
                         for ct_data_key in controlled_term_data.keys():
-                            if ct_data_key != 'name':
+                            if ct_data_key.endswith('terms'):
                                 data[f'{key}_{ct_data_key}'] = controlled_term_data[ct_data_key]
                     
             else:
