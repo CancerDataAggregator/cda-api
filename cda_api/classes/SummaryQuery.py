@@ -1,8 +1,9 @@
-from cda_api.db.query_functions import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, basic_categorical_summary, null_aware_categorical_summary, numeric_summary, get_selectable_db_column_and_possible_join
+from cda_api.db.query_functions import get_cte_column, column_distinct_count_subquery, foreign_table_distinct_count, data_source_counts, data_source_counts_cte, basic_categorical_summary, basic_categorical_summaries, null_aware_categorical_summary, null_aware_categorical_summaries, numeric_summary, numeric_summaries, get_selectable_db_column_and_possible_join
 from .models import SummaryRequestBody
 from .DatabaseInfo import DatabaseInfo
 from .shared_class_functions import construct_search_filter_info, construct_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
 from sqlalchemy import func
+from sqlalchemy.dialects.postgresql import array 
 
 class SummaryQuery:
     def __init__(self, db, db_info: DatabaseInfo, endpoint_table_name, request_body: SummaryRequestBody, log):
@@ -152,13 +153,27 @@ class SummaryQuery:
             table_preselect_cte = table_preselect.cte(f'{table_info.name}_preselect')
             preselect_connecting_column = get_cte_column(table_preselect_cte, connecting_column_info.name)
 
+            categorical_columns = []
+            numeric_columns = []
             data_source_columns = []
             for column in table_preselect_cte.columns:
                 matching_column_info = self.db_info.get_column_info(column.name, table_info)
                 if matching_column_info in column_type_map['summarizable_columns']:
-                    self.get_summarized_select(filtered_table_info, table_info, matching_column_info, column, preselect_connecting_column)
+                    if matching_column_info.column_type == 'categorical':
+                        categorical_columns.append(column)
+                    elif matching_column_info.column_type == 'numeric':
+                        numeric_columns.append(column)
+                    # self.get_summarized_select(filtered_table_info, table_info, matching_column_info, column, preselect_connecting_column)
                 elif matching_column_info in column_type_map['data_source_columns']:
                     data_source_columns.append(column)
+
+            if table_info in self.db_info.local_table_infos or table_info == self.db_info.get_table_info('project'):
+                self.get_categorical_select(table_info, categorical_columns)
+
+            else:
+                self.get_null_aware_categorical_select(filtered_table_info, table_info, categorical_columns, preselect_connecting_column)
+
+            self.get_numeric_select(table_info, numeric_columns)
             
             if data_source_columns:
                 self.log.debug(f"Cosntructing select statement for the combinations of data_sources for {table_info}")
@@ -166,7 +181,8 @@ class SummaryQuery:
                     label = 'data_source'
                 else:
                     label = f'{table_info.name}_data_source'
-                self.select_map[table_info].append(data_source_counts(self.db, data_source_columns).label(label))
+                # self.select_map[table_info].append(data_source_counts(self.db, data_source_columns).label(label))
+                self.select_map[table_info].append(data_source_counts_cte(self.db, data_source_columns, f'{table_info.name}_data_source_preselect').label(label))
 
 
     def add_table_to_summary_column_map(self, table_info, column_infos):
@@ -198,6 +214,24 @@ class SummaryQuery:
         if summarizable_column_info.controlled_term:
             self.controlled_term_column_map[db_column.name] = {'data_type': 'single', 'path': [column_label, '*', db_column.name]}
         self.select_map[table_info].append(column_summary.label(column_label))
+
+    def get_categorical_select(self, table_info, columns):
+        category_cte = basic_categorical_summaries(self.db, columns, f'{table_info.name}_categories')
+        for column in category_cte.columns:
+            column_label = column.name
+            self.select_map[table_info].append(self.db.query(column).label(column_label))
+
+    def get_null_aware_categorical_select(self, filtered_table_info, table_info, columns, connecting_column):
+        category_cte = null_aware_categorical_summaries(self.db, columns, table_info, f'{table_info.name}_categories', connecting_column, self.filtered_preselect_cte_query_map[filtered_table_info])
+        for column in category_cte.columns:
+            column_label = column.name
+            self.select_map[table_info].append(self.db.query(column).label(column_label))
+
+    def get_numeric_select(self, table_info, columns):
+        summary_cte = numeric_summaries(self.db, columns, f'{table_info.name}_aggregations')
+        for column in summary_cte.columns:
+            column_label = column.name.replace('_stats', '_summary')
+            self.select_map[table_info].append(self.db.query(column).label(column_label))
 
 
     def get_query(self):

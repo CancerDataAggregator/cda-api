@@ -1,13 +1,25 @@
 import itertools
+import re 
 
 import sqlparse
-from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer, Text
+from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer, Text, select
+from sqlalchemy.orm import aliased
 from sqlalchemy.exc import CompileError
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.elements import Label
+from sqlalchemy.dialects.postgresql import ARRAY, JSON, array
 
 
 from cda_api import RelationshipNotFound, get_logger, TableNotFound
 from cda_api.db import DB_INFO
 
+
+class CompletelyUnlabeled(Label):
+    inherit_cache = True
+
+@compiles(CompletelyUnlabeled)
+def compile_no_label(element, compiler, **kw):
+    return compiler.process(element.element, **kw)
 
 log = get_logger("Setup: query_functions.py")
 
@@ -17,10 +29,29 @@ def query_to_string(q, indented=False) -> str:
     try:
         sql_string = str(q.statement.compile(compile_kwargs={"literal_binds": True}))
         if indented:
-            return sqlparse.format(sql_string, reindent_aligned=True, keyword_case="upper")
+            parse_split = sqlparse.format(sql_string, reindent_aligned=True, keyword_case="upper").split('\n')
+            # return parse_split
+            new_lines = []
+            for line in parse_split:
+                target = 'json_build_object'
+                if target in line:
+                    white_space = line.find(target) + len(target)
+                    line_split = line.split(',')
+                    if len(line_split) < 4:
+                        new_lines.append(line)
+                        continue
+                    pairs = [",".join(line_split[i:i+2]) for i in range(0, len(line_split), 2)]
+                    new_line = f",\n{' ' * white_space}".join(pairs).rstrip()
+                    new_lines.append(new_line)
+                    
+                else:
+                    new_lines.append(line)
+
+            return '\n'.join(new_lines)
         else:
             return sql_string.replace("\n", "")
     except CompileError as ce:
+        print(ce)
         sql_string = str(q.statement.compile())
         if indented:
             return sqlparse.format(sql_string, reindent_aligned=True, keyword_case="upper")
@@ -224,7 +255,7 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
         subquery_id_column = None
         for column in foreign_table_subquery.c:
             if column.name not in [endpoint_relating_column.name, foreign_primary_filler_name]:
-                foreign_json_columns.append(column.name)
+                foreign_json_columns.append(str(column.name))
                 foreign_json_columns.append(column)
             else:
                 subquery_id_column = column
@@ -344,6 +375,87 @@ def null_aware_categorical_summary(db, db_column, connecting_column, summarizabl
                         ).label(f'{db_column.name}_array_agg')).scalar_subquery()
     return categorical_array_agg
 
+
+def basic_categorical_summaries(db, columns, cte_name):
+    categorical_columns = []
+    for column in columns:
+        count_subquery = db.query(column, func.count().label('cnt')).group_by(column).subquery(f'{column.name}_sub')
+        categorical_columns.append(db.query(CompletelyUnlabeled(None, func.json_agg(func.json_build_object(str(column.name), count_subquery.columns[0], 'count_result', count_subquery.columns[1])))).label(f'{column.name}_summary'))
+    query = db.query(*categorical_columns)
+    cte = query.cte(cte_name)
+    return cte
+
+def null_aware_categorical_summaries(db, columns, table_info, cte_name, connecting_column, filter_table_cte_column):
+    categorical_columns = []
+    for db_column in columns:
+        summarizable_column_info = DB_INFO.get_column_info(db_column.name, table_info)
+        non_null_query = db.query(db_column, connecting_column) \
+                        .filter(db_column.is_not(None)) \
+                        .group_by(connecting_column, db_column) \
+        
+        null_column_info = summarizable_column_info.null_column_info
+
+        if isinstance(db_column.type, Text):
+            null_casted_column = label(db_column.name, None)
+        else:
+            null_casted_column = cast(null(), Integer).label(db_column.name)
+
+        if null_column_info is not None:
+            null_connecting_column = null_column_info.parent_table_info.primary_key_column_info.db_column.label(connecting_column.name)
+            null_query = db.query(null_casted_column, null_connecting_column) \
+                        .filter(null_connecting_column.in_(filter_table_cte_column)) \
+                        .filter(null_column_info.labeled_db_column == True)
+            
+        else: # virtual table column nulls ie: file_anatomic_site and 
+            null_connecting_column = summarizable_column_info.parent_table_info.null_table_info.primary_key_column_info.db_column.label(connecting_column.name)
+            null_query = db.query(null_casted_column, null_connecting_column) \
+                        .filter(null_connecting_column.in_(filter_table_cte_column))
+            
+  
+        
+        union_subquery = union_all(non_null_query, null_query).set_label_style(SelectLabelStyle.LABEL_STYLE_NONE).subquery(f'{db_column.name}_union')
+        union_column = get_cte_column(union_subquery, db_column.name)
+        count_subquery = db.query(union_column,func.count().label('cnt')) \
+                            .group_by(union_column) \
+                            .subquery(f'{db_column.name}_sub') 
+
+        # count_alias = aliased(
+        #     count_subquery.table_valued(),
+        #     name=f'{db_column.name}_sub'
+        # )
+
+        # categorical_array_agg = db.query(
+        #                     func.array_agg(
+        #                         func.row_to_json(count_subquery.table_valued().label(f'{db_column.name}_categories'))
+        #                     ).label(f'{db_column.name}_array_agg')).scalar_subquery()
+        categorical_columns.append(db.query(CompletelyUnlabeled(None, func.json_agg(func.json_build_object(str(db_column.name), count_subquery.columns[0], 'count_result', count_subquery.columns[1])))).select_from(count_subquery).label(f'{db_column.name}_summary'))
+    query = db.query(*categorical_columns)
+    cte = query.cte(cte_name)
+    return cte
+
+# Gets statistics of a row for numeric columns
+def numeric_summaries(db, columns, cte_name):
+    summary_columns = []
+    for column in columns:
+        json_col = array([func.json_build_object(
+            "min", func.min(column),
+            "max", func.max(column),
+            "mean", func.round(func.avg(column)),
+            "median", func.percentile_disc(0.5).within_group(column),
+            "lower_quartile", func.percentile_disc(0.25).within_group(column),
+            "upper_quartile", func.percentile_disc(0.75).within_group(column)
+        )]).label(f"{column.name}_stats")
+        summary_columns.append(json_col)
+        # # Get the row_to_json of the subquery
+        # column_json = db.query(func.row_to_json(column_subquery.table_valued())
+        #                     .label(f"{column.name}_stats")).cte(f"json_{column.name}")
+        # # Apply an array aggregation
+        # numeric_array_agg = db.query(func.array_agg(get_cte_column(column_json, f"{column.name}_stats"))).scalar_subquery()
+    query = db.query(*summary_columns)
+    cte = query.cte(cte_name)
+    return cte
+
+
 # Gets all combinations of data_source columns
 def get_data_source_combinations(data_source_columnnames):
     data_source_combinations = {}
@@ -369,7 +481,7 @@ def data_source_counts(db, data_source_columns):
     data_source_counts = []
     data_source_columnnames = [column.name for column in data_source_columns]
     # Get mapping of all combinations of the data source columns
-    data_source_combinations = get_data_source_combinations(data_source_columnnames)
+    data_source_combinations = get_data_source_combinations(sorted(data_source_columnnames))
     # Get list of queries for each combination of the data_source columns
     for name, data_source_boolean_map in data_source_combinations.items():
         filters = [
@@ -382,6 +494,45 @@ def data_source_counts(db, data_source_columns):
     # Get the row_to_json of the subquery
     data_source_json = db.query(func.row_to_json(data_source_preselect.table_valued()))
     return data_source_json
+
+
+def get_data_source_combinations_cte(data_source_columns):
+    data_source_combinations = {}
+    subsets = itertools.chain(
+        *map(lambda x: itertools.combinations(data_source_columns, x), range(0, len(data_source_columns) + 1))
+    )
+    for subset in subsets:
+        if len(subset) > 0:
+            filters = []
+            name = ""
+            included_columns = []
+            for column in data_source_columns:
+                if column in subset:
+                    filters.append(column)
+                    included_columns.append(column.name)
+                else:
+                    filters.append(~column)
+            name = "_".join([name.split("_")[-1] for name in included_columns])
+            if len(subset) < len(data_source_columns):
+                name += "_exclusive"
+            data_source_combinations[name] = func.count('*').filter(and_(*filters))
+    return data_source_combinations
+
+def data_source_counts_cte(db, data_source_columns, cte_name):
+    jbo_list = []
+    data_source_columnnames = sorted([column.name for column in data_source_columns])
+    sorted_data_source_columns = []
+    for columnname in data_source_columnnames:
+        sorted_data_source_columns.append([column for column in data_source_columns if column.name == columnname][0])
+    for name, combo_filter in get_data_source_combinations_cte(sorted_data_source_columns).items():
+        jbo_list.append(name)
+        jbo_list.append(combo_filter)
+
+    subquery = db.query(func.json_build_object(*jbo_list).label('data_source_summary'))
+
+    cte = subquery.cte(cte_name)
+
+    return db.query(cte.columns[0])
 
 # def get_controlled_term_data_from_name(name=None):
 #     if name is None:
