@@ -3,6 +3,7 @@ from .models import DataRequestBody
 from .DatabaseInfo import DatabaseInfo
 from .shared_class_functions import construct_search_filter_info, construct_filter_infos, get_table_column_and_filter_map, get_filtered_preselect
 from sqlalchemy import func, Label
+from sqlalchemy.dialects.postgresql import array
 from cda_api.db.query_functions import get_selectable_db_column_and_possible_join
 
 class DataQuery:
@@ -69,102 +70,20 @@ class DataQuery:
             if len(column_infos) == 0:
                 self.log.debug(f'Skipping {table_info} because there were no columns to select from after applying EXCLUDE_COLUMNS')
                 continue
-            
-            select_columns = []
-            select_joins = []
 
-            virtual_table_column_infos = table_info.virtual_column_infos
-
-            # Add endpoint table select columns:
             if table_info == self.endpoint_table_info:
-                virtual_column_map = {}
-                local_select_columns = []
-                for column_info in column_infos:
-                    if column_info in virtual_table_column_infos:
-                        continue
-                    db_column, join = get_selectable_db_column_and_possible_join(column_info) 
-                    local_select_columns.append(db_column)
-                    if join:
-                        select_joins.append(join)
-                    if column_info.controlled_term:
-                        self.controlled_term_column_map[db_column.name] = {'data_type': 'single', 'path': [db_column.name]}
-                self.select_map[table_info][table_info.name] = local_select_columns
-
-                # Need to build mapping of virtual_tables to their respective columns
-                for column_info in column_infos:
-                    if column_info not in virtual_table_column_infos:
-                        continue
-                    virtual_table_info = column_info.parent_table_info
-                    if virtual_table_info not in virtual_column_map.keys():
-                        virtual_column_map[virtual_table_info] = []
-                    virtual_column_map[virtual_table_info].append(column_info)
-
-                # Using the virtual table mapping we need to add the distince array columns to the select statement and include their joins
-                if virtual_column_map:
-                    for virtual_table_info, v_column_infos in virtual_column_map.items():
-                        construct_type = 'array'
-                        related_filtered_preselect_query = self.filtered_preselect_cte_query_map[self.endpoint_table_info]
-                        virtual_select_columns, virtual_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, virtual_table_info.primary_table_info, related_filtered_preselect_query, virtual_table_info, v_column_infos, filter_infos, self.log)
-                        select_columns.extend(virtual_select_columns)
-                        select_joins.extend(virtual_select_joins)
-                        for v_column_info in v_column_infos:
-                            if v_column_info.controlled_term:
-                                self.controlled_term_column_map[v_column_info.name] = {'data_type': 'list', 'path': [v_column_info.name]}
+                self._add_local_select_columns(column_infos)
+                self._add_local_select_virtual_columns(column_infos, filter_infos)
             
-            # Add foreign table select columns:
             else:
-                if (self.request_body.COLLATE_RESULTS is False) and (table_info.name != 'external_reference'):
-                    construct_type = 'array'
-                else:
-                    construct_type = 'json'
-                if table_info.name != 'external_reference':
-                    if table_info.name == 'upstream_identifiers':
-                        relating_table_info = self.endpoint_table_info
-                    else:
-                        relating_table_info = table_info.primary_table_info
-                    related_filtered_preselect_query = self.filtered_preselect_cte_query_map[relating_table_info]
-                else:
-                    relating_table_info = self.endpoint_table_info
-                    related_filtered_preselect_query = self.filtered_preselect_cte_query_map[self.endpoint_table_info]
-
-                foreign_select_columns, foreign_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, relating_table_info, related_filtered_preselect_query, table_info, column_infos, filter_infos, self.log)
-                select_columns.extend(foreign_select_columns)
-                select_joins.extend(foreign_select_joins)
-
-                for column_info in column_infos:
-                    if not column_info.controlled_term:
-                        continue
-                    if construct_type == 'array':
-                        self.controlled_term_column_map[column_info.name] = {'data_type': 'list', 'path': [column_info.name]}
-                    else:
-                        if column_info.parent_table_info != table_info:
-                            self.controlled_term_column_map[column_info.name] = {'data_type': 'list', 'path': [f'{table_info.name}_columns','*', column_info.name]}
-                        else:
-                            self.controlled_term_column_map[column_info.name] = {'data_type': 'single', 'path': [f'{table_info.name}_columns', '*', column_info.name]}
-
-            
-
-            # Add the select columns where they belong in the select_map
-            for select_column in select_columns:
-                
-                if isinstance(select_column, Label):
-                    preselect_name = select_column.element.table.name
-                else:
-                    preselect_name = select_column.table.name
-                if preselect_name not in self.select_map[table_info].keys():
-                    self.select_map[table_info][preselect_name] = []
-                if construct_type == 'array': # Need to coalesce to an empty list in place of Null
-                    select_column = func.coalesce(select_column, []).label(select_column.name)
-                self.select_map[table_info][preselect_name].append(select_column)
-
-            self.select_joins.extend(select_joins)
+                self._add_foreign_select_columns(table_info, column_infos, filter_infos)
 
         endpoint_columns = []
         provenance_columns = []
         filter_columns = []
         add_columns = []
         for table_info, select_table_map in self.select_map.items():
-            for select_table, select_columns in select_table_map.items():
+            for _, select_columns in select_table_map.items():
                 for select_column in select_columns:
                     if table_info == self.endpoint_table_info:
                         endpoint_columns.append(select_column)
@@ -176,6 +95,92 @@ class DataQuery:
                         add_columns.append(select_column)
 
         self.select_columns = endpoint_columns + provenance_columns + filter_columns + add_columns  
+
+    def _add_columns_to_select_map(self, table_info, select_columns, construct_type = None):
+        for select_column in select_columns:
+            if isinstance(select_column, Label):
+                preselect_name = select_column.element.table.name
+            else:
+                preselect_name = select_column.table.name
+            if preselect_name not in self.select_map[table_info].keys():
+                self.select_map[table_info][preselect_name] = []
+            if construct_type == 'array': # Need to coalesce to an empty list in place of Null
+                select_column = func.coalesce(select_column, str('{}')).label(select_column.name)
+            self.select_map[table_info][preselect_name].append(select_column)
+
+    def _add_local_select_columns(self, column_infos):
+        local_select_columns = []
+        for column_info in column_infos:
+            if column_info in self.endpoint_table_info.virtual_column_infos:
+                continue
+            db_column, join = get_selectable_db_column_and_possible_join(column_info) 
+            local_select_columns.append(db_column)
+            if join:
+                self.select_joins.append(join)
+            if column_info.controlled_term:
+                self.controlled_term_column_map[db_column.name] = {'data_type': 'single', 'path': [db_column.name]}
+
+        self._add_columns_to_select_map(self.endpoint_table_info, local_select_columns)
+
+    def _add_local_select_virtual_columns(self, column_infos, filter_infos):
+        virtual_column_map = {}
+        # Need to build mapping of virtual_tables to their respective columns
+        for column_info in column_infos:
+            if column_info not in self.endpoint_table_info.virtual_column_infos:
+                continue
+            virtual_table_info = column_info.parent_table_info
+            if virtual_table_info not in virtual_column_map.keys():
+                virtual_column_map[virtual_table_info] = []
+            virtual_column_map[virtual_table_info].append(column_info)
+
+        # Using the virtual table mapping we need to add the distince array columns to the select statement and include their joins
+        if virtual_column_map:
+            local_virtual_select_columns = []
+            for virtual_table_info, v_column_infos in virtual_column_map.items():
+                construct_type = 'array'
+                related_filtered_preselect_query = self.filtered_preselect_cte_query_map[self.endpoint_table_info]
+                virtual_select_columns, virtual_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, virtual_table_info.primary_table_info, related_filtered_preselect_query, virtual_table_info, v_column_infos, filter_infos, self.log)
+                local_virtual_select_columns.extend(virtual_select_columns)
+                self.select_joins.extend(virtual_select_joins)
+                for v_column_info in v_column_infos:
+                    if v_column_info.controlled_term:
+                        self.controlled_term_column_map[v_column_info.name] = {'data_type': 'list', 'path': [v_column_info.name]}
+
+            self._add_columns_to_select_map(self.endpoint_table_info, local_virtual_select_columns, construct_type)
+        
+    def _add_foreign_select_columns(self, table_info, column_infos, filter_infos):
+        if (self.request_body.COLLATE_RESULTS is False) and (table_info.name != 'external_reference'):
+            construct_type = 'array'
+        else:
+            construct_type = 'json'
+
+        if table_info.name != 'external_reference':
+            if table_info.name == 'upstream_identifiers':
+                relating_table_info = self.endpoint_table_info
+            else:
+                relating_table_info = table_info.primary_table_info
+            related_filtered_preselect_query = self.filtered_preselect_cte_query_map[relating_table_info]
+        else:
+            relating_table_info = self.endpoint_table_info
+            related_filtered_preselect_query = self.filtered_preselect_cte_query_map[self.endpoint_table_info]
+
+        foreign_select_columns, foreign_select_joins = build_foreign_preselect(construct_type, self.db, self.endpoint_table_info, relating_table_info, related_filtered_preselect_query, table_info, column_infos, filter_infos, self.log)
+        
+        for column_info in column_infos:
+            if not column_info.controlled_term:
+                continue
+            if construct_type == 'array':
+                self.controlled_term_column_map[column_info.name] = {'data_type': 'list', 'path': [column_info.name]}
+            else:
+                if column_info.parent_table_info != table_info:
+                    self.controlled_term_column_map[column_info.name] = {'data_type': 'list', 'path': [f'{table_info.name}_columns','*', column_info.name]}
+                else:
+                    self.controlled_term_column_map[column_info.name] = {'data_type': 'single', 'path': [f'{table_info.name}_columns', '*', column_info.name]}
+
+        self._add_columns_to_select_map(table_info, foreign_select_columns, construct_type)
+        self.select_joins.extend(foreign_select_joins)
+
+
 
 
     def get_query(self):

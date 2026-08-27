@@ -8,6 +8,7 @@ from sqlalchemy.exc import CompileError
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.elements import Label
 from sqlalchemy.dialects.postgresql import ARRAY, JSON, array
+from sqlalchemy.sql import literal_column
 
 
 from cda_api import RelationshipNotFound, get_logger, TableNotFound
@@ -80,7 +81,7 @@ def unique_column_array_agg(column, label = None):
 # Get &'d to_tsquery()
 def list_to_tsquery(search_term_list):
     search_string = ' & '.join(search_term_list)
-    return func.plainto_tsquery('english', search_string)
+    return func.plainto_tsquery(literal_column("'english'"), search_string)
 
 def validate_tsquery(db, ts_query):
     return bool(db.query(ts_query).scalar())
@@ -207,7 +208,7 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
             columns, joins = build_virtual_foreign_arrays(db, foreign_table_info, virtual_table_info, virtual_column_infos, filtered_preselect, log)
             if construct_type == 'json':
                 for col in columns:
-                    select_columns.append(func.coalesce(col, []).label(col.name))
+                    select_columns.append(func.coalesce(col, str('{}')).label(col.name))
             else:
                 select_columns.extend(columns)
             virtual_table_joins.extend(joins)

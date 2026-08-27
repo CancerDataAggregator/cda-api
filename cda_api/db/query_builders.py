@@ -85,7 +85,6 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log, includ
     return ret
 
 
-# TODO
 def summary_query(db, endpoint_table_name, request_body, log, include_connected_columns = True):
     """Generates json formatted summary data based on input query
 
@@ -107,6 +106,8 @@ def summary_query(db, endpoint_table_name, request_body, log, include_connected_
 
     log.debug('Building summary query')
     try:
+        log.info('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        Base = load_base()
         DB_INFO._build_column_metadata_map()
         summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
     except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
