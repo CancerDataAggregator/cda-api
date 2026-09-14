@@ -232,6 +232,7 @@ class DatabaseInfo:
         elif datetime.now() - self.table_hash_last_checked < timedelta(minutes=10):
             return False
         self.table_hash_last_checked = datetime.now()
+        log.info(f'Checking if {table} has been modified')
         table_info = self.get_table_info(table)
         q = db.query(func.md5(
                             cast(
@@ -248,15 +249,18 @@ class DatabaseInfo:
         hash = q.first()[0]
         if table_info in self.table_hash.keys():
             if hash != self.table_hash[table_info]:
+                log.info(f'Change in {table} detected')
                 return True
         else:
             self.table_hash[table_info] = hash 
+        log.info(f'No change detected in {table}')
         return False
 
     def schema_changed(self):
         if datetime.now() - self.schema_last_checked < timedelta(minutes=10):
             return False
         self.schema_last_checked = datetime.now()
+        log.info('Validating if schema matches local cache')
         for table_info in self.data_table_infos:
             expected_columns = set(table_info.db_table.columns.keys())
             inspector = inspect(engine)
@@ -264,7 +268,9 @@ class DatabaseInfo:
             added_columns = live_columns - expected_columns
             removed_columns = expected_columns - live_columns
             if added_columns or removed_columns:
+                log.info('Schema change detected')
                 return True
+        log.info('No schema change found')
         return False
     
     def reset(self, db_base):
