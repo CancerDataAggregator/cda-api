@@ -2,10 +2,11 @@ from .ColumnInfo import ColumnInfo
 from .TableInfo import TableInfo
 from .TableRelationship import TableRelationship
 from cda_api import get_logger, TableNotFound, ColumnNotFound, RelationshipNotFound
-from cda_api.db.connection import session
-from sqlalchemy import func, distinct, cast, Text
+from cda_api.db.connection import session, engine
+from sqlalchemy import func, distinct, cast, Text, inspect
 from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.dialects.postgresql import aggregate_order_by
+from datetime import datetime, timedelta
 
 log = get_logger('DatabaseInfo.py')
 setup_log = get_logger("Setup: DatabaseMap.py")
@@ -24,6 +25,7 @@ class DatabaseInfo:
         self._assign_null_columns()
         self._assign_foreign_key_column_infos()
         self._assign_primary_table_infos()
+        self.schema_last_checked = datetime.now()
         
     def _build_sqlalchemy_components(self):
         setup_log.info("Building variables from automapped Base")
@@ -36,11 +38,11 @@ class DatabaseInfo:
         # Fetch column_metadata and build a map of table.column to their respective metadata
         setup_log.info("Fetching info from the column_metadata table")
         column_metadata = self.db_tables["column_metadata"]
-        db = session()
-        subquery = db.query(column_metadata).subquery("json_result")
-        query = db.query(func.row_to_json(subquery.table_valued()))
-        result = query.all()
-        result = [row for (row,) in result]
+        with session() as db:
+            subquery = db.query(column_metadata).subquery("json_result")
+            query = db.query(func.row_to_json(subquery.table_valued()))
+            result = query.all()
+            result = [row for (row,) in result]
         self.column_metadata_map = {}
         for row in result:
             table_name = row["cda_table"]
@@ -92,45 +94,65 @@ class DatabaseInfo:
                 local_table_info.build_table_relationship(data_table_info)
     
     def _build_term_table_map(self):
-        db = session()
-        db_columns = []
-        joins = []
-        full_join = False
-        outer_join = True
-        self.controlled_term_hash = self.table_hash_changed('controlled_term', db)
-        connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
-        controlled_term_table_info = self.get_table_info('controlled_term')
-        for connected_term_table_info in connected_term_table_infos:
-            if connected_term_table_info.name == 'synonym_term':
-                base_term_column = 0
-                connected_term_column = 1
-            else:
-                base_term_column = 1
-                connected_term_column = 0
-            
-            aliased_connected_term_db_table = connected_term_table_info.db_table.alias(f'ct_{connected_term_table_info.name}')
-            aliased_controlled_term_db_table = controlled_term_table_info.db_table.alias(f'{connected_term_table_info.name}_ct')
+        with session() as db:
+            db_columns = []
+            joins = []
+            full_join = False
+            outer_join = True
+            self.table_hash_last_checked = None
+            self.table_hash_changed('controlled_term', db)
+            connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
+            controlled_term_table_info = self.get_table_info('controlled_term')
+            for connected_term_table_info in connected_term_table_infos:
+                if connected_term_table_info.name == 'synonym_term':
+                    base_term_column = 0
+                    connected_term_column = 1
+                else:
+                    base_term_column = 1
+                    connected_term_column = 0
+                
+                aliased_connected_term_db_table = connected_term_table_info.db_table.alias(f'ct_{connected_term_table_info.name}')
+                aliased_controlled_term_db_table = controlled_term_table_info.db_table.alias(f'{connected_term_table_info.name}_ct')
 
-            connected_term_on_clause = controlled_term_table_info.get_column_info('id_alias').db_column == aliased_connected_term_db_table.columns[base_term_column]
-            connected_term_join = {'target': aliased_connected_term_db_table, 'onclause': connected_term_on_clause, 'full': full_join, 'isouter': outer_join}
+                connected_term_on_clause = controlled_term_table_info.get_column_info('id_alias').db_column == aliased_connected_term_db_table.columns[base_term_column]
+                connected_term_join = {'target': aliased_connected_term_db_table, 'onclause': connected_term_on_clause, 'full': full_join, 'isouter': outer_join}
 
-            controlled_term_on_clause = aliased_connected_term_db_table.columns[connected_term_column] == aliased_controlled_term_db_table.columns['id_alias']
-            controlled_term_join = {'target': aliased_controlled_term_db_table, 'onclause': controlled_term_on_clause, 'full': full_join, 'isouter': outer_join}
-            db_columns.append(func.array_remove(func.array_agg(distinct(aliased_controlled_term_db_table.columns['name'])), None).label(f'{connected_term_table_info.name}s'))
-            joins.extend([connected_term_join, controlled_term_join])
-            
-        q = db.query(controlled_term_table_info.get_column_info('id_alias').db_column, controlled_term_table_info.get_column_info('name').db_column)
-        q = q.add_columns(*db_columns)
-        for join in joins:
-            q = q.join(**join)
-        q = q.group_by(controlled_term_table_info.get_column_info('id_alias').db_column)
-        subquery = q.subquery('subquery')
-        q = db.query(func.row_to_json(subquery.table_valued()).label('json_results'))
-        res = q.all()
-        self.controlled_term_map = {row[0]['id_alias']: {k:v for k,v in row[0].items() if k != 'id_alias'} for row in res}
-        # Add a None result
-        self.controlled_term_map[-1] = {k:[] for k,v in res[0][0].items() if k != 'id_alias'}
-        self.controlled_term_map[-1]['name'] = None
+                controlled_term_on_clause = aliased_connected_term_db_table.columns[connected_term_column] == aliased_controlled_term_db_table.columns['id_alias']
+                controlled_term_join = {'target': aliased_controlled_term_db_table, 'onclause': controlled_term_on_clause, 'full': full_join, 'isouter': outer_join}
+                db_columns.append(func.array_remove(func.array_agg(distinct(aliased_controlled_term_db_table.columns['id_alias'])), None).label(f'{connected_term_table_info.name}s'))
+                joins.extend([connected_term_join, controlled_term_join])
+
+            q = db.query(controlled_term_table_info.db_table)
+            q = q.add_columns(*db_columns)
+            for join in joins:
+                q = q.join(**join)
+            q = q.group_by(controlled_term_table_info.get_column_info('id_alias').db_column)
+            subquery = q.subquery('subquery')
+            q = db.query(func.row_to_json(subquery.table_valued()).label('json_results'))
+            res = q.all()
+
+        self.controlled_term_map = {}
+        term_columns = []
+        for row in res:
+            id_alias = row[0]['id_alias']
+            self.controlled_term_map[id_alias] = {}
+            term_dict = {}
+            for k,v in row[0].items():
+                if k == 'id_alias':
+                    continue
+                if k.endswith('terms'):
+                    self.controlled_term_map[id_alias][k] = v
+                    term_columns.append(k)
+                else:
+                    term_dict[k] = v
+                    if k == 'name':
+                        self.controlled_term_map[id_alias]['name'] = v
+                    
+            self.controlled_term_map[id_alias]['term_dict'] = term_dict
+
+        self.controlled_term_map[-1] = {'name': None, 'term_dict': {}}
+        for term_column in term_columns:
+            self.controlled_term_map[-1][term_column] = []
 
 
     
@@ -205,6 +227,11 @@ class DatabaseInfo:
         return local_table_info.get_table_relationship(foreign_table)
     
     def table_hash_changed(self, table, db) -> bool:
+        if not self.table_hash_last_checked:
+            self.table_hash_last_checked = datetime.now()
+        elif datetime.now() - self.table_hash_last_checked < timedelta(minutes=10):
+            return False
+        self.table_hash_last_checked = datetime.now()
         table_info = self.get_table_info(table)
         q = db.query(func.md5(
                             cast(
@@ -223,7 +250,21 @@ class DatabaseInfo:
             if hash != self.table_hash[table_info]:
                 return True
         else:
-            self.table_hash[table_info] = hash
+            self.table_hash[table_info] = hash 
+        return False
+
+    def schema_changed(self):
+        if datetime.now() - self.schema_last_checked < timedelta(minutes=10):
+            return False
+        self.schema_last_checked = datetime.now()
+        for table_info in self.data_table_infos:
+            expected_columns = set(table_info.db_table.columns.keys())
+            inspector = inspect(engine)
+            live_columns = set(col['name'] for col in inspector.get_columns(table_info.name))
+            added_columns = live_columns - expected_columns
+            removed_columns = expected_columns - live_columns
+            if added_columns or removed_columns:
+                return True
         return False
     
     def reset(self, db_base):
