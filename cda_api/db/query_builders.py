@@ -38,21 +38,17 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log, includ
     """
 
     if DB_INFO.table_hash_changed('controlled_term', db):
-        log.info('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        log.info('The controlled_term table has changed, rebuilding DatabaseInfo')
+        Base = load_base()
+        DB_INFO.reset(Base)
+
+    if DB_INFO.schema_changed():
+        log.info('The schema has changed, rebuilding DatabaseInfo')
         Base = load_base()
         DB_INFO.reset(Base)
 
     log.info("Building data query")
-    try:
-        DB_INFO._build_column_metadata_map()
-        data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
-    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
-        log.warning('An error occured when building DataQuery. Rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
-        DB_INFO._build_column_metadata_map()
-        log.info('DatabaseInfo has been rebuilt. Rebuilding DataQuery')
-        data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
+    data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
 
     log.debug(data_query)
     query = data_query.get_query()
@@ -85,7 +81,6 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log, includ
     return ret
 
 
-# TODO
 def summary_query(db, endpoint_table_name, request_body, log, include_connected_columns = True):
     """Generates json formatted summary data based on input query
 
@@ -103,19 +98,17 @@ def summary_query(db, endpoint_table_name, request_body, log, include_connected_
     """
     if DB_INFO.table_hash_changed('controlled_term', db):
         log.debug('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        Base = load_base()
+        DB_INFO.reset(Base)
+
+    if DB_INFO.schema_changed():
+        log.info('The schema has changed, rebuilding DatabaseInfo')
+        Base = load_base()
         DB_INFO.reset(Base)
 
     log.debug('Building summary query')
-    try:
-        DB_INFO._build_column_metadata_map()
-        summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
-    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
-        log.warning('An error occured when building SummaryQuery. Rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
-        DB_INFO._build_column_metadata_map()
-        log.info('DatabaseInfo has been rebuilt. Rebuilding SummaryQuery')
-        summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
+    summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
+
     log.debug(summary_query)
     query = summary_query.get_query()
 
