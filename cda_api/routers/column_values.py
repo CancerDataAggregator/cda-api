@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from cda_api import get_logger, get_query_id
-from cda_api.application_functions import handle_router_errors
+from cda_api.application_functions import handle_router_errors, get_client_ip
 from cda_api.db import get_db
 from cda_api.db.query_builders import column_values_query
 from cda_api.classes.models import ColumnValuesResponseObj
@@ -32,7 +32,8 @@ def column_values_endpoint(
     """
     qid = get_query_id()
     log = get_logger(qid)
-    log.info(f"column_values endpoint hit: {request.client}")
+    client_ip = get_client_ip(request)
+    log.info(f"column_values endpoint hit: {client_ip}")
     log.info(f"{request.url}")
 
     try:

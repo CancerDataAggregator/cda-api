@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from cda_api import EmptyQueryError, get_logger, get_query_id
-from cda_api.application_functions import handle_router_errors
+from cda_api.application_functions import handle_router_errors, get_client_ip
 from cda_api.db import get_db
 from cda_api.db.query_builders import summary_query
 from cda_api.classes.models import SummaryResponseObj, SummaryRequestBody
@@ -25,7 +25,8 @@ def file_summary_endpoint(request: Request, request_body: SummaryRequestBody, db
 
     qid = get_query_id()
     log = get_logger(qid)
-    log.info(f"summary/file endpoint hit: {request.client}")
+    client_ip = get_client_ip(request)
+    log.info(f"summary/file endpoint hit: {client_ip}")
     log.info(f"request_body: {request_body.as_string()}")
     log.info(f"{request.url}")
     if request_body.is_empty():
@@ -56,7 +57,8 @@ def subject_summary_endpoint(request: Request, request_body: SummaryRequestBody,
 
     qid = get_query_id()
     log = get_logger(qid)
-    log.info(f"summary/subject endpoint hit: {request.client}")
+    client_ip = get_client_ip(request)
+    log.info(f"summary/subject endpoint hit: {client_ip}")
     log.info(f"request_body: {request_body.as_string()}")
     log.info(f"{request.url}")
     if request_body.is_empty():

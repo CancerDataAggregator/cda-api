@@ -59,7 +59,16 @@ def convert_exceptions(e, log):
         log.debug('Unexpected error detected. Converting error output')
         error = InternalErrorException(str(e))
     return error
+    xff = request.headers.get("x-forwarded-for")
     
+    if xff:
+        # Get the leftmost IP (the actual client)
+        client_ip = xff.split(",")[0].strip()
+    else:
+        # Fallback to the direct connection IP if no proxy header exists
+        client_ip = request.client.host if request.client else "Unknown"
+
+    return {"client_ip": client_ip}
 
 def handle_router_errors(e, log):
     log.error(f'Error of type: {type(e)} caught')
@@ -70,3 +79,16 @@ def handle_router_errors(e, log):
 
 def get_query_id():
     return f"Query: {str(uuid.uuid4())}"
+
+
+def get_client_ip(request):
+    xff = request.headers.get("x-forwarded-for")
+    
+    if xff:
+        # Get the leftmost IP (the actual client)
+        client_ip = xff.split(",")[0].strip()
+    else:
+        # Fallback to the direct connection IP if no proxy header exists
+        client_ip = request.client.host if request.client else "Unknown"
+
+    return client_ip
