@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from cda_api import EmptyQueryError, get_logger, get_query_id
-from cda_api.application_functions import handle_router_errors
+from cda_api.application_functions import handle_router_errors, get_client_ip
 from cda_api.db import get_db
 from cda_api.db.query_builders import data_query
 from cda_api.classes.models import PagedResponseObj, DataRequestBody
@@ -36,7 +36,8 @@ def file_fetch_rows_endpoint(
     qid = get_query_id()
     log = get_logger(qid, logger_type='query')
 
-    log.info(f"data/file endpoint hit: {request.client}")
+    client_ip = get_client_ip(request)
+    log.info(f"data/file endpoint hit: {client_ip}")
     log.info(f"DataRequestBody: {request_body.as_string()}")
     log.info(f"{request.url}")
 
@@ -81,7 +82,8 @@ def subject_fetch_rows_endpoint(
 
     qid = get_query_id()
     log = get_logger(qid, logger_type='query')
-    log.info(f"data/subject endpoint hit: {request.client}")
+    client_ip = get_client_ip(request)
+    log.info(f"data/subject endpoint hit: {client_ip}")
     log.info(f"DataRequestBody: {request_body.as_string()}")
     log.info(f"{request.url}")
 

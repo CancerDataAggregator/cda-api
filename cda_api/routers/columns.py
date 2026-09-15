@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from cda_api import get_logger, get_query_id
-from cda_api.application_functions import handle_router_errors
+from cda_api.application_functions import handle_router_errors, get_client_ip
 from cda_api.db import get_db
 from cda_api.db.query_builders import columns_query
 from cda_api.classes.models import ColumnResponseObj
@@ -23,6 +23,8 @@ def columns_endpoint(request: Request, db: Session = Depends(get_db)) -> ColumnR
     """
     qid = get_query_id()
     log = get_logger(qid)
+    client_ip = get_client_ip(request)
+    log.info(f"columns endpoint hit: {client_ip}")
     try:
         result = columns_query(db, log)
     except Exception as e:
