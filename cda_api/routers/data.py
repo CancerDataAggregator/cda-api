@@ -38,7 +38,7 @@ def file_fetch_rows_endpoint(
 
     client_ip = get_client_ip(request)
     log.info(f"data/file endpoint hit: {client_ip}")
-    log.info(f"DataRequestBody: {request_body.as_string()}")
+    log.info(f"request_body: {request_body.as_string()}")
     log.info(f"{request.url}")
 
     try:
@@ -84,7 +84,7 @@ def subject_fetch_rows_endpoint(
     log = get_logger(qid, logger_type='query')
     client_ip = get_client_ip(request)
     log.info(f"data/subject endpoint hit: {client_ip}")
-    log.info(f"DataRequestBody: {request_body.as_string()}")
+    log.info(f"request_body: {request_body.as_string()}")
     log.info(f"{request.url}")
 
     try:

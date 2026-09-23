@@ -23,7 +23,7 @@ def release_metadata_endpoint(request: Request, db: Session = Depends(get_db)) -
         ReleaseMetadataObj: _description_
     """
     qid = get_query_id()
-    log = get_logger(qid)
+    log = get_logger(qid, logger_type='query')
     client_ip = get_client_ip(request)
     log.info(f"release_metadata endpoint hit: {client_ip}")
     log.info(f"{request.url}")

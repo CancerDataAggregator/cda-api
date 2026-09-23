@@ -24,13 +24,13 @@ def file_summary_endpoint(request: Request, request_body: SummaryRequestBody, db
     """
 
     qid = get_query_id()
-    log = get_logger(qid)
+    log = get_logger(qid, logger_type='query')
     client_ip = get_client_ip(request)
     log.info(f"summary/file endpoint hit: {client_ip}")
     log.info(f"request_body: {request_body.as_string()}")
     log.info(f"{request.url}")
     if request_body.is_empty():
-        e = EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        e = EmptyQueryError("Must provide any of 'SEARCH_STRING', 'MATCH_ALL', or 'MATCH_SOME' within the request body")
         log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -56,13 +56,13 @@ def subject_summary_endpoint(request: Request, request_body: SummaryRequestBody,
     """
 
     qid = get_query_id()
-    log = get_logger(qid)
+    log = get_logger(qid, logger_type='query')
     client_ip = get_client_ip(request)
     log.info(f"summary/subject endpoint hit: {client_ip}")
     log.info(f"request_body: {request_body.as_string()}")
     log.info(f"{request.url}")
     if request_body.is_empty():
-        e = EmptyQueryError("Must provide either/both of 'MATCH_ALL' or 'MATCH_SOME' within the request body")
+        e = EmptyQueryError("Must provide any of 'SEARCH_STRING', 'MATCH_ALL', or 'MATCH_SOME' within the request body")
         log.exception(e)
         raise HTTPException(status_code=404, detail=str(e))
 
