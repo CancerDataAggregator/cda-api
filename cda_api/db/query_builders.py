@@ -15,6 +15,17 @@ from .query_functions import (
     query_to_string, map_controlled_terms
 )
 
+def refresh_db_info(db, log):
+    if DB_INFO.table_hash_changed('controlled_term', db):
+        log.debug('The controlled_term table has changed, Rebuilding DatabaseInfo')
+        Base = load_base()
+        DB_INFO.reset(Base)
+        
+    if DB_INFO.schema_changed():
+        log.info('The schema has changed, rebuilding DatabaseInfo')
+        Base = load_base()
+        DB_INFO.reset(Base)
+
 
 
 def data_query(db, endpoint_table_name, request_body, limit, offset, log, include_connected_columns = True):
@@ -37,15 +48,7 @@ def data_query(db, endpoint_table_name, request_body, limit, offset, log, includ
         }
     """
 
-    if DB_INFO.table_hash_changed('controlled_term', db):
-        log.info('The controlled_term table has changed, rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
-
-    if DB_INFO.schema_changed():
-        log.info('The schema has changed, rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
+    refresh_db_info(db, log)
 
     log.info("Building data query")
     data_query = DataQuery(db, DB_INFO, endpoint_table_name, request_body, log)
@@ -96,15 +99,7 @@ def summary_query(db, endpoint_table_name, request_body, log, include_connected_
             'query_sql': 'SQL statement used to generate result'
         }
     """
-    if DB_INFO.table_hash_changed('controlled_term', db):
-        log.debug('The controlled_term table has changed, Rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
-
-    if DB_INFO.schema_changed():
-        log.info('The schema has changed, rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
+    refresh_db_info(db, log)
 
     log.debug('Building summary query')
     summary_query = SummaryQuery(db, DB_INFO, endpoint_table_name, request_body, log)
@@ -150,15 +145,9 @@ def columns_query(db, log):
             'result': [{'key': 'value'}]
         }
     """
+    refresh_db_info(db, log)
     log.info('Building columns query')
-    try:
-        columns_query = ColumnsQuery(DB_INFO)
-    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
-        log.warning('An error occured when building ColumnsQuery. Rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
-        log.info('DatabaseInfo has been rebuilt. Rebuilding ColumnsQuery')
-        columns_query = ColumnsQuery(DB_INFO)
+    columns_query = ColumnsQuery(DB_INFO)
 
     return columns_query.get_result()
 
@@ -177,16 +166,10 @@ def column_values_query(db, column_name, data_source_string, limit, offset, log)
             'query_sql': 'SQL statement used to generate result'
         }
     """
+    refresh_db_info(db, log)
     log.info("Building column_values query")
-    try:
-        column_values_query = ColumnValuesQuery(db, DB_INFO, column_name, data_source_string, log)
-    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
-        log.warning('An error occured when building ColumnValuesQuery. Rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
-        log.info('DatabaseInfo has been rebuilt. Rebuilding ColumnValuesQuery')
-        column_values_query = ColumnValuesQuery(db, DB_INFO, column_name, data_source_string, log)
-    
+
+    column_values_query = ColumnValuesQuery(db, DB_INFO, column_name, data_source_string, log)
     
     query = column_values_query.get_query()
     total_count_query = column_values_query.get_total_count_query()
@@ -213,15 +196,11 @@ def column_values_query(db, column_name, data_source_string, limit, offset, log)
 
 def release_metadata_query(db, log):
     # Simply get all the rows in the release_metadata database
+    refresh_db_info(db, log)
     log.info("Building release_metadata query")
-    try:
-        release_metadata_query = ReleaseMetadataQuery(db, DB_INFO)
-    except (SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound) as e:
-        log.warning('An error occured when building ReleaseMetadataQuery. Rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
-        log.info('DatabaseInfo has been rebuilt. Rebuilding ReleaseMetadataQuery')
-        release_metadata_query = ReleaseMetadataQuery(db, DB_INFO)
+
+    release_metadata_query = ReleaseMetadataQuery(db, DB_INFO)
+
     
     query = release_metadata_query.get_query()
 
