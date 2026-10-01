@@ -206,8 +206,12 @@ def column_values_query(db, column_name, data_source_string, limit, offset, log,
     # Execute query
     start_time = time.time()
     result = query.offset(offset).limit(limit).all()
+    column_info = DB_INFO.get_column_info(column_name)
+    if column_info.controlled_term:
     # {'anatomic_site': {'data_type': 'single', 'path': ['anatomic_site']}}
-    result = [map_controlled_terms(row[0], {column_name: {'data_type': 'single', 'path': [column_name]}}, include_connected_columns) for row in result]
+        result = [map_controlled_terms(row[0], {column_name: {'data_type': 'single', 'path': [column_name]}}, include_connected_columns) for row in result]
+    else:
+        result = [row for (row,) in result]
 
     # Execute total_count query
     total_count = total_count_query.scalar()
