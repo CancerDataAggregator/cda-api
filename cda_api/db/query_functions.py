@@ -416,7 +416,10 @@ def data_source_counts(db, data_source_columns):
 def get_controlled_term_data_from_id(id):
     if id is None:
         id = -1
-    return DB_INFO.controlled_term_map.get(id, id)
+    try:
+        return DB_INFO.controlled_term_map[id]
+    except:
+        raise ValueError(f'Unknown controlled term with id: {id}')
     
 def get_matching_connected_terms(data, path, data_type, include_connected_columns):
     for i, key in enumerate(path):

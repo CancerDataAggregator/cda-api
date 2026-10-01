@@ -1,9 +1,11 @@
 import time
 
-from sqlalchemy import func
+from sqlalchemy import func, text
+from sqlalchemy.exc import OperationalError
 
-from cda_api import SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound
+from cda_api import SystemNotFound, RelationshipError, RelationshipNotFound, MappingError, TableNotFound, ColumnNotFound, DatabaseConnectionDrop
 from cda_api.db import DB_INFO
+from cda_api.db.connection import get_db
 from cda_api.db.schema import load_base
 from cda_api.classes.DataQuery import DataQuery
 from cda_api.classes.SummaryQuery import SummaryQuery
@@ -15,16 +17,40 @@ from .query_functions import (
     query_to_string, map_controlled_terms
 )
 
-def refresh_db_info(db, log):
-    if DB_INFO.table_hash_changed('controlled_term', db):
-        log.debug('The controlled_term table has changed, Rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
+def reattempt_connection(db, log):
+    for i in range(5):
+        try:
+            log.info('Attempting to reconnect to database...')
+            db.rollback()
+            db.execute(text("SELECT 1"))
+            log.info('Connection established')
+            return True
+        except OperationalError:
+            time.sleep(2)
+    return False
         
-    if DB_INFO.schema_changed():
-        log.info('The schema has changed, rebuilding DatabaseInfo')
-        Base = load_base()
-        DB_INFO.reset(Base)
+
+def refresh_db_info(db, log):
+    DB_INFO.check_if_frozen()
+    try:
+        db.execute(text("SELECT 1"))
+    except OperationalError as oe:
+        log.warning('OperationalError has been detected')
+        if "SSL connection has been closed unexpectedly" in str(oe):
+            if reattempt_connection(db, log):
+                if DB_INFO.table_hash_changed('controlled_term', db):
+                    log.debug('The controlled_term table has changed, Rebuilding DatabaseInfo')
+                    Base = load_base()
+                    DB_INFO.rebuild(Base)
+                    
+                elif DB_INFO.schema_changed():
+                    log.info('The schema has changed, rebuilding DatabaseInfo')
+                    Base = load_base()
+                    DB_INFO.rebuild(Base)
+            else:
+                raise DatabaseConnectionDrop('Database connection is down. Please try again later')
+        else:
+            raise oe
 
 
 
@@ -152,7 +178,7 @@ def columns_query(db, log):
     return columns_query.get_result()
 
 
-def column_values_query(db, column_name, data_source_string, limit, offset, log):
+def column_values_query(db, column_name, data_source_string, limit, offset, log, include_connected_columns = False):
     """Generates json formatted frequency results based on query for specific column
 
     Args:
@@ -180,7 +206,8 @@ def column_values_query(db, column_name, data_source_string, limit, offset, log)
     # Execute query
     start_time = time.time()
     result = query.offset(offset).limit(limit).all()
-    result = [row for (row,) in result]
+    # {'anatomic_site': {'data_type': 'single', 'path': ['anatomic_site']}}
+    result = [map_controlled_terms(row[0], {column_name: {'data_type': 'single', 'path': [column_name]}}, include_connected_columns) for row in result]
 
     # Execute total_count query
     total_count = total_count_query.scalar()

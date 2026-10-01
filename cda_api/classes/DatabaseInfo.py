@@ -1,9 +1,10 @@
 from .ColumnInfo import ColumnInfo
 from .TableInfo import TableInfo
 from .TableRelationship import TableRelationship
-from cda_api import get_logger, TableNotFound, ColumnNotFound, RelationshipNotFound
+from cda_api import get_logger, TableNotFound, ColumnNotFound, RelationshipNotFound, DatabaseConnectionDrop
 from cda_api.db.connection import session, engine
 from sqlalchemy import func, distinct, cast, Text, inspect
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from datetime import datetime, timedelta
@@ -11,8 +12,10 @@ from datetime import datetime, timedelta
 log = get_logger('DatabaseInfo.py')
 setup_log = get_logger("Setup: DatabaseMap.py")
 
+REBUILD_COOLDOWN_MINUTES = 5
+
 class DatabaseInfo:
-    def __init__(self, db_base):
+    def __init__(self, db_base, last_rebuilt = None):
         self.db_base = db_base
         self.table_hash = {}
         self._build_sqlalchemy_components()
@@ -25,7 +28,8 @@ class DatabaseInfo:
         self._assign_null_columns()
         self._assign_foreign_key_column_infos()
         self._assign_primary_table_infos()
-        self.schema_last_checked = datetime.now()
+        self.last_rebuilt = last_rebuilt
+        self.frozen = False
         
     def _build_sqlalchemy_components(self):
         setup_log.info("Building variables from automapped Base")
@@ -99,7 +103,6 @@ class DatabaseInfo:
             joins = []
             full_join = False
             outer_join = True
-            self.table_hash_last_checked = None
             self.table_hash_changed('controlled_term', db)
             connected_term_table_infos = [table_info for table_info in self.term_table_infos if table_info.name != 'controlled_term']
             controlled_term_table_info = self.get_table_info('controlled_term')
@@ -208,11 +211,6 @@ class DatabaseInfo:
         return local_table_info.get_table_relationship(foreign_table)
     
     def table_hash_changed(self, table, db) -> bool:
-        if not self.table_hash_last_checked:
-            self.table_hash_last_checked = datetime.now()
-        elif datetime.now() - self.table_hash_last_checked < timedelta(minutes=10):
-            return False
-        self.table_hash_last_checked = datetime.now()
         log.info(f'Checking if {table} has been modified')
         table_info = self.get_table_info(table)
         q = db.query(func.md5(
@@ -238,9 +236,6 @@ class DatabaseInfo:
         return False
 
     def schema_changed(self):
-        if datetime.now() - self.schema_last_checked < timedelta(minutes=10):
-            return False
-        self.schema_last_checked = datetime.now()
         log.info('Validating if schema matches local cache')
         for table_info in self.data_table_infos:
             expected_columns = set(table_info.db_table.columns.keys())
@@ -253,6 +248,37 @@ class DatabaseInfo:
                 return True
         log.info('No schema change found')
         return False
+
+    def raise_frozen_error(self):
+        td = timedelta(minutes=REBUILD_COOLDOWN_MINUTES) - (datetime.now() - self.last_rebuilt)
+        total_seconds = int(td.total_seconds())
+        minutes, seconds = divmod(total_seconds, 60)
+        if minutes:
+            msg = f'Database connection has been reset too many times and is now on cooldown. Please try your query again in {minutes} minutes and {seconds} seconds'
+        else:
+            msg = f'Database connection has been reset too many times and is now on cooldown. Please try your query again in {seconds} seconds'
+        raise DatabaseConnectionDrop(msg)
+
+    def check_if_frozen(self):
+        if not self.frozen:
+            if self.last_rebuilt is None:
+                log.warning('*** Unexpected state with DatabaseInfo.frozen = True and self.last_rebuild = None ***')
+                self.frozen = False
+            return
+
+        elif datetime.now() - self.last_rebuilt < timedelta(minutes=REBUILD_COOLDOWN_MINUTES):
+            self.raise_frozen_error()
+        else:
+            self.frozen = False
     
-    def reset(self, db_base):
-        self.__init__(db_base)
+    
+    def rebuild(self, db_base):
+        if not self.last_rebuilt:
+            self.__init__(db_base, datetime.now())
+        elif datetime.now() - self.last_rebuilt >= timedelta(minutes=REBUILD_COOLDOWN_MINUTES):
+            self.__init__(db_base, datetime.now())
+        else:
+            self.frozen = True
+            self.raise_frozen_error()
+            
+

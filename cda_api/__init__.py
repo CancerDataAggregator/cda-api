@@ -10,6 +10,7 @@ from cda_api.classes.exceptions import (
     SystemNotFound,
     TableNotFound,
     InvalidFilterError,
-    InvalidSearchError
+    InvalidSearchError,
+    DatabaseConnectionDrop
 )
 from cda_api.main import app
