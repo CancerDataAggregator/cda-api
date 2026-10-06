@@ -3,8 +3,6 @@ from os import getenv
 from dotenv import find_dotenv, load_dotenv
 from sqlalchemy import create_engine, event, ExceptionContext
 from sqlalchemy.orm import sessionmaker
-# from sqlalchemy.exc import OperationalError
-from psycopg2 import OperationalError
 
 from cda_api import get_logger
 
