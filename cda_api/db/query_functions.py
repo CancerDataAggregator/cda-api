@@ -1,7 +1,7 @@
 import itertools
 
 import sqlparse
-from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer, Text, ARRAY
+from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer, Text
 from sqlalchemy.exc import CompileError
 
 

@@ -34,6 +34,7 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_HOME='/usr/local' \
     POETRY_NO_INTERACTION=1 \
     POETRY_VERSION="2.4.1"
+RUN poetry python install 3.14 && poetry env use 3.14 && poetry lock
 RUN poetry install --no-cache --no-interaction --no-ansi --no-root
 
 # Prevents Python from writing pyc files.
