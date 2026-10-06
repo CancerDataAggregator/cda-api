@@ -1,7 +1,7 @@
 import itertools
 
 import sqlparse
-from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer, Text
+from sqlalchemy import CTE, Label, and_, distinct, func, or_, SelectLabelStyle, union_all, union, label, null, cast, Integer, Text, ARRAY
 from sqlalchemy.exc import CompileError
 
 
@@ -224,7 +224,7 @@ def build_foreign_preselect(construct_type, db, endpoint_table_info, relating_ta
         subquery_id_column = None
         for column in foreign_table_subquery.c:
             if column.name not in [endpoint_relating_column.name, foreign_primary_filler_name]:
-                foreign_json_columns.append(column.name)
+                foreign_json_columns.append(str(column.name))
                 foreign_json_columns.append(column)
             else:
                 subquery_id_column = column

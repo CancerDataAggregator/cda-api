@@ -136,7 +136,7 @@ class SearchFilterInfo:
                 intersection_filter_list.append(self.db.query(exclusive_cte.c[0].label(self.endpoint_unique_id)))
         
         # Get common filters
-        common_filters = [self.db.query(common_union.c[0]) for _, common_union in self.common_keyword_query_map.items()]
+        common_filters = [self.db.query(common_union.subquery().c[0]) for _, common_union in self.common_keyword_query_map.items()]
         # common_filters = [self.db.query().from_statement(self.db.query(common_union.c[0])) for _, common_union in self.common_keyword_query_map.items()]
         if common_filters:
             common_cte = intersect(*common_filters).cte('unified_keyword_preselect')
